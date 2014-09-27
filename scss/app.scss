@@ -94,12 +94,29 @@ html,body{
 	background:         linear-gradient(0deg, #ECE9E6 10%, #FFFFFF 90%); /* W3C */
 }
 
+
+#custom{
+	background: $primary-color;
+	color: #fff;
+	padding: 12rem 0;
+}
+
+#custom h2{
+	color: $secondary-color;
+}
+#custom h5{
+	color: #fff;
+}
 #people{
 	margin: 6rem 0;
 }
 
 #edition{
-	background: $secondary-color repeat;
+	background: -webkit-radial-gradient(#EDDE5D 10%, #F09819 90%); /* Chrome 10+, Saf5.1+ */
+	background:    -moz-radial-gradient(#EDDE5D 10%, #F09819 90%); /* FF3.6+ */
+	background:     -ms-radial-gradient(#EDDE5D 10%, #F09819 90%); /* IE10 */
+	background:      -o-radial-gradient(#EDDE5D 10%, #F09819 90%); /* Opera 11.10+ */
+	background:         radial-gradient(#EDDE5D 10%, #F09819 90%); /* W3C */
 	color: $white !important;
 }
 #events{
@@ -112,6 +129,9 @@ html,body{
 	font-family: "Merriweather";
 	font-weight: 700;
 	font-size: 4rem;
+	background: rgba(62,45,34,0.8);
+	width: 100%;
+	padding: 3.2rem 0 2.5rem 0;
 }
 #events button{
 	display: inline-block;
@@ -130,11 +150,10 @@ html,body{
 	background:     -ms-linear-gradient(0deg, #ECE9E6 10%, #FFFFFF 90%); /* IE10 */
 	background:      -o-linear-gradient(0deg, #ECE9E6 10%, #FFFFFF 90%); /* Opera 11.10+ */
 	background:         linear-gradient(0deg, #ECE9E6 10%, #FFFFFF 90%); /* W3C */
+	min-height: 100%;
+	padding-bottom: 3rem;
 }
 
-#credits{
-	padding: 30px 0;
-}
 .page{
 	min-height: 100%;
 }
@@ -161,6 +180,22 @@ html,body{
 	margin-right: auto;
 	position: absolute;
 	text-align: center;
+}
+.border-white{
+	border-top: 1px solid $white;
+	border-bottom: 1px solid $white;
+}
+
+.border-brown{
+	border-top: 1px solid $primary-color;
+	border-bottom: 1px solid $primary-color;
+}
+
+.alt-button{
+	background: $primary-color !important;
+}
+.alt-button:hover{
+	background: $secondary-color !important;
 }
 /* type */
 
