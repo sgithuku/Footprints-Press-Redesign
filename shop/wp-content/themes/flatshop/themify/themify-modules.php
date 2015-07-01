@@ -21,7 +21,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	///////////////////////////////////////////
 	function themify_site_logo( $data = array() ) {
 		if($data['attr']['target'] != ''){
-			$target = "<span class='hide target'>".$data['attr']['target']."</span>";	
+			$target = "<span class='hide target'>" . esc_html( $data['attr']['target'] ) . "</span>";
+		} else {
+			$target = '';
 		}
 		$data = themify_get_data();
 		$text = '';
@@ -29,10 +31,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 		if( isset( $data['setting-site_logo'] ) && 'image' == $data['setting-site_logo'] ) {
 			$image = "checked='checked'";
 			$image_display = "style='display:block;'";
-			$text_display = "style='display:none;'";
 		} else {
 			$text = "checked='checked'";	
-			$text_display = "style='display:block;'";
 			$image_display = "style='display:none;'";
 		}
 		$logo_image_value = themify_get( 'setting-site_logo_image_value' );
@@ -40,17 +40,17 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 		$logo_image_height = themify_get( 'setting-site_logo_height' );
 		return '<div class="themify_field_row">
 					<span class="label">'. __('Display', 'themify') .'</span> 
-						<input name="setting-site_logo" type="radio" value="text" '.$text.' /> ' . __('Site Title', 'themify') . ' 
+						<input name="setting-site_logo" type="radio" value="text" '.$text.' /> ' . __('Site Title', 'themify') . '
 						<input name="setting-site_logo" type="radio" value="image" '.$image.' /> ' . __('Image', 'themify') . '
 					</span>
 					'.$target.'
 					<div class="uploader-fields image" '.$image_display.'>
-						<input type="text" id="setting-site_logo" class="width10" name="setting-site_logo_image_value" value="'.$logo_image_value.'" />
+						<input type="text" id="setting-site_logo" class="width10" name="setting-site_logo_image_value" value="' . esc_url( $logo_image_value ) . '" />
 						<div class="clear image" '.$image_display.'>' . themify_get_uploader('setting-site_logo', array('tomedia' => true)) . '</div>
 					</div>
 					<span class="pushlabel clear image" '.$image_display.'>
-						<input type="text" name="setting-site_logo_width" class="width2" value="'.$logo_image_width.'" /> ' . __('width', 'themify') . '
-						<input type="text" name="setting-site_logo_height" class="width2" value="'.$logo_image_height.'" /> ' . __('height', 'themify') . '
+						<input type="text" name="setting-site_logo_width" class="width2" value="' . esc_attr( $logo_image_width ) . '" /> ' . __('width', 'themify') . '
+						<input type="text" name="setting-site_logo_height" class="width2" value="' . esc_attr( $logo_image_height ) . '" /> ' . __('height', 'themify') . '
 					</span>
 				</div>';
 	}
@@ -61,11 +61,13 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	function themify_favicon( $data = array() ) {
 		if($data['attr']['target'] != ''){
 			$target = "<span class='hide target'>".$data['attr']['target']."</span>";	
+		} else {
+			$target = '';
 		}
 		$setting_favicon = themify_get( 'setting-favicon' );
 		return '<div class="themify_field_row">
 					<span class="label">'. __('Custom Favicon', 'themify') . '</span>
-					<input id="setting-favicon" type="text" class="width10" name="setting-favicon" value="'.$setting_favicon.'" /> <br />
+					<input id="setting-favicon" type="text" class="width10" name="setting-favicon" value="' . esc_attr( $setting_favicon ) . '" /> <br />
 					'.$target.'
 					<span class="pushlabel" style="display:block;">
 						' . themify_get_uploader('setting-favicon', array('tomedia' => true)) . '
@@ -80,7 +82,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 		$data = themify_get_data();
 		if ( isset( $data['setting-favicon'] ) && $data['setting-favicon'] != '' ) {
 			$favurl = themify_https_esc($data['setting-favicon']);
-			echo "\n\n".'<link href="'.$favurl.'" rel="shortcut icon" /> ';
+			echo "\n\n".'<link href="' . esc_attr( $favurl ) . '" rel="shortcut icon" /> ';
 		}
 	}
 	add_action('wp_head', 'themify_favicon_action');
@@ -91,7 +93,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	///////////////////////////////////////////
 	function themify_custom_feed_url( $data = array() ) {
 		$custom_feed_url = themify_get( 'setting-custom_feed_url' );
-		return '<p><span class="label">' . __( 'Custom Feed URL', 'themify' ) . '</span> <input type="text" class="width10" name="setting-custom_feed_url" value="' . $custom_feed_url . '" /> <br />
+		return '<p><span class="label">' . __( 'Custom Feed URL', 'themify' ) . '</span> <input type="text" class="width10" name="setting-custom_feed_url" value="' . esc_attr( $custom_feed_url ) . '" /> <br />
 				<span class="pushlabel"><small>' . __( 'e.g. http://feedburner.com/userid', 'themify' ) . '</small></span></p>';
 	}
 	
@@ -111,7 +113,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	///////////////////////////////////////////
 	function themify_meta_description( $data = array() ) {
 		$data = themify_get_data();
-		return '<p><textarea type="text" name="setting-meta_description" class="widthfull" rows="4">'.$data['setting-meta_description'].'</textarea></p>';	
+		return '<p><textarea name="setting-meta_description" class="widthfull" rows="4">'.$data['setting-meta_description'].'</textarea></p>';
 	}
 
 	/**
@@ -120,7 +122,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	 */
 	function themify_meta_description_action( $data = array() ) {
 		if( $meta_description = themify_get( 'setting-meta_description' ) ) {
-			echo "\n\n" . '<meta name="description" content="' . $meta_description . '" /> ';
+			echo "\n\n" . '<meta name="description" content="' . esc_attr( $meta_description ) . '" /> ';
 		}
 	}
 	add_action('wp-admin','themify_meta_description_action');
@@ -181,48 +183,56 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 	// Search Settings Module
 	///////////////////////////////////////////
 	function themify_search_settings( $data = array() ) {
-		$data = themify_get_data();
-		$checked = '';
+		$data            = themify_get_data();
+		$post_checked         = '';
+		$checked         = '';
 		$search_settings = themify_get( 'setting-search_settings' );
-		if ( isset( $data['setting-search_settings_exclude'] ) && $data['setting-search_settings_exclude'] ) {
-			$checked = 'checked="checked"';	
+		if ( themify_get( 'setting-search_settings_exclude' ) ) {
+			$checked = 'checked="checked"';
+		}
+		if ( themify_get( 'setting-search_exclude_post' ) ) {
+			$post_checked = 'checked="checked"';
 		}
 		$out = '<p>
-					<span class="label">' . __('Search in Category IDs', 'themify') . ' </span>
-					<input type="text" class="width6" name="setting-search_settings" value="'.$search_settings.'" />
+					<span class="label">' . __( 'Search in Category IDs', 'themify' ) . ' </span>
+					<input type="text" class="width6" name="setting-search_settings" value="' . esc_attr( $search_settings ) . '" />
 				</p>
 				<p>
-					<span class="pushlabel"><small>' . __('Use minus sign (-) to exclude categories.', 'themify') . '</small></span><br />
-					<span class="pushlabel"><small>' . __('Example: (1,4,-7) = search only in Category 1 &amp; 4, and exclude Category 7.', 'themify') . '</small></span>
+					<span class="pushlabel"><small>' . __( 'Use minus sign (-) to exclude categories.', 'themify' ) . '</small></span><br />
+					<span class="pushlabel"><small>' . __( 'Example: (1,4,-7) = search only in Category 1 &amp; 4, and exclude Category 7.', 'themify' ) . '</small></span>
 				</p>
 				<p>
-					<span class="pushlabel"><label for="setting-search_settings_exclude"><input type="checkbox" id="setting-search_settings_exclude" name="setting-search_settings_exclude" '.$checked.'/> ' . __('Exclude Pages in search results', 'themify') . '</label></span>
+					<span class="pushlabel"><label for="setting-search_exclude_post"><input type="checkbox" id="setting-search_exclude_post" name="setting-search_exclude_post" ' . $post_checked . '/> ' . __( 'Exclude Posts in search results', 'themify' ) . '</label></span>
+				</p>
+				<p>
+					<span class="pushlabel"><label for="setting-search_settings_exclude"><input type="checkbox" id="setting-search_settings_exclude" name="setting-search_settings_exclude" ' . $checked . '/> ' . __( 'Exclude Pages in search results', 'themify' ) . '</label></span>
 				</p>';
 
 
-		$pre = 'setting-search_exclude_';
+		$pre        = 'setting-search_exclude_';
 		$checkboxes = '';
 
 		$exclude_types = apply_filters( 'themify_types_excluded_in_search', get_post_types( array(
-			'_builtin' => false,
-			'public' => true,
+			'_builtin'            => false,
+			'public'              => true,
 			'exclude_from_search' => false
-		)));
-		
-		foreach( array_keys( $exclude_types ) as $post_type ) :
+		) ) );
+
+		foreach ( array_keys( $exclude_types ) as $post_type ) {
 
 			$type = get_post_type_object( $post_type );
 
-			$checkboxes .= '
+			if ( is_object( $type ) ) {
+				$checkboxes .= '
 			<p>
 				<span class="pushlabel">
 					<label for="' . $pre . $type->name . '">
-						<input type="checkbox" id="' . $pre . $type->name . '" name="' . $pre . $type->name . '" ' . checked( isset( $data[$pre . $type->name] ) ? $data[$pre . $type->name] : '', 'on', false ) . '/> ' . sprintf( __( 'Exclude %s in search results', 'themify' ), $type->labels->name ) . '
+						<input type="checkbox" id="' . $pre . $type->name . '" name="' . esc_attr( $pre . $type->name ) . '" ' . checked( isset( $data[ $pre . $type->name ] ) ? $data[ $pre . $type->name ] : '', 'on', false ) . '/> ' . sprintf( __( 'Exclude %s in search results', 'themify' ), $type->labels->name ) . '
 					</label>
 				</span>
 			</p>';
-
-		endforeach;
+			}
+		}
 
 		if ( '' != $checkboxes ) {
 			$out .= $checkboxes;
@@ -231,10 +241,14 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 		return $out;
 	}
 
-////////////////////////////////////////////////////
-// Exclude Custom Post Types from Search - Filter
-////////////////////////////////////////////////////
 if ( ! function_exists( 'themify_search_excludes_cpt' ) ) {
+	/**
+	 * Exclude Custom Post Types from Search - Filter
+	 *
+	 * @param $query
+	 *
+	 * @return mixed
+	 */
 	function themify_search_excludes_cpt( $query ) {
 		if ( ! is_admin() && $query->is_main_query() && $query->is_search ) {
 
@@ -252,6 +266,12 @@ if ( ! function_exists( 'themify_search_excludes_cpt' ) ) {
 
 			// If it's not a product search, proceed: retrieve the post types.
 			$types = get_post_types( array( 'exclude_from_search' => false ) );
+
+			// Exclude posts /////////////////
+			$exclude_posts = themify_get( 'setting-search_exclude_post' );
+			if ( isset( $exclude_posts ) && $exclude_posts ) {
+				unset( $types['post'] );
+			}
 
 			// Exclude pages /////////////////
 			$exclude_pages = themify_get( 'setting-search_settings_exclude' );
@@ -283,11 +303,22 @@ if ( ! function_exists( 'themify_search_excludes_cpt' ) ) {
 			unset( $types['tbuilder_layout'] );
 			unset( $types['tbuilder_layout_part'] );
 
-			if ( isset( $query->query_vars['post_type'] ) && $query->query_vars['post_type'] != 'product' ) {
-				// Set final query parameters ////
-				$query->set('post_type', $types);
+			// Search for products
+			if ( isset( $query->query_vars['post_type'] ) ) {
+				if ( 'post' == $query->query_vars['post_type'] ) {
+					unset( $query->query_vars['post_type'] );
+					unset( $types['page'] );
+					$types[] = 'post';
+					if ( ! isset( $exclude_pages ) || ! $exclude_pages ) {
+						$types[] = 'page';
+					}
+				} else {
+					$types = array( $query->query_vars['post_type'] );
+				}
 			}
 
+			// Set final query parameters ////
+			$query->set('post_type', $types);
 		}
 		return $query;
 	}
@@ -298,13 +329,12 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 	// RSS Feed Settings Module
 	///////////////////////////////////////////
 	function themify_feed_settings( $data = array() ) {
-		$data = themify_get_data();
 		$checked_use = '';
 		$feed_settings = themify_get( 'setting-feed_settings' );
 		if ( themify_check( 'setting-exclude_img_rss' ) ) {
 			$checked_use = 'checked="checked"';
 		}
-		return '<p><span class="label">' . __('Feed Category', 'themify') . '</span> <input type="text" class="width6" name="setting-feed_settings" value="'.$feed_settings.'" /></p>
+		return '<p><span class="label">' . __('Feed Category', 'themify') . '</span> <input type="text" class="width6" name="setting-feed_settings" value="' . esc_attr( $feed_settings ) . '" /></p>
 				<p>
 					<span class="pushlabel"><small>' . __('Use minus sign (-) to exclude categories.', 'themify') . '</small></span><br />
 					<span class="pushlabel"><small>' . __('Example: (2,-9) = include only Category 2 in feeds and exclude Category 9.', 'themify') . '</small></span>
@@ -312,8 +342,7 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 				<p><span class="label">' . __('Post Image in RSS', 'themify') . '</span> <label for="setting-exclude_img_rss"><input type="checkbox" id="setting-exclude_img_rss" name="setting-exclude_img_rss" '.$checked_use.'/> ' . __('Exclude featured image in RSS feeds', 'themify') . '</label></p>
 				<p>
 					<span class="pushlabel"><small>' . __('Check this to exclude post image in RSS feeds', 'themify') . '</small></span>
-				</p>
-					';	
+				</p>';
 	}
 	
 	///////////////////////////////////////////
@@ -354,7 +383,7 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 			}
 
 			if(themify_check('post_image')) {
-				$content = "<p><img src='".themify_get('post_image')."'></p>" . $content;
+				$content = "<p><img src='" . esc_url( themify_get( 'post_image' ) ) . "'></p>" . $content;
 			}
 			$themify_check = false;
 			return $content;
@@ -372,13 +401,13 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 		}
 		$output = '
 		<div class="module">
-			<div class="themify-info-link">' . sprintf( __( 'The image script is used to generate images dynamically in any dimension. For more info about the image script, refer to the <a href="%s">Image Script</a> documentation.', 'themify' ), 'http://themify.me/docs/image-script' ) . '
+			<div class="themify-info-link">' . sprintf( __( 'The image script is used to generate featured images dynamically in any dimension. If your images are cropped manually, disable it for faster performance. For more info about the image script, refer to the <a href="%s">Image Script</a> documentation.', 'themify' ), 'http://themify.me/docs/image-script' ) . '
 			</div>
 			<fieldset>
 			<div class="label">' . __( 'Disable', 'themify' ) . '</div> 
 			<div class="row">
 				<label for="setting-img_settings_use"><input type="checkbox" id="setting-img_settings_use" name="setting-img_settings_use" class="disable_img_php" ' . $checked_use . '/> ' . __( 'Disable image script globally', 'themify' ) . '</label><br/>
-				<small>' . __( 'Default WordPress image sizes or original images will be used.', 'themify' ) . '</small>
+				<small class="pushlabel">' . __( 'Default WordPress image sizes or original images will be used.', 'themify' ) . '</small>
 				<br/>
 			</div>
 			<div class="show_if_disabled_img_php">
@@ -387,11 +416,11 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 					<select name="setting-global_feature_size">';
 						foreach ( $feature_sizes as $option ) {
 							if ( $option['value'] == themify_get( 'setting-global_feature_size' ) ) {
-								$output .= '<option value="' . $option['value'] . '" selected="selected">';
+								$output .= '<option value="' . esc_attr( $option['value'] ) . '" selected="selected">';
 								$output .= $option['name'];
 								$output .= '</option>';
 							} else {
-								$output .= '<option value="' . $option['value'] . '">' . $option['name'] . '</option>';
+								$output .= '<option value="' . esc_attr( $option['value'] ) . '">' . $option['name'] . '</option>';
 							}
 						}
 						$output .= '
@@ -399,19 +428,7 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 				</div>
 			</div>
 			</fieldset>
-			<!-- BEGIN Show if image script is enabled -->
-			<div class="show_if_enabled_img_php">
-				<fieldset>
-					<span class="label">' . __( 'Retina Images', 'themify' ) . '</span>
-					<div class="row">
-						<label for="setting-enable_retina_desktop"><input type="checkbox" id="setting-enable_retina_desktop" name="setting-enable_retina_desktop" ' . checked( themify_check( 'setting-enable_retina_desktop' ), 1, false ) . '/> ' . __( 'Enable Retina Image on desktop devices.', 'themify' ) . '</label><br/>
-						<br/>
-						<label for="setting-enable_retina_mobile" class="pushlabel"><input type="checkbox" id="setting-enable_retina_mobile" name="setting-enable_retina_mobile" ' . checked( themify_check( 'setting-enable_retina_mobile' ), 1, false ) . '/> ' . __( 'Enable Retina Image on mobile devices.', 'themify' ) . '</label><br/>
-						<span class="pushlabel"><small>' . __( 'When Retina Image is enabled, it will display 2-times resolution images to the devices that have retina display (eg. if the image is 200x200px, retina image would be 400x400px).', 'themify' ) . '</small></span>
-					</div>
-				</fieldset>
-			</div>
-			<!-- END Show if image script is enabled -->
+			
 		</div>';
 		return $output;
 	}
@@ -431,7 +448,7 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 	///////////////////////////////////////////
 	function themify_image_preview( $data = array() ) {
 		global $themify_config;
-		$temp = themify_get_data();
+
 		//Get currently selected preset
 		$savedpath = themify_get( 'styling-'.$data['category'].'-'.$data['id'].'-background_image-value-value' );
 		
@@ -467,7 +484,7 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 									$fullpath = get_template_directory_uri()."/".$folder.$file;
 									$is_selected = trim($fullpath) == trim($savedpath)? 'selected': '';
 									$output .= '<a href="#" title="'.$folder.$file.'"><span title="'.$folder.$file.'"></span>
-										<img src="'.$fullpath.'" alt="'.$fullpath.'" class="backgroundThumb '.$is_selected.'" /></a>';
+										<img src="' . esc_url( $fullpath ) . '" alt="' . esc_attr( $fullpath ) . '" class="backgroundThumb '.$is_selected.'" /></a>';
 									$presets[sanitize_file_name($file)] = $fullpath; 
 								}
 							}
@@ -485,8 +502,8 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 										$fullpath = get_template_directory_uri()."/".$folder.$file;
 										$is_selected = trim($fullpath) == trim($savedpath)? 'selected': '';
 										$output .= '<a href="#" title="'.$folder.$file.'"><span title="'.$folder.$file.'"></span>
-										<img src="'.$fullpath.'" alt="'.$fullpath.'" class="backgroundThumb ' . $is_selected . '" /></a>';
-										$output .= '<input type="hidden" name="preset' . sanitize_file_name($file) . '" value="' . $fullpath . '" />';
+										<img src="' . esc_url( $fullpath ) . '" alt="' . esc_attr( $fullpath ) . '" class="backgroundThumb ' . $is_selected . '" /></a>';
+										$output .= '<input type="hidden" name="preset' . sanitize_file_name($file) . '" value="' . esc_attr( $fullpath ) . '" />';
 										$presets[sanitize_file_name($file)] = $fullpath;
 									}
 								}		
@@ -504,7 +521,7 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 			//we have already stored our presets so go ahead and show them
 			foreach ($presets as $file => $fullpath) {
 				$is_selected = trim($fullpath) == trim($savedpath)? 'selected': '';
-				$output .= '<a href="#" title="' . basename($file) . '"><span title="' . $file . '"></span><img src="' . $fullpath . '" alt="' . $fullpath . '" class="backgroundThumb ' . $is_selected . '" /></a>';
+				$output .= '<a href="#" title="' . esc_attr( basename($file) ) . '"><span title="' . esc_attr( $file ) . '"></span><img src="' . esc_url( $fullpath ) . '" alt="' . esc_attr( $fullpath ) . '" class="backgroundThumb ' . $is_selected . '" /></a>';
 			}			
 		}
 		
@@ -528,6 +545,8 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 	function themify_background_image( $data = array() ) {
 		if($data['attr']['target'] != ''){
 			$target = "<span class='hide target'>".$data['attr']['target']."</span>";
+		} else {
+			$target = '';
 		}
 		$data['value'] = isset( $data['value']['value'] )? $data['value']['value'] : '';
 		$data_value = isset( $data['value']['value'] ) ? $data['value']['value'] : '';
@@ -538,8 +557,8 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 		$output = '<div class="themify_field_row background_image">
 						<span class="label">' . __( 'Background Image', 'themify' ) . '</span> 
 						'.$target.'
-						<input type="text" name="styling-'.$data['category'].'-'.$data['id'].'-background_image-value-value" class="width8 upload-file" id="styling-'.$data['category'].'-'.$data['id'].'-background_image" value="'.$data_value.'" />
-						<input type="checkbox" class="noBgImage" name="styling-'.$data['category'].'-'.$data['id'].'-background_image-value-none" '.$none_checked.' /> ' . __('No BG image', 'themify') . '<br /> 
+						<input type="text" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-background_image-value-value' ) . '" class="width8 upload-file" id="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-background_image' ) . '" value="' . esc_attr( $data_value ) . '" />
+						<input type="checkbox" class="noBgImage" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-background_image-value-none' ) . '" '.$none_checked.' /> ' . __('No BG image', 'themify') . '<br />
 						<div class="pushlabel" style="display:block;">
 							'. 
 			themify_get_uploader(
@@ -559,22 +578,24 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 		$data['value'] = isset( $data['value']['value'] )? $data['value']['value'] : '';
 		$data_value = isset( $data['value']['value'] ) ? $data['value']['value'] : '';
 		if ( isset( $data['value'] ) && isset( $data['value']['transparent'] ) && $data['value']['transparent'] ) {
-			$output = '<div class="themify_field_row themify_field-background_color">
-							<span class="label">' . __('Background Color', 'themify') . '</span>
-						<div class="themify_field-color">
-							<span class="colorSelect" style=""><span></span></span> <input type="text" disabled name="styling-'.$data['category'].'-'.$data['id'].'-background_color-value-value" class="colorSelectInput width4 opacity-7" /> 
-							<input type="button" class="button clearColor" value="' . __('x', 'themify') . '">
-							<input type="checkbox" checked="checked" name="styling-'.$data['category'].'-'.$data['id'].'-background_color-value-transparent" class="colorTransparent" /> ' . __('Transparent', 'themify') . '
-						   </div>
-						</div>';
-		} else {
 			$output = '
 			<div class="themify_field_row themify_field-background_color">
 				<span class="label">' . __('Background Color', 'themify') . '</span>
+				<div class="themify_field-color">
+					<span class="colorSelect" style=""><span></span></span> <input type="text" disabled name="' . esc_attr( 'styling-' . $data['category'] . '-' . $data['id'] . '-background_color-value-value' ) . '" class="colorSelectInput width4 opacity-7" />
+					<input type="button" class="button clearColor" value="' . __('x', 'themify') . '">
+					<input type="checkbox" checked="checked" name="' . esc_attr( 'styling-' . $data['category'] . '-' . $data['id'] . '-background_color-value-transparent' ) . '" class="colorTransparent" /> ' . __('Transparent', 'themify') . '
+				</div>
+			</div>';
+		} else {
+			$output = '
+			<div class="themify_field_row themify_field-background_color">
+				<span class="label">' . __( 'Background Color', 'themify' ) . '</span>
 				<div class="themify_field-color"> 
-					<span class="colorSelect "style="background-color:#'.$data_value.';"><span></span></span> <input type="text" name="styling-'.$data['category'].'-'.$data['id'].'-background_color-value-value" value="'.$data_value.'" class="colorSelectInput width4" />
-					<input type="button" class="button clearColor" value="' . __('x', 'themify') . '"> 
-					<input type="checkbox" name="styling-'.$data['category'].'-'.$data['id'].'-background_color-value-transparent" class="colorTransparent" /> ' . __('Transparent', 'themify') . '
+					<span class="colorSelect " style="' . esc_attr( "background-color:#$data_value;" ) . '"><span></span></span>
+					<input type="text" name="' . esc_attr( 'styling-' . $data['category'] . '-' . $data['id'] . '-background_color-value-value' ) . '" value="' . esc_attr( $data_value ) . '" class="colorSelectInput width4" />
+					<input type="button" class="button clearColor" value="' . esc_attr__( 'x', 'themify' ) . '">
+					<input type="checkbox" name="' . esc_attr( 'styling-' . $data['category'] . '-' . $data['id'] . '-background_color-value-transparent' ) . '" class="colorTransparent" /> ' . __( 'Transparent', 'themify' ) . '
 				</div>
 			</div>';
 		}
@@ -605,9 +626,9 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 				)
 			);
 		$output = '<p><span class="label">' . __('Background Repeat', 'themify') . '</span>
-					<select name="styling-'.$data['category'].'-'.$data['id'].'-background_repeat-value-value"><option> </option>';
+					<select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-background_repeat-value-value' ) . '"><option> </option>';
 		foreach($options as $option){
-			$output .= '<option value="'.$option['value'].'" ' . selected( $option['value'], isset( $data['value']['value'] ) ? $data['value']['value'] : '', false ) . '>'.$option['name'].'</option>';
+			$output .= '<option value="' . esc_attr( $option['value'] ) . '" ' . selected( $option['value'], isset( $data['value']['value'] ) ? $data['value']['value'] : '', false ) . '>' . esc_html( $option['name'] ) . '</option>';
 		}
 		$output .=	'</select></p>';	
 		return $output;
@@ -637,11 +658,11 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 		$output = '	<p><span class="label">' . __('Background Position', 'themify') . '</span> 
 					<select class="background_position positionX"><option> </option>';
 		foreach ( $options as $option ) {
-			$output .= '<option value="'.$option['value'].'" ' . selected( $option['value'], $data_value_x, false ) . '>'.$option['name'].'</option>';	
+			$output .= '<option value="' . esc_attr( $option['value'] ) . '" ' . selected( $option['value'], $data_value_x, false ) . '>' . esc_html( $option['name'] ) . '</option>';
 		}
 		$output .= '</select>
 					<span class="value" style="display:none;">
-						<input type="text" name="styling-'.$data['category'].'-'.$data['id'].'-background_position-value-x" value="'.$data_value_x.'" class="valueX">
+						<input type="text" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-background_position-value-x' ) . '" value="' . esc_attr( $data_value_x ) . '" class="valueX">
 					</span>';
 		
 		$options = array(
@@ -661,11 +682,11 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 		$output .= '<select class="background_position positionY"><option> </option>';
 		
 		foreach ( $options as $option ) {
-			$output .= '<option value="'.$option['value'].'" ' . selected( $option['value'], $data_value_y, false ) . '>'.$option['name'].'</option>';
+			$output .= '<option value="' . esc_attr( $option['value'] ) . '" ' . selected( $option['value'], $data_value_y, false ) . '>' . esc_html( $option['name'] ) . '</option>';
 		}
 		$output .= '</select>
 					<span class="value" style="display:none;">
-						<input type="text" name="styling-'.$data['category'].'-'.$data['id'].'-background_position-value-y" value="'.$data_value_y.'" class="valueY">
+						<input type="text" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-background_position-value-y' ) . '" value="' . esc_attr( $data_value_y ) . '" class="valueY">
 					</span>
 					</p>';
 					
@@ -687,24 +708,23 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 						"Palatino, \"Palatino Linotype\", \"Book Antiqua\", serif",
 						"\"Lucida Sans Unicode\", \"Lucida Grande\", sans-serif");
 
-		$output = '<p><span class="label">' . __('Font Family', 'themify') . '</span> 
-					<select class="fontFamily" name="styling-'.$data['category'].'-'.$data['id'].'-font_family-value-value"><option> </option>';
-		$output .= '<optgroup label="' . __('Web Safe Fonts', 'themify') . '">';
-		foreach($fonts as $font){
+		$output = '<p><span class="label">' . esc_html__( 'Font Family', 'themify' ) . '</span>
+					<select class="fontFamily" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-font_family-value-value' ) . '"><option> </option>';
+		$output .= '<optgroup label="' . esc_attr__('Web Safe Fonts', 'themify') . '">';
+		foreach ( $fonts as $font ) {
 			if ( isset( $data['value'] ) && isset( $data['value']['value'] ) && ( $font == $data['value']['value'] ) ) {
-				$check = true;
-				$output .= '<option value=\''.$font.'\' selected="selected">'.$font.'</option>';
+				$output .= '<option value=\'' . esc_attr( $font ) . '\' selected="selected">' . esc_html( $font ) . '</option>';
 			} else {
-				$output .= '<option value=\''.$font.'\'>'.$font.'</option>';	
+				$output .= '<option value=\'' . esc_attr( $font ) . '\'>' . esc_html( $font ) . '</option>';
 			}
 		}
 		$output .= '</optgroup>';
 
 		if ( sizeof( $themify_gfonts ) > 0 ) {
-			$output .= '<optgroup label="' . __('Google Fonts', 'themify') . '">';
+			$output .= '<optgroup label="' . esc_attr__( 'Google Fonts', 'themify' ) . '">';
 			foreach ( $themify_gfonts as $font ) {
 				$selected = ( isset( $data['value']['value'] ) ) && ( $font['family'] == $data['value']['value'] ) ? ' selected="selected"' : '';
-				$output .= '<option value=\''.$font['family'].'\'' . $selected . '>'.$font['family'].'</option>';	
+				$output .= '<option value=\'' . esc_attr( $font['family'] ) . '\'' . $selected . '>' . esc_html( $font['family'] ) . '</option>';
 			}
 			$output .= '</optgroup>';
 		}
@@ -719,18 +739,19 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 	function themify_font_size( $data = array() ) {
 		$data['value'] = isset( $data['value']['value'] ) ? $data['value']['value'] : '';
 		$data_value = isset( $data['value']['value'] ) ? $data['value']['value'] : '';
-		$options = array('px','em','%');
-		$output = '<p><span class="label">' . __('Font Size', 'themify') . '</span> 
-					<input type="text" class="width2 valid_num" name="styling-'.$data['category'].'-'.$data['id'].'-font_size-value-value" value="'.$data_value.'" />
-					<select name="styling-'.$data['category'].'-'.$data['id'].'-font_size-value-unit"><option> </option>';
+		$options = array( 'px', 'em', '%' );
+		$output = '<p><span class="label">' . __( 'Font Size', 'themify' ) . '</span>
+					<input type="text" class="width2 valid_num" name="' . esc_attr( 'styling-' . $data['category'] . '-' . $data['id'] . '-font_size-value-value' ) . '" value="' . esc_attr( $data_value ) . '" />
+					<select name="' . esc_attr( 'styling-' . $data['category'] . '-' . $data['id'] . '-font_size-value-unit' ) . '"><option> </option>';
 		foreach ( $options as $option ) {
 			if ( isset( $data['value']['unit'] ) && ( $option == $data['value']['unit'] ) ) {
-				$output .= '<option value="'.$option.'" selected="selected">'.$option.'</option>';
+				$output .= '<option value="' . esc_attr( $option ) . '" selected="selected">' . esc_html( $option ) . '</option>';
 			} else {
-				$output .= '<option value="'.$option.'">'.$option.'</option>';
+				$output .= '<option value="' . esc_attr( $option ) . '">' . esc_html( $option ) . '</option>';
 			}
 		}
-		$output .=	'</select></p>';	
+		$output .= '</select></p>';
+
 		return $output;
 	}
 	
@@ -742,19 +763,19 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 		$options = array(
 			array(
 				'value' => 'normal',
-				'name' => __('Normal', 'themify')
+				'name'  => __( 'Normal', 'themify' )
 			),
 			array(
 				'value' => 'bold',
-				'name' => __('Bold', 'themify')
+				'name'  => __( 'Bold', 'themify' )
 			)
 		);
-		$output = '<p><span class="label">' . __('Font Weight', 'themify') . '</span> <select  name="styling-'.$data['category'].'-'.$data['id'].'-font_weight-value-value"><option> </option>';
-		foreach($options as $option){
+		$output = '<p><span class="label">' . __( 'Font Weight', 'themify' ) . '</span> <select name="' . esc_attr( 'styling-' . $data['category'] . '-' . $data['id'] . '-font_weight-value-value' ) . '"><option> </option>';
+		foreach ( $options as $option ) {
 			if ( isset( $data['value']['value'] ) && ( $option['value'] == $data['value']['value'] ) ) {
-				$output .= '<option value="'.$option['value'].'" selected="selected">'.$option['name'].'</option>';	
+				$output .= '<option value="' . esc_attr( $option['value'] ) . '" selected="selected">' . esc_html( $option['name'] ) . '</option>';
 			} else {
-				$output .= '<option value="'.$option['value'].'">'.$option['name'].'</option>';	
+				$output .= '<option value="' . esc_attr( $option['value'] ) . '">' . esc_html( $option['name'] ) . '</option>';
 			}
 		}
 		$output .= '</select></p>';
@@ -776,12 +797,12 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 				'name' => __('Italic', 'themify')
 			)
 		);
-		$output = '<p><span class="label">' . __('Font Style', 'themify') . '</span> <select name="styling-'.$data['category'].'-'.$data['id'].'-font_style-value-value"><option> </option>';
+		$output = '<p><span class="label">' . __('Font Style', 'themify') . '</span> <select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-font_style-value-value' ) . '"><option> </option>';
 		foreach($options as $option){
 			if ( isset( $data['value']['value'] ) && ( $option['value'] == $data['value']['value'] ) ) {
-				$output .= '<option value="'.$option['value'].'" selected="selected">'.$option['name'].'</option>';	
+				$output .= '<option value="'.esc_attr( $option['value'] ).'" selected="selected">'.esc_html( $option['name'] ).'</option>';
 			} else {
-				$output .= '<option value="'.$option['value'].'">'.$option['name'].'</option>';	
+				$output .= '<option value="'.esc_attr( $option['value'] ).'">'.esc_html( $option['name'] ).'</option>';
 			}
 		}
 		$output .= '</select></p>';
@@ -803,12 +824,12 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 				'name' => __('Small Caps', 'themify')
 			)
 		);
-		$output = '<p><span class="label">' . __('Font Variant', 'themify') . '</span> <select name="styling-'.$data['category'].'-'.$data['id'].'-font_variant-value-value"><option> </option>';
+		$output = '<p><span class="label">' . __('Font Variant', 'themify') . '</span> <select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-font_variant-value-value' ) . '"><option> </option>';
 		foreach($options as $option){
 			if ( isset( $data['value']['value'] ) && ( $option['value'] == $data['value']['value'] ) ) {
-				$output .= '<option value="'.$option['value'].'" selected="selected">'.$option['name'].'</option>';	
+				$output .= '<option value="'.esc_attr( $option['value'] ).'" selected="selected">' . esc_html( $option['name'] ) . '</option>';
 			} else {
-				$output .= '<option value="'.$option['value'].'">'.$option['name'].'</option>';	
+				$output .= '<option value="'.esc_attr( $option['value'] ).'">' . esc_html( $option['name'] ) . '</option>';
 			}
 		}
 		$output .= '</select></p>';
@@ -823,12 +844,12 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 		$data_value = isset( $data['value']['value'] ) ? $data['value']['value'] : '';
 		$options = array('px','em','%');
 		$output = '	<p><span class="label">' . __('Line Height', 'themify') . '</span>
-					<input type="text" class="width2 valid_num"  name="styling-'.$data['category'].'-'.$data['id'].'-line_height-value-value" value="'.$data_value.'" /><select name="styling-'.$data['category'].'-'.$data['id'].'-line_height-value-unit"><option> </option>';
+					<input type="text" class="width2 valid_num"  name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-line_height-value-value' ) . '" value="' . esc_attr( $data_value ) . '" /><select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-line_height-value-unit' ) . '"><option> </option>';
 		foreach($options as $option){
 			if ( isset( $data['value']['unit'] ) && ( $option == $data['value']['unit'] ) ) {
-				$output .= '<option value="'.$option.'" selected="selected">'.$option.'</option>';	
+				$output .= '<option value="' . esc_attr( $option ) . '" selected="selected">' . esc_html( $option ) . '</option>';
 			} else {
-				$output .= '<option value="'.$option.'">'.$option.'</option>';	
+				$output .= '<option value="' . esc_attr( $option ) . '">' . esc_html( $option ) . '</option>';
 			}
 		}
 		$output .= '</select></p>';
@@ -858,12 +879,12 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 				'name' => __('None', 'themify')
 			)
 		);
-		$output = '	<p><span class="label">' . __('Text Transform', 'themify') . '</span> <select name="styling-'.$data['category'].'-'.$data['id'].'-text_transform-value-value"><option> </option>';
+		$output = '	<p><span class="label">' . __('Text Transform', 'themify') . '</span> <select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-text_transform-value-value' ) . '"><option> </option>';
 		foreach($options as $option){
 			if ( isset( $data['value']['value'] ) && ( $option['value'] == $data['value']['value'] ) ) {
-				$output .= '<option value="'.$option['value'].'" selected="selected">'.$option['name'].'</option>';	
+				$output .= '<option value="'.esc_attr( $option['value'] ).'" selected="selected">' . esc_html( $option['name'] ) . '</option>';
 			} else {
-				$output .= '<option value="'.$option['value'].'">'.$option['name'].'</option>';	
+				$output .= '<option value="'.esc_attr( $option['value'] ).'">' . esc_html( $option['name'] ) . '</option>';
 			}
 		}
 		$output .= '</select></p>';
@@ -893,12 +914,12 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 				'name' => __('None', 'themify')
 			)
 		);
-		$output = '	<p><span class="label">' . __('Text Decoration', 'themify') . '</span> <select name="styling-'.$data['category'].'-'.$data['id'].'-text_decoration-value-value"><option> </option>';
+		$output = '	<p><span class="label">' . __('Text Decoration', 'themify') . '</span> <select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-text_decoration-value-value' ) . '"><option> </option>';
 		foreach($options as $option){
 			if ( isset( $data['value']['value'] ) && ( $option['value'] == $data['value']['value'] ) ) {
-				$output .= '<option value="'.$option['value'].'" selected="selected">'.$option['name'].'</option>';	
+				$output .= '<option value="'.esc_attr( $option['value'] ).'" selected="selected">' . esc_html( $option['name'] ) . '</option>';
 			} else {
-				$output .= '<option value="'.$option['value'].'">'.$option['name'].'</option>';	
+				$output .= '<option value="'.esc_attr( $option['value'] ).'">' . esc_html( $option['name'] ) . '</option>';
 			}
 		}
 		$output .= '</select></p>';
@@ -914,10 +935,10 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 		return '<div class="themify_field_row">
 					<span class="label">' . __('Color', 'themify') . '</span>
 					<div class="themify_field-color">
-						<span class="colorSelect" style="background:#'.$data_value.';">
+						<span class="colorSelect" style="' . esc_attr( 'background:#' . $data_value . ';' ) . '">
 							<span></span>
 						</span>
-						<input type="text" class="colorSelectInput width4" value="'.$data_value.'" name="styling-'.$data['category'].'-'.$data['id'].'-color-value-value" />
+						<input type="text" class="colorSelectInput width4" value="' . esc_attr( $data_value ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-color-value-value' ) . '" />
 						<input type="button" class="button clearColor" value="' . __('Clear', 'themify') . '">
 					</div>
 				</div>';
@@ -947,18 +968,18 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 						<p>
 							<span class="label">' . __('Padding', 'themify') . '</span>
 							<span class="same" '.$same.'>
-								<input type="text" class="width2 valid_num" name="styling-'.$data['category'].'-'.$data['id'].'-padding-value-same" value="'.$data_value_same.'" /> <small>px</small>
+								<input type="text" class="width2 valid_num" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-padding-value-same' ) . '" value="' . esc_attr( $data_value_same ) . '" /> <small>px</small>
 							</span>
 							<span class="individuals" '.$individuals.'>
-								<input type="text" class="width2 valid_num" name="styling-'.$data['category'].'-'.$data['id'].'-padding-value-top" value="'.$data_value_top.'" /> ' . __( 'top', 'themify' ) . '
-								<input type="text" class="width2 valid_num" name="styling-'.$data['category'].'-'.$data['id'].'-padding-value-right" value="'.$data_value_right.'" /> ' . __( 'right', 'themify' ) . '
-								<input type="text" class="width2 valid_num"  name="styling-'.$data['category'].'-'.$data['id'].'-padding-value-bottom" value="'.$data_value_bottom.'"/> ' . __( 'bottom', 'themify' ) . '
-								<input type="text" class="width2 valid_num" name="styling-'.$data['category'].'-'.$data['id'].'-padding-value-left" value="'.$data_value_left.'" /> ' . __( 'left', 'themify' ) . ' <small>(px)</small>
+								<input type="text" class="width2 valid_num" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-padding-value-top' ) . '" value="' . esc_attr( $data_value_top ) . '" /> ' . __( 'top', 'themify' ) . '
+								<input type="text" class="width2 valid_num" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-padding-value-right' ) . '" value="' . esc_attr( $data_value_right ) . '" /> ' . __( 'right', 'themify' ) . '
+								<input type="text" class="width2 valid_num"  name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-padding-value-bottom' ) . '" value="' . esc_attr( $data_value_bottom ) . '"/> ' . __( 'bottom', 'themify' ) . '
+								<input type="text" class="width2 valid_num" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-padding-value-left' ) . '" value="' . esc_attr( $data_value_left ) . '" /> ' . __( 'left', 'themify' ) . ' <small>(px)</small>
 							</span>
 						</p>
 						<p>
 							<span class="pushlabel" style="display:block;">
-								<input type="checkbox" name="styling-'.$data['category'].'-'.$data['id'].'-padding-value-checkbox" class="padding-switch" '.$checked.' /> ' . __('Same for all', 'themify') . ' 
+								<input type="checkbox" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-padding-value-checkbox' ) . '" class="padding-switch" '.$checked.' /> ' . __('Same for all', 'themify') . '
 							</span>
 						</p>
 					</div>';
@@ -988,18 +1009,18 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 						<p>
 							<span class="label">' . __('Margin', 'themify') . '</span>';
 		$output .= '<span class="same" '.$same.'>
-						<input type="text" class="width2 valid_num" name="styling-'.$data['category'].'-'.$data['id'].'-margin-value-same" value="'.$data_value_name.'" /> <small>px</small>
+						<input type="text" class="width2 valid_num" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-margin-value-same' ) . '" value="' . esc_attr( $data_value_name ) . '" /> <small>px</small>
 					</span>
 					<span class="individuals" '.$individuals.'>
-						<input type="text" class="width2 valid_num" name="styling-'.$data['category'].'-'.$data['id'].'-margin-value-top" value="'.$data_value_top.'" /> ' . __( 'top', 'themify' ) . '
-						<input type="text" class="width2 valid_num" name="styling-'.$data['category'].'-'.$data['id'].'-margin-value-right" value="'.$data_value_right.'" /> ' . __( 'right', 'themify' ) . '
-						<input type="text" class="width2 valid_num"  name="styling-'.$data['category'].'-'.$data['id'].'-margin-value-bottom" value="'.$data_value_bottom.'"/> ' . __( 'bottom', 'themify' ) . '
-						<input type="text" class="width2 valid_num" name="styling-'.$data['category'].'-'.$data['id'].'-margin-value-left" value="'.$data_value_left.'" /> ' . __( 'left', 'themify' ) . ' <small>(px)</small>
+						<input type="text" class="width2 valid_num" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-margin-value-top' ) . '" value="' . esc_attr( $data_value_top ) . '" /> ' . __( 'top', 'themify' ) . '
+						<input type="text" class="width2 valid_num" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-margin-value-right' ) . '" value="' . esc_attr( $data_value_right ) . '" /> ' . __( 'right', 'themify' ) . '
+						<input type="text" class="width2 valid_num"  name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-margin-value-bottom' ) . '" value="' . esc_attr( $data_value_bottom ) . '"/> ' . __( 'bottom', 'themify' ) . '
+						<input type="text" class="width2 valid_num" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-margin-value-left' ) . '" value="' . esc_attr( $data_value_left ) . '" /> ' . __( 'left', 'themify' ) . ' <small>(px)</small>
 					</span>
 				</p>
 				<p>
 					<span class="pushlabel" style="display:block;">
-						<input type="checkbox" name="styling-'.$data['category'].'-'.$data['id'].'-margin-value-checkbox" '.$checked.' class="margin-switch" /> ' . __('Same for all', 'themify') . ' 
+						<input type="checkbox" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-margin-value-checkbox' ) . '" '.$checked.' class="margin-switch" /> ' . __('Same for all', 'themify') . '
 					</span>
 				</p>
 			</div>';
@@ -1016,13 +1037,13 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 		
 		$options = array('px','em','%');
 		$output = '	<p><span class="label">' . __('Height', 'themify') . '</span> 
-					<input type="text" class="width2 valid_num" value="'.$value['value'].'" name="styling-'.$data['category'].'-'.$data['id'].'-height-value-value" />  
-					<select name="styling-'.$data['category'].'-'.$data['id'].'-height-value-unit"><option> </option>';
+					<input type="text" class="width2 valid_num" value="' . esc_attr( $value['value'] ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-height-value-value' ) . '" />
+					<select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-height-value-unit' ) . '"><option> </option>';
 		foreach($options as $option){
 			if($option == $value['unit']){
-				$output .= '<option value="'.$option.'" selected="selected">'.$option.'</option>';	
+				$output .= '<option value="' . esc_attr( $option ) . '" selected="selected">' . esc_html( $option ) . '</option>';
 			} else {
-				$output .= '<option value="'.$option.'">'.$option.'</option>';	
+				$output .= '<option value="' . esc_attr( $option ) . '">' . esc_html( $option ) . '</option>';
 			}
 		}
 		$output .= '</select></p>';
@@ -1036,13 +1057,13 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 		$data['value'] = isset( $data['value']['value'] ) ? $data['value']['value'] : '';
 		$options = array('px','em','%');
 		$output = '	<p><span class="label">' . __('Width', 'themify') . '</span> 
-					<input type="text" class="width2 valid_num" value="'.$data['value'].'" name="styling-'.$data['category'].'-'.$data['id'].'-width-value-value" />  
-					<select name="styling-'.$data['category'].'-'.$data['id'].'-width-value-unit"><option> </option>';
+					<input type="text" class="width2 valid_num" value="' . esc_attr( $data['value'] ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-width-value-value' ) . '" />
+					<select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-width-value-unit' ) . '"><option> </option>';
 		foreach($options as $option){
 			if($option == $data['value']['unit']){
-				$output .= '<option value="'.$option.'" selected="selected">'.$option.'</option>';	
+				$output .= '<option value="' . esc_attr( $option ) . '" selected="selected">' . esc_html( $option ) . '</option>';
 			} else {
-				$output .= '<option value="'.$option.'">'.$option.'</option>';	
+				$output .= '<option value="' . esc_attr( $option ) . '">' . esc_html( $option ) . '</option>';
 			}
 		}
 		$output .= '</select></p>';
@@ -1094,67 +1115,67 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 		$output = '<div><p>
 						<span class="label">' . __('Border', 'themify') . '</span> 
 						<span class="same" '.$same.'>
-							<span class="colorSelect" style="background-color:#'.$data_value_same_color.'"><span></span></span>  <input type="text" value="'.$data_value_same_color.'" name="styling-'.$data['category'].'-'.$data['id'].'-border-value-same_color" class="width4 colorSelectInput" /> 
-							<input type="text" class="width2 valid_num" value="'.$data_value_same.'" name="styling-'.$data['category'].'-'.$data['id'].'-border-value-same" /> <small>px</small> 
-							<select name="styling-'.$data['category'].'-'.$data['id'].'-border-value-same_style"><option> </option>';
+							<span class="colorSelect" style="' . esc_attr( 'background-color:#' . $data_value_same_color . ';' ). '"><span></span></span>  <input type="text" value="' . esc_attr( $data_value_same_color ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-same_color' ) . '" class="width4 colorSelectInput" />
+							<input type="text" class="width2 valid_num" value="' . esc_attr( $data_value_same ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-same' ) . '" /> <small>px</small>
+							<select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-same_style' ) . '"><option> </option>';
 							foreach ( $options as $option ) {
 								if ( isset( $data['value']['same_style'] ) && ( $option['value'] == $data['value']['same_style'] ) ) {
-									$output .= '<option value="'.$option['value'].'" selected="selected">'.$option['name'].'</option>';	
+									$output .= '<option value="'.esc_attr( $option['value'] ).'" selected="selected">' . esc_html( $option['name'] ) . '</option>';
 								} else {
-									$output .= '<option value="'.$option['value'].'">'.$option['name'].'</option>';	
+									$output .= '<option value="'.esc_attr( $option['value'] ).'">' . esc_html( $option['name'] ) . '</option>';
 								}
 							}
 		$output .= '		</select>
 						</span>
 						<span class="individuals" '.$individuals.'>
 						<span class="borders">
-							<span class="colorSelect" style="background-color:#'.$data_value_top_color.';"><span></span></span> <input type="text" value="'.$data_value_top_color.'" name="styling-'.$data['category'].'-'.$data['id'].'-border-value-top_color" class="width4 colorSelectInput" /> 
-							<input type="text" class="width2 valid_num" value="'.$data_value_top.'" name="styling-'.$data['category'].'-'.$data['id'].'-border-value-top" /> <small>px</small>
-							<select name="styling-'.$data['category'].'-'.$data['id'].'-border-value-top_style"><option> </option>';
+							<span class="colorSelect" style="' . esc_attr( 'background-color:#' . $data_value_top_color . ';' ). '"><span></span></span> <input type="text" value="' . esc_attr( $data_value_top_color ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-top_color' ) . '" class="width4 colorSelectInput" />
+							<input type="text" class="width2 valid_num" value="' . esc_attr( $data_value_top ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-top' ) . '" /> <small>px</small>
+							<select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-top_style' ) . '"><option> </option>';
 							foreach ( $options as $option ) {
 								if ( isset( $data['value']['top_style'] ) && ( $option['value'] == $data['value']['top_style'] ) ) {
-									$output .= '<option value="'.$option['value'].'" selected="selected">'.$option['name'].'</option>';	
+									$output .= '<option value="'.esc_attr( $option['value'] ).'" selected="selected">' . esc_html( $option['name'] ) . '</option>';
 								} else {
-									$output .= '<option value="'.$option['value'].'">'.$option['name'].'</option>';	
+									$output .= '<option value="'.esc_attr( $option['value'] ).'">' . esc_html( $option['name'] ) . '</option>';
 								}
 							}
 		$output .= '		</select> ' . __('top', 'themify') . '
 						</span>
 						<span class="pushlabel borders" style="display:block;">
-							<span class="colorSelect" style="background-color:#'.$data_value_right_color.';"><span></span></span> <input type="text" value="'.$data_value_right_color.'" name="styling-'.$data['category'].'-'.$data['id'].'-border-value-right_color" class="width4 colorSelectInput" /> 
-							<input type="text" class="width2 valid_num" value="'.$data_value_right.'" name="styling-'.$data['category'].'-'.$data['id'].'-border-value-right" /> <small>px</small>
-							<select name="styling-'.$data['category'].'-'.$data['id'].'-border-value-right_style"><option> </option>';
+							<span class="colorSelect" style="' . esc_attr( 'background-color:#' . $data_value_right_color . ';' ). '"><span></span></span> <input type="text" value="' . esc_attr( $data_value_right_color ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-right_color' ) . '" class="width4 colorSelectInput" />
+							<input type="text" class="width2 valid_num" value="' . esc_attr( $data_value_right ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-right' ) . '" /> <small>px</small>
+							<select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-right_style' ) . '"><option> </option>';
 							foreach ( $options as $option ) {
 								if ( isset( $data['value']['right_style'] ) && ( $option['value'] == $data['value']['right_style'] ) ) {
-									$output .= '<option value="'.$option['value'].'" selected="selected">'.$option['name'].'</option>';	
+									$output .= '<option value="'.esc_attr( $option['value'] ).'" selected="selected">' . esc_html( $option['name'] ) . '</option>';
 								} else {
-									$output .= '<option value="'.$option['value'].'">'.$option['name'].'</option>';	
+									$output .= '<option value="'.esc_attr( $option['value'] ).'">' . esc_html( $option['name'] ) . '</option>';
 								}
 							}
 		$output .= '		</select> ' . __('right', 'themify') . '
 						</span>
 						<span class="pushlabel borders" style="display:block;">
-							<span class="colorSelect" style="background-color:#'.$data_value_bottom_color.';"><span></span></span> <input type="text" value="'.$data_value_bottom_color.'" name="styling-'.$data['category'].'-'.$data['id'].'-border-value-bottom_color" class="width4 colorSelectInput" /> 
-							<input type="text" class="width2 valid_num" value="'.$data_value_bottom.'" name="styling-'.$data['category'].'-'.$data['id'].'-border-value-bottom" /> <small>px</small>
-							<select name="styling-'.$data['category'].'-'.$data['id'].'-border-value-bottom_style"><option> </option>';
+							<span class="colorSelect" style="' . esc_attr( 'background-color:#' . $data_value_bottom_color . ';' ). '"><span></span></span> <input type="text" value="' . esc_attr( $data_value_bottom_color ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-bottom_color' ) . '" class="width4 colorSelectInput" />
+							<input type="text" class="width2 valid_num" value="' . esc_attr( $data_value_bottom ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-bottom' ) . '" /> <small>px</small>
+							<select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-bottom_style' ) . '"><option> </option>';
 							foreach ( $options as $option ) {
 								if ( isset( $data['value']['bottom_style'] ) && ( $option['value'] == $data['value']['bottom_style'] ) ) {
-									$output .= '<option value="'.$option['value'].'" selected="selected">'.$option['name'].'</option>';	
+									$output .= '<option value="'.esc_attr( $option['value'] ).'" selected="selected">' . esc_html( $option['name'] ) . '</option>';
 								} else {
-									$output .= '<option value="'.$option['value'].'">'.$option['name'].'</option>';	
+									$output .= '<option value="'.esc_attr( $option['value'] ).'">' . esc_html( $option['name'] ) . '</option>';
 								}
 							}
 		$output .= '		</select> ' . __('bottom', 'themify') . '
 						</span>
 						<span class="pushlabel borders" style="display:block;">
-							<span class="colorSelect" style="background-color:#'.$data_value_left_color.';"><span></span></span> <input type="text" value="'.$data_value_left_color.'" name="styling-'.$data['category'].'-'.$data['id'].'-border-value-left_color" class="width4 colorSelectInput" /> 
-							<input type="text" class="width2 valid_num" value="'.$data_value_left.'" name="styling-'.$data['category'].'-'.$data['id'].'-border-value-left" /> <small>px</small>
-							<select name="styling-'.$data['category'].'-'.$data['id'].'-border-value-left_style"><option> </option>';
+							<span class="colorSelect" style="' . esc_attr( 'background-color:#' . $data_value_left_color . ';' ). '"><span></span></span> <input type="text" value="' . esc_attr( $data_value_left_color ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-left_color' ) . '" class="width4 colorSelectInput" />
+							<input type="text" class="width2 valid_num" value="' . esc_attr( $data_value_left ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-left' ) . '" /> <small>px</small>
+							<select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-left_style' ) . '"><option> </option>';
 							foreach ( $options as $option ) {
 								if ( isset( $data['value']['left_style'] ) && ( $option['value'] == $data['value']['left_style'] ) ) {
-									$output .= '<option value="'.$option['value'].'" selected="selected">'.$option['name'].'</option>';	
+									$output .= '<option value="'.esc_attr( $option['value'] ).'" selected="selected">' . esc_html( $option['name'] ) . '</option>';
 								} else {
-									$output .= '<option value="'.$option['value'].'">'.$option['name'].'</option>';	
+									$output .= '<option value="'.esc_attr( $option['value'] ).'">' . esc_html( $option['name'] ) . '</option>';
 								}
 							}
 		$output .= '		</select> ' . __('left', 'themify') . '
@@ -1163,7 +1184,7 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 					</p>
 					<p>
 						<span class="pushlabel" style="display:block;">
-							<input type="checkbox" class="border-switch" name="styling-'.$data['category'].'-'.$data['id'].'-border-value-checkbox" '.$checked.' /> ' . __('Same for all', 'themify') . '
+							<input type="checkbox" class="border-switch" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-border-value-checkbox' ) . '" '.$checked.' /> ' . __('Same for all', 'themify') . '
 						</span>
 					</p>
 				</div>';				
@@ -1222,39 +1243,39 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 			$display = "style='display:none;'";	
 		}
 		$output = '	<p><span class="label">' . __('Position', 'themify') . '</span>
-					<select name="styling-'.$data['category'].'-'.$data['id'].'-position-value-value" class="select_position"><option> </option>';
+					<select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-position-value-value" class="select_position' ) . '"><option> </option>';
 		foreach ( $options as $option ) {
 			if ( $option['value'] == $data_value_position ) {
-				$output .= '<option value="'.$option['value'].'" selected="selected">'.$option['name'].'</option>';	
+				$output .= '<option value="'.esc_attr( $option['value'] ).'" selected="selected">' . esc_html( $option['name'] ) . '</option>';
 			} else {
-				$output .= '<option value="'.$option['value'].'">'.$option['name'].'</option>';	
+				$output .= '<option value="'.esc_attr( $option['value'] ).'">' . esc_html( $option['name'] ) . '</option>';
 			}
 		}
 		$output .= '</select></p>
 					<p class="position_display" '.$display.'>
 						<span class="pushlabel" style="display:block;">
-						<select name="styling-'.$data['category'].'-'.$data['id'].'-position-value-x"><option> </option>';
+						<select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-position-value-x' ) . '"><option> </option>';
 						foreach ( $options_x as $option ) {
 							if ( isset( $data['value']['x'] ) && ( $option['value'] == $data['value']['x'] ) ) {
-								$output .= '<option value="'.$option['value'].'" selected="selected">'.$option['name'].'</option>';	
+								$output .= '<option value="'.esc_attr( $option['value'] ).'" selected="selected">' . esc_html( $option['name'] ) . '</option>';
 							} else {
-								$output .= '<option value="'.$option['value'].'">'.$option['name'].'</option>';	
+								$output .= '<option value="'.esc_attr( $option['value'] ).'">' . esc_html( $option['name'] ) . '</option>';
 							}
 						}	
 		$output .=	'	</select>
-						<input type="text" class="width2 valid_num" value="'.$data_value_x_value.'" name="styling-'.$data['category'].'-'.$data['id'].'-position-value-x_value" /> <small>px</small> 
+						<input type="text" class="width2 valid_num" value="' . esc_attr( $data_value_x_value ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-position-value-x_value' ) . '" /> <small>px</small>
 						</span>
 						<span class="pushlabel" >
-						<select name="styling-'.$data['category'].'-'.$data['id'].'-position-value-y"><option> </option>';
+						<select name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-position-value-y' ) . '"><option> </option>';
 						foreach ( $options_y as $option ) {
 							if ( isset( $data['value']['y'] ) && ( $option['value'] == $data['value']['y'] ) ) {
-								$output .= '<option value="'.$option['value'].'" selected="selected">'.$option['name'].'</option>';	
+								$output .= '<option value="'.esc_attr( $option['value'] ).'" selected="selected">' . esc_html( $option['name'] ) . '</option>';
 							} else {
-								$output .= '<option value="'.$option['value'].'">'.$option['name'].'</option>';	
+								$output .= '<option value="'.esc_attr( $option['value'] ).'">' . esc_html( $option['name'] ) . '</option>';
 							}
 						}	
 		$output .=	'	</select>
-						<input type="text" class="width2 valid_num" value="'.$data_value_y_value.'" name="styling-'.$data['category'].'-'.$data['id'].'-position-value-y_value" /> <small>px</small> 
+						<input type="text" class="width2 valid_num" value="' . esc_attr( $data_value_y_value ) . '" name="' . esc_attr( 'styling-'.$data['category'].'-'.$data['id'].'-position-value-y_value' ) . '" /> <small>px</small>
 						</span>
 					</p>';
 		return $output;	
@@ -1270,7 +1291,6 @@ function themify_gallery_plugins( $data = array() ) {
 
 	$display_options = apply_filters('themify_lightbox_module_options', array(
 		__( 'Magnific (lightbox)', 'themify' ) => 'lightbox',
-		__( 'photoSwipe (fullscreen swipe)', 'themify' ) => 'photoswipe',
 		__( 'None', 'themify' ) => 'none'
 	));
 
@@ -1280,7 +1300,7 @@ function themify_gallery_plugins( $data = array() ) {
 				<span class="label">' . __( 'WordPress Gallery', 'themify' ) . ' </span>
 				<select class="gallery_lightbox_type" name="setting-gallery_lightbox">';
 				foreach ( $display_options as $option => $value ) {
-					$out .= '<option value="'.$value.'" '.selected( $value? $value: 'lightbox', $gallery_lightbox, false ).'>'.$option.'</option>';
+					$out .= '<option value="' . esc_attr( $value ) . '" '.selected( $value? $value: 'lightbox', $gallery_lightbox, false ).'>' . esc_html( $option ) . '</option>';
 				}
 	$out .= '	</select>
 			</p>';
@@ -1289,13 +1309,6 @@ function themify_gallery_plugins( $data = array() ) {
 					<input type="checkbox" id="setting-lightbox_content_images" name="setting-lightbox_content_images" '. checked( themify_get( 'setting-lightbox_content_images' ), 'on', false ) .'/> ' . __('Apply lightbox to image links (ie. links to jpg, png, and gif will open in lightbox)', 'themify') . '</label>
 				</span>
 			</p>';
-	$out .= '<div class="show_if_photoswipe_enabled">
-			<p>
-				<span class="pushlabel"><label for="setting-lightbox_swipe_upscale">
-					<input type="checkbox" id="setting-lightbox_swipe_upscale" name="setting-lightbox_swipe_upscale" '. checked( themify_get( 'setting-lightbox_swipe_upscale' ), 'on', false ) .'/> '. __('Resize images in photoSwipe to fit screen', 'themify') .'</label>
-				</span>
-			</p>
-			</div>';
 	return $out;
 }
 
@@ -1339,17 +1352,17 @@ function themify_add_link_template( $fid, $data = array(), $ajax = false, $type 
 
 	$out = '<li id="' . esc_attr( $fid ) . '" class="social-link-item ' . esc_attr( $type_val ) . '">';
 
-	$out .= '<div class="social-drag">' . __('Drag to Sort &#8597;', 'themify') . '</div>';
+	$out .= '<div class="social-drag">' . esc_html__('Drag to Sort &#8597;', 'themify') . '</div>';
 
-	$out .= '<input type="hidden" name="' . $type_name . '" value="' . trim( $type_val ) . '">';
+	$out .= '<input type="hidden" name="' . esc_attr( $type_name ) . '" value="' . esc_attr( trim( $type_val ) ) . '">';
 
 	$out .= '<div class="row">
-				<span class="label">' . __( 'Title', 'themify' ) . '</span> <input type="text" name="' . $title_name . '" class="width6" value="' . trim($title_val) . '">
+				<span class="label">' . __( 'Title', 'themify' ) . '</span> <input type="text" name="' . esc_attr( $title_name ) . '" class="width6" value="' . esc_attr( trim($title_val) ) . '">
 			</div>
 			<!-- /row -->';
 
 	$out .= '<div class="row">
-				<span class="label">' . __( 'Link', 'themify' ) . '</span> <input type="text" name="' . $link_name . '" class="width10" value="' . trim($link_val) . '">
+				<span class="label">' . __( 'Link', 'themify' ) . '</span> <input type="text" name="' . esc_attr( $link_name ) . '" class="width10" value="' . esc_attr( trim($link_val) ) . '">
 			</div>
 			<!-- /row -->';
 
@@ -1359,33 +1372,33 @@ function themify_add_link_template( $fid, $data = array(), $ajax = false, $type 
 					<span class="label">' . __( 'Icon', 'themify' ) . '</span>';
 
 		$out .= sprintf('<input type="text" id="%s" name="%s" value="%s" size="55" class="themify_input_field themify_fa %s" /> <a class="button button-secondary hide-if-no-js themify_fa_toggle" href="#" data-target="#%s">%s</a>',
-			$ficon_name, $ficon_name, $ficon_val, 'small', $ficon_name, __( 'Insert Icon', 'themify' ) );
+			esc_attr( $ficon_name ), esc_attr( $ficon_name ), esc_attr( $ficon_val ), 'small', esc_attr( $ficon_name ), __( 'Insert Icon', 'themify' ) );
 
 		$out .= '</div>
 				<!-- /row -->';
 
 		$out .= '<div class="icon-preview font-icon-preview">
-						<i class="fa ' . $ficon_val . '"></i>
+						<i class="' . esc_attr( 'fa ' . $ficon_val ) . '"></i>
 					</div>
 					<!-- /icon-preview -->';
 
 		$out .= '<div class="themify_field_row">
 					<span class="label">' . __('Icon Color', 'themify') . '</span>
 					<div class="themify_field-color">
-						<span class="colorSelect" style="background:#' . $ficolor_val . ';">
+						<span class="colorSelect" style="' . esc_attr( 'background:#' . $ficolor_val . ';' ). '">
 							<span></span>
 						</span>
-						<input type="text" class="colorSelectInput width4" value="' . $ficolor_val . '" name="' . $ficolor_name . '" />
+						<input type="text" class="colorSelectInput width4" value="' . esc_attr( $ficolor_val ) . '" name="' . esc_attr( $ficolor_name ) . '" />
 					</div>
 				</div>';
 
 		$out .= '<div class="themify_field_row">
 					<span class="label">' . __('Background', 'themify') . '</span>
 					<div class="themify_field-color">
-						<span class="colorSelect" style="background:#' . $fibgcolor_val . ';">
+						<span class="colorSelect" style="' . esc_attr( 'background:#' . $fibgcolor_val . ';' ). '">
 							<span></span>
 						</span>
-						<input type="text" class="colorSelectInput width4" value="' . $fibgcolor_val . '" name="' . $fibgcolor_name . '" />
+						<input type="text" class="colorSelectInput width4" value="' . esc_attr( $fibgcolor_val ) . '" name="' . esc_attr( $fibgcolor_name ) . '" />
 					</div>
 				</div>';
 
@@ -1394,18 +1407,18 @@ function themify_add_link_template( $fid, $data = array(), $ajax = false, $type 
 		$out .= '<div class="row">
 					<span class="label">' . __( 'Image', 'themify' ) . '</span>
 					<div class="uploader-fields image">
-						<input type="text" id="' . $img_name . '" name="' . $img_name . '" class="width10" value="' . $img_val . '">
+						<input type="text" id="' . esc_attr( $img_name ) . '" name="' . esc_attr( $img_name ) . '" class="width10" value="' . esc_attr( $img_val ) . '">
 						<div class="clear image">' . themify_get_uploader( $img_name, array( 'tomedia' => true, 'preview' => true ) ) . '</div>
 					</div>
 				</div>
 				<!-- /row -->';
 		$out .= '<div class="icon-preview">
-					<img id="' . $img_name.'-preview" src="' . $img_val . '" />
+					<img id="' . esc_attr( $img_name . '-preview' ) . '" src="' . esc_url( $img_val ) . '" />
 				</div>
 				<!-- /icon-preview -->';
 	}
 
-	$out .= '<a href="#" class="remove-item" data-removelink="' . $fid . '"><i class="ti ti-close"></i></a>
+	$out .= '<a href="#" class="remove-item" data-removelink="' . esc_attr( $fid ) . '"><i class="ti ti-close"></i></a>
 		</li>
 		<!-- /social-links-item -->';
 
@@ -1504,13 +1517,13 @@ function themify_manage_links( $data = array() ) {
 
 	$out .= '<div id="social-link-type">';
 		// Icon Font
-		$out .= '<label for="' . $pre . 'font_icon">';
-		$out .= '<input ' . checked( isset( $data[$pre.'icon_type'] )? $data[$pre.'icon_type'] : '', 'font-icon', false) . ' type="radio" id="' . $pre . 'font_icon" name="' . $pre . 'icon_type" value="font-icon" data-hide="image-icon" /> ';
+		$out .= '<label for="' . esc_attr( $pre ) . 'font_icon">';
+		$out .= '<input ' . checked( isset( $data[$pre.'icon_type'] )? $data[$pre.'icon_type'] : 'font-icon', 'font-icon', false) . ' type="radio" id="' . esc_attr( $pre . 'font_icon' ) . '" name="' . esc_attr( $pre . 'icon_type' ) . '" value="font-icon" data-hide="image-icon" /> ';
 		$out .= __( 'Icon Font', 'themify' ) . '</label>';
 
 		// Image
-		$out .= '<label for="' . $pre . 'image_icon">';
-		$out .= '<input ' . checked( isset( $data[$pre.'icon_type'] )? $data[$pre.'icon_type'] : 'image-icon', 'image-icon', false ) . ' type="radio" id="' . $pre . 'image_icon" name="' . $pre . 'icon_type" value="image-icon" data-hide="font-icon" /> ';
+		$out .= '<label for="' . esc_attr( $pre ) . 'image_icon">';
+		$out .= '<input ' . checked( isset( $data[$pre.'icon_type'] )? $data[$pre.'icon_type'] : '', 'image-icon', false ) . ' type="radio" id="' . esc_attr( $pre . 'image_icon' ) . '" name="' . esc_attr( $pre . 'icon_type' ) . '" value="image-icon" data-hide="font-icon" /> ';
 		$out .= __( 'Image', 'themify' ) . '</label>';
 	$out .= '</p>';
 
@@ -1522,8 +1535,8 @@ function themify_manage_links( $data = array() ) {
 	
 	$out .= '<p class="add-link add-social-link"><a href="#">' . __('Add Link', 'themify') . '</a></p>';
 
-	$out .= '<input type="hidden" id="'.$pre.'field_ids" name="'.$pre.'field_ids" value=\'' . json_encode( $field_ids ) . '\'/>';
-	$out .= '<input type="hidden" id="'.$pre.'field_hash" name="'.$pre.'field_hash" value="'.$field_hash.'"/>';
+	$out .= '<input type="hidden" id="' . esc_attr( $pre . 'field_ids' ) . '" name="' . esc_attr( $pre . 'field_ids' ) . '" value=\'' . json_encode( $field_ids ) . '\'/>';
+	$out .= '<input type="hidden" id="' . esc_attr( $pre . 'field_hash' ) . '" name="' . esc_attr( $pre . 'field_hash' ) . '" value="' . esc_attr( $field_hash ) . '"/>';
 	//$out .= '<p>Fields: '.json_encode($field_ids).'</p><p>Hash: '.$field_hash.'</p>';
 	
 	return $out;
@@ -1584,7 +1597,7 @@ function themify_post_meta_options( $pmkey, $data, $metas = array(), $states = a
 		'title' => __( 'Use theme settings', 'themify' )
 	);
 	
-	$out = '<div class="themify_field_row dropdownbutton-group"><span class="label">' . $group_label . '</span>';
+	$out = '<div class="themify_field_row dropdownbutton-group"><span class="label">' . esc_html( $group_label ) . '</span>';
 					
 			foreach ( $metas as $meta => $name ) {
 				if ( '' == $meta ) {
@@ -1594,17 +1607,17 @@ function themify_post_meta_options( $pmkey, $data, $metas = array(), $states = a
 					$metakey = $pmkey.'_'.$meta;
 					$meta_class = 'ddbtn-sub ddbtn-'.$meta;
 				}
-				$first = '';
+
 				$others = '';
 				$out .=	'
-				<div id="'.$metakey.'" class="dropdownbutton-list" data-name="'.$name.'" data-def-icon="'.$default['icon'].'">';
+				<div id="' . esc_attr( $metakey ) . '" class="dropdownbutton-list" data-name="' . esc_attr( $name ) . '" data-def-icon="' . esc_url( $default['icon'] ) . '">';
 				
 				// default state
 				$first = '
 					<div class="first-ddbtn">
-						<a href="#" data-val="'.$default['value'].'" data-name="'.$default['name'].'" title="'.$default['title'].'">
-							<img src="'.$default['icon'].'" title="'.$default['title'].'" />
-							<span class="ddbtn-name">'.$name.'</span>
+						<a href="#" data-val="' . esc_attr( $default['value'] ) . '" data-name="' . esc_attr( $default['name'] ) . '" title="' . esc_attr( $default['title'] ) . '">
+							<img src="' . esc_url( $default['icon'] ) . '" title="' . esc_attr( $default['title'] ) . '" />
+							<span class="ddbtn-name">' . esc_html( $name ) . '</span>
 						</a>
 					</div>';
 
@@ -1612,9 +1625,9 @@ function themify_post_meta_options( $pmkey, $data, $metas = array(), $states = a
 					if ( isset( $state['value'] ) && isset( $data[$metakey] ) && $state['value'] == $data[$metakey] ) {
 						$first = '
 						<div class="first-ddbtn">
-							<a href="#" data-val="'.$state['value'].'" data-name="'.$state['name'].'" title="'.$state['title'].'">
-								<img src="'.$state['icon'].'" title="'.$state['title'].'" />
-								<span class="ddbtn-name">'.$name.'</span>
+							<a href="#" data-val="' . esc_attr( $state['value'] ) . '" data-name="' . esc_attr( $state['name'] ) . '" title="' . esc_attr( $state['title'] ) . '">
+								<img src="' . esc_url( $state['icon'] ) . '" title="' . esc_attr( $state['title'] ) . '" />
+								<span class="ddbtn-name">' . esc_html( $name ) . '</span>
 							</a>
 						</div>';
 						$selected = 'selected';
@@ -1626,10 +1639,10 @@ function themify_post_meta_options( $pmkey, $data, $metas = array(), $states = a
 					}
 					
 					$others .= '
-						<div class="ddbtn '.$hide.'">
-							<a href="#" data-sel="'.$selected.'" data-val="'.$state['value'].'" data-name="'.$state['name'].'" title="'.$state['title'].'">
-								<img src="'.$state['icon'].'" title="'.$state['title'].'" />
-								<span class="ddbtn-label">'.$state['name'].'</span>
+						<div class="' . esc_attr( 'ddbtn ' . $hide ) . '">
+							<a href="#" data-sel="' . esc_attr( $selected ) . '" data-val="' . esc_attr( $state['value'] ) . '" data-name="' . esc_attr( $state['name'] ) . '" title="' . esc_attr( $state['title'] ) . '">
+								<img src="' . esc_url( $state['icon'] ) . '" title="' . esc_attr( $state['title'] ) . '" />
+								<span class="ddbtn-label">' . esc_html( $state['name'] ) . '</span>
 							</a>
 						</div>';
 				}
@@ -1637,7 +1650,7 @@ function themify_post_meta_options( $pmkey, $data, $metas = array(), $states = a
 				$out .= '
 				</div>';
 				$meta_key_data = themify_get( $metakey );
-				$out .= '<input type="hidden" value="'.$meta_key_data.'" class="'.$meta_class.'" id="'.$metakey.'" name="'.$metakey.'" />';
+				$out .= '<input type="hidden" value="' . esc_attr( $meta_key_data ) . '" class="' . esc_attr( $meta_class ) . '" id="' . esc_attr( $metakey ) . '" name="' . esc_attr( $metakey ) . '" />';
 			}
 
 	$out .= '</div>';
@@ -1671,17 +1684,17 @@ if ( ! function_exists( 'themify_post_sorting_options' ) ) {
 
 		$out = '<p>
 					<span class="label">' . __( 'Order By', 'themify' ) . ' </span>
-					<select name="'.$key.'by">';
+					<select name="' . esc_attr( $key . 'by' ) . '">';
 						foreach ( $orderby_options as $option => $value ) {
-							$out .= '<option value="'.$value.'" '.selected( $value? $value: 'date', $orderby, false ).'>'.$option.'</option>';
+							$out .= '<option value="' . esc_attr( $value ) . '" '.selected( $value? $value: 'date', $orderby, false ).'>' . esc_html( $option ) . '</option>';
 							}
 		$out .= '	</select>
 				</p>
 				<p>
 					<span class="label">' . __( 'Order', 'themify' ) . ' </span>
-					<select name="'.$key.'">';
+					<select name="' . esc_attr( $key ) . '">';
 						foreach ( $order_options as $option => $value ) {
-							$out .= '<option value="'.$value.'" '.selected( $value? $value: 'DESC', $order, false ).'>'.$option.'</option>';
+							$out .= '<option value="' . esc_attr( $value ) . '" '.selected( $value? $value: 'DESC', $order, false ).'>' . esc_html( $option ) . '</option>';
 					}
 		$out .= '	</select>
 				</p>';
@@ -1696,7 +1709,7 @@ if ( ! function_exists( 'themify_homepage_welcome' ) ) {
 	 * @return string Markup for welcome text control
 	 */
 	function themify_homepage_welcome() {
-		return '<p><textarea class="widthfull" name="setting-homepage_welcome" rows="4">' . themify_get( 'setting-homepage_welcome' ) . '</textarea></p>';
+		return '<p><textarea class="widthfull" name="setting-homepage_welcome" rows="4">' . esc_textarea( themify_get( 'setting-homepage_welcome' ) ) . '</textarea></p>';
 	}
 }
 
@@ -1726,28 +1739,24 @@ if ( ! function_exists( 'themify_footer_text_left' ) ) {
 	 * @return string
 	 */
 	function themify_footer_text_left() {
-		return '<p><textarea class="widthfull" rows="4" name="setting-footer_text_left">' . themify_get( 'setting-footer_text_left' ) . '</textarea></p>
-		<div class="themify-info-link">' . __( 'Enter your text here to replace the copyright text in the footer. HTML tags allowed. Enter an empty space will remove the copyright text.', 'themify' ) . '</div>';
+		return '<p><textarea class="widthfull" rows="4" name="setting-footer_text_left">' . esc_textarea( themify_get( 'setting-footer_text_left' ) ) . '</textarea></p>';
 	}
 }
 
 if ( ! function_exists( 'themify_footer_text_right' ) ) {
 	/**
 	 * Footer Text Right Function
-	 * @param array $data
 	 * @return string
 	 */
 	function themify_footer_text_right(){
-		return '<p><textarea class="widthfull" rows="4" name="setting-footer_text_right">' . themify_get( 'setting-footer_text_right' ) . '</textarea></p>
-		<div class="themify-info-link">' . __( 'Enter your text here to replace the credit links in the footer. HTML tags allowed. Enter an empty space will remove the credit links.', 'themify' ) . '</div>';
+		return '<p><textarea class="widthfull" rows="4" name="setting-footer_text_right">' . esc_textarea( themify_get( 'setting-footer_text_right' ) ) . '</textarea></p>
+		<div class="themify-info-link">' . __( 'Enter your text to replace the copyright and credit links in the footer. HTML tags allowed. Enter an empty space will remove the text.', 'themify' ) . '</div>';
 	}
 }
 
 if(!function_exists('themify_homepage_widgets')){
 	/**
 	 * Widgets module function
-	 * @param string $key Widgets group option key.
-	 * @param array $options Options for module
 	 * @return string Module markup
 	 */
 	function themify_homepage_widgets(){
@@ -1782,13 +1791,13 @@ if(!function_exists('themify_homepage_widgets')){
 				$val = $option['value'];
 			}
 			if($val == $option['value']){ 
-				$class = 'selected';
+				$class = ' selected';
 			} else {
 				$class = '';
 			}
-			$output .= '<a href="#" class="preview-icon '.$class.'" title="'.$option['title'].'"><img src="'.THEME_URI.'/'.$option['img'].'" alt="'.$option['value'].'"  /></a>';	
+			$output .= '<a href="#" class="' . esc_attr( 'preview-icon' . $class ) . '" title="' . esc_attr( $option['title'] ) . '"><img src="' . esc_url( THEME_URI.'/'.$option['img'] ) . '" alt="' . esc_attr( $option['value'] ) . '"  /></a>';
 		}
-		$output .= '<input type="hidden" name="setting-homepage_widgets" class="val" value="'.$val.'" />';
+		$output .= '<input type="hidden" name="setting-homepage_widgets" class="val" value="' . esc_attr( $val ) . '" />';
 		return $output;
 	}
 }
@@ -1796,8 +1805,6 @@ if(!function_exists('themify_homepage_widgets')){
 if(!function_exists('themify_footer_widgets')){
 	/**
 	 * Widgets module function
-	 * @param string $key Widgets group option key.
-	 * @param array $options Options for module
 	 * @return string Module markup
 	 */
 	function themify_footer_widgets(){
@@ -1836,9 +1843,9 @@ if(!function_exists('themify_footer_widgets')){
 			} else {
 				$class = '';
 			}
-			$output .= '<a href="#" class="preview-icon '.$class.'" title="'.$option['title'].'"><img src="'.THEME_URI.'/'.$option['img'].'" alt="'.$option['value'].'"  /></a>';	
+			$output .= '<a href="#" class="' . esc_attr( 'preview-icon ' . $class ) . '" title="' . esc_attr( $option['title'] ) . '"><img src="' . esc_url( THEME_URI.'/'.$option['img'] ) . '" alt="' . esc_attr( $option['value'] ) . '"  /></a>';
 		}
-		$output .= '<input type="hidden" name="setting-footer_widgets" class="val" value="'.$val.'" />';
+		$output .= '<input type="hidden" name="setting-footer_widgets" class="val" value="' . esc_attr( $val ) . '" />';
 		return $output;
 	}
 }
@@ -1849,10 +1856,7 @@ if(!function_exists('themify_manage_twitter_settings')){
 	 * @return string
 	 */
 	function themify_manage_twitter_settings() {
-		$data = themify_get_data();
-
 		$prefix = 'setting-twitter_settings_';
-
 		$consumer_key = themify_get( $prefix.'consumer_key' );
 		$consumer_secret = themify_get( $prefix.'consumer_secret' );
 
@@ -1862,11 +1866,11 @@ if(!function_exists('themify_manage_twitter_settings')){
 			'http://themify.me/docs/setting-up-twitter'
 		)
 		.'</div>';
-		$out .= '<p><label class="label" for="'.$prefix.'consumer_key">'.__('Consumer Key', 'themify').'</label>';
-		$out .= '<input type="text" id="'.$prefix.'consumer_key" name="'.$prefix.'consumer_key" class="width10" value="'.$consumer_key.'" /></p>';
+		$out .= '<p><label class="label" for="' . esc_attr( $prefix . 'consumer_key' ) . '">'.__('Consumer Key', 'themify').'</label>';
+		$out .= '<input type="text" id="' . esc_attr( $prefix . 'consumer_key' ) . '" name="' . esc_attr( $prefix . 'consumer_key' ) . '" class="width10" value="' . esc_attr( $consumer_key ) . '" /></p>';
 
-		$out .= '<p><label class="label" for="'.$prefix.'consumer_secret">'.__('Consumer Secret', 'themify').'</label>';
-		$out .= '<input type="text" id="'.$prefix.'consumer_secret" name="'.$prefix.'consumer_secret" class="width10" value="'.$consumer_secret.'" /></p>';
+		$out .= '<p><label class="label" for="' . esc_attr( $prefix . 'consumer_secret' ) . '">'.__('Consumer Secret', 'themify').'</label>';
+		$out .= '<input type="text" id="' . esc_attr( $prefix . 'consumer_secret' ) . '" name="' . esc_attr( $prefix . 'consumer_secret' ) . '" class="width10" value="' . esc_attr( $consumer_secret ) . '" /></p>';
 
 		return $out;
 	}
@@ -1880,23 +1884,45 @@ if(!function_exists('themify_webfonts_subsets')) {
 	 * @since 1.3.9
 	 */
 	function themify_webfonts_subsets($data = array()){
-		$data = themify_get_data();
-		$key = 'setting-webfonts_subsets';
-		$subsets = themify_get( $key );
-		return '<p>
-					<span class="label">' . __('Additional subsets', 'themify') . '</span> <input type="text" class="width10" name="'.$key.'" value="'.$subsets.'" /> <br />
-					<span class="pushlabel">
-					<a href="#" class="refresh-webfonts button">'.__('Refresh list', 'themify').'</a>
-					<br/><small>' . __( 'Enter the additional character subsets you need to use from Google WebFonts separated by commas. Example: latin-ext,cyrillic', 'themify' ) . '</small></span>
+		$html = '';
+
+		// List of fonts, recommended or full
+		$key = 'setting-webfonts_list';
+		$html .= '<p>
+					<span class="label">' . __('Google Fonts List', 'themify') . '</span>';
+
+			// Recommended list
+			$html .= '<label for="' . esc_attr( $key . '_recommended' ) . '">
+					<input ' . checked( themify_check( $key )? themify_get( $key ) : 'recommended', 'recommended', false) . ' type="radio" id="' . esc_attr( $key . '_recommended' ) . '" name="' . esc_attr( $key ) . '" value="recommended" /> ' .  __( 'Show recommended Google Fonts only', 'themify' ) . '</label><br/>';
+
+			// Full list
+			$html .= '<span class="pushlabel">
+					<label for="' . esc_attr( $key . '_full' ) . '">
+					<input ' . checked( themify_check( $key )? themify_get( $key ) : '', 'full', false ) . ' type="radio" id="' . esc_attr( $key . '_full' ) . '" name="' . esc_attr( $key ) . '" value="full" /> ' . __( 'Show all Google Fonts (showing all fonts will take longer to load)', 'themify' ) . '</label>
+					</span>
 				</p>';
+
+		// Filter by character subset
+		$key = 'setting-webfonts_subsets';
+		$html .= '<p>
+					<span class="label">' . __( 'Character Subsets', 'themify' ) . '</span> <input type="text" class="width10" name="' . esc_attr( $key ) . '" value="' . esc_attr( themify_get( $key ) ) . '" /> <br />
+					<span class="pushlabel">
+					<br/><small>' . __( 'Enter the additional character subsets you need to use from Google Fonts separated by commas. Example: latin-ext,cyrillic', 'themify' ) . '</small></span>
+				</p>';
+
+		$html .= '<p>
+					<span class="pushlabel"><a href="#" class="refresh-webfonts button">'.__( 'Refresh List', 'themify' ).'</a><br/><small>' . __( 'If you made any changes to these settings, refresh the list.', 'themify' ) . '</small></span>
+				</p>';
+
+		return $html;
 	}
 }
 
 if ( ! function_exists( 'themify_entries_navigation' ) ) {
 	/**
 	 * Display module to select numbered pagination or links to previous and next posts.
-	 * @param $data array
-	 * @return $html Module markup.
+	 * @param array $data
+	 * @return string $html Module markup.
 	 * @since 1.6.0
 	 */
 	function themify_entries_navigation( $data = array() ) {
@@ -1904,14 +1930,14 @@ if ( ! function_exists( 'themify_entries_navigation' ) ) {
 		$key = 'setting-entries_nav';
 		$html = '<p>';
 			// Numbered pagination
-			$html .= '<label for="' . $key . '_numbered">';
-			$html .= '<input ' . checked( isset( $data[$key] )? $data[$key] : 'numbered', 'numbered', false) . ' type="radio" id="' . $key . '_numbered" name="' . $key . '" value="numbered" /> ';
+			$html .= '<label for="' . esc_attr( $key . '_numbered' ) . '">';
+			$html .= '<input ' . checked( isset( $data[$key] )? $data[$key] : 'numbered', 'numbered', false) . ' type="radio" id="' . esc_attr( $key . '_numbered' ) . '" name="' . esc_attr( $key ) . '" value="numbered" /> ';
 			$html .= __( 'Numbered Page Navigation (page 1, 2, 3, etc.)', 'themify' ) . '</label>';
 			$html .= '<br/>';
 			
 			// Previous / Next links
-			$html .= '<label for="' . $key . '_prevnext">';
-			$html .= '<input ' . checked( isset( $data[$key] )? $data[$key] : '', 'prevnext', false ) . ' type="radio" id="' . $key . '_prevnext" name="' . $key . '" value="prevnext" /> ';
+			$html .= '<label for="' . esc_attr( $key . '_prevnext' ) . '">';
+			$html .= '<input ' . checked( isset( $data[$key] )? $data[$key] : '', 'prevnext', false ) . ' type="radio" id="' . esc_attr( $key . '_prevnext' ) . '" name="' . esc_attr( $key ) . '" value="prevnext" /> ';
 			$html .= __( 'Previous Posts and Next Posts Links', 'themify' ) . '</label>';
 		$html .= '</p>';
 		return $html;
@@ -1925,7 +1951,7 @@ if(!function_exists('themify_framework_theme_config_webfonts_subsets')){
 	function themify_framework_theme_config_webfonts_subsets($themify_theme_config) {
 		$themify_theme_config['panel']['settings']['tab']['general']['custom-module'][] =
 			array(
-				'title' => __('Google WebFonts Subsets', 'themify'),
+				'title' => __('Google Fonts', 'themify'),
 				'function' => 'themify_webfonts_subsets'
 			)
 		;
@@ -1954,4 +1980,14 @@ if( ! function_exists( 'themify_framework_theme_config_add_twitter_settings' ) )
 		return $themify_theme_config;
 	};
 	add_filter('themify_theme_config_setup', 'themify_framework_theme_config_add_twitter_settings');
+}
+
+/**
+ * Renders the option to disable responsive design
+ *
+ * @since 2.1.5
+ * @return string
+ */
+function themify_disable_responsive_design_option( $data = array() ) {
+	return '<p><label for="setting-disable_responsive_design"><input type="checkbox" id="setting-disable_responsive_design" name="setting-disable_responsive_design" ' . checked( themify_get( 'setting-disable_responsive_design' ), 'on', false ) . '/> ' . __( 'Check here to disable the responsive design.', 'themify' ) . '</label></p>';	
 }

@@ -7,10 +7,16 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * @author Themify
  */
 
+// Load styles and scripts registered in Themify_Builder::register_frontend_js_css()
+$GLOBALS['ThemifyBuilder']->load_templates_js_css();
+
 $fields_default = array(
 	'mod_title_post' => '',
 	'layout_post' => '',
+	'post_type_post' => 'post',
+	'type_query_post' => 'category',
 	'category_post' => '',
+	'query_slug_post' => '',
 	'post_per_page_post' => '',
 	'offset_post' => '',
 	'order_post' => 'desc',
@@ -38,19 +44,22 @@ extract( $fields_args, EXTR_SKIP );
 $animation_effect = $this->parse_animation_effect( $animation_effect );
 
 $container_class = implode(' ', 
-	apply_filters('themify_builder_module_classes', array(
-		'module', 'module-' . $mod_name, $module_ID, 'loops-wrapper', 'clearfix', $css_post, $layout_post, $animation_effect
-	) )
+	apply_filters( 'themify_builder_module_classes', array(
+		'module', 'module-' . $mod_name, $module_ID, $css_post
+	), $mod_name, $module_ID, $fields_args )
 );
+
+$this->add_post_class( $animation_effect );
 ?>
 <!-- module post -->
-<div id="<?php echo $module_ID; ?>" class="<?php echo esc_attr( $container_class ); ?>">
+<div id="<?php echo esc_attr( $module_ID ); ?>" class="<?php echo esc_attr( $container_class ); ?>">
 	<?php if ( $mod_title_post != '' ): ?>
-	<h3 class="module-title"><?php echo $mod_title_post; ?></h3>
+	<h3 class="module-title"><?php echo wp_kses_post( $mod_title_post ); ?></h3>
 	<?php endif; ?>
 	
 	<?php
 	do_action( 'themify_builder_before_template_content_render' );
+	$this->in_the_loop = true;
 	
 	// The Query
 	global $paged, $wp;
@@ -58,7 +67,11 @@ $container_class = implode(' ',
 	$orderby = $orderby_post;
 	$paged = $this->get_paged_query();
 	$limit = $post_per_page_post;
-	$terms = $category_post;
+
+	$terms = isset( $fields_args["{$type_query_post}_post"] ) ? $fields_args["{$type_query_post}_post"] : $category_post;
+	// deal with how category fields are saved
+	$terms = preg_replace( '/\|[multiple|single]*$/', '', $terms );
+
 	$temp_terms = explode(',', $terms);
 	$new_terms = array();
 	$is_string = false;
@@ -77,17 +90,23 @@ $container_class = implode(' ',
 		'order' => $order,
 		'orderby' => $orderby,
 		'suppress_filters' => false,
-		'paged' => $paged
+		'paged' => $paged,
+		'post_type' => $post_type_post
 	);
 
-	if ( count($new_terms) > 0 && ! in_array('0', $new_terms) ) {
+	if ( count($new_terms) > 0 && ! in_array('0', $new_terms) && 'post_slug' !== $type_query_post ) {
 		$args['tax_query'] = array(
 			array(
-				'taxonomy' => 'category',
+				'taxonomy' => $type_query_post,
 				'field' => $tax_field,
-				'terms' => $new_terms
+				'terms' => $new_terms,
+				'operator' => ( '-' == substr( $terms, 0, 1 ) ) ? 'NOT IN' : 'IN',
 			)
 		);
+	}
+
+	if ( ! empty( $query_slug_post ) && 'post_slug' == $type_query_post ) {
+		$args['post__in'] = $this->parse_slug_to_ids( $query_slug_post );
 	}
 
 	// check if theme loop template exists
@@ -104,6 +123,8 @@ $container_class = implode(' ',
 	$the_query = new WP_Query();
 	$posts = $the_query->query($args);
 
+	echo '<div class="builder-posts-wrap clearfix loops-wrapper '. $layout_post .'">';
+
 	// use theme template loop
 	if ( $is_theme_template ) {
 		// save a copy
@@ -117,6 +138,7 @@ $container_class = implode(' ',
 		$themify->width = $img_width_post;
 		$themify->height = $img_height_post;
 		$themify->image_setting = 'ignore=true&';
+		$themify->is_builder_loop = true;
 		if ( $this->is_img_php_disabled() ) 
 			$themify->image_setting .= $image_size_post != '' ? 'image_size=' . $image_size_post . '&' : '';
 		$themify->unlink_title = $unlink_post_title_post;
@@ -135,10 +157,10 @@ $container_class = implode(' ',
 		
 		// revert to original $themify state
 		$themify = clone $themify_save;
-		echo $out;
+		echo !empty( $out ) ? $out : '';
 	} else {
 		// use builder template
-		global $post;
+		global $post; $temp_post = $post;
 		foreach($posts as $post): setup_postdata( $post ); ?>
 
 		<?php themify_post_before(); // hook ?>
@@ -161,7 +183,7 @@ $container_class = implode(' ',
 					
 					themify_before_post_image(); // Hook
 					
-					echo $wp_embed->run_shortcode('[embed]' . themify_get('video_url') . '[/embed]');
+					echo $wp_embed->run_shortcode('[embed]' . esc_url( themify_get( 'video_url' ) ) . '[/embed]');
 					
 					themify_after_post_image(); // Hook
 					
@@ -171,9 +193,9 @@ $container_class = implode(' ',
 					
 					<figure class="post-image">
 						<?php if ( $unlink_feat_img_post == 'yes' ): ?>
-							<?php echo $post_image; ?>
+							<?php echo wp_kses_post( $post_image ); ?>
 						<?php else: ?>
-							<a href="<?php echo themify_get_featured_image_link(); ?>"><?php echo $post_image; ?></a>
+							<a href="<?php echo themify_get_featured_image_link(); ?>"><?php echo wp_kses_post( $post_image ); ?></a>
 						<?php endif; ?>
 					</figure>
 					
@@ -185,7 +207,7 @@ $container_class = implode(' ',
 			<div class="post-content">
 			
 				<?php if ( $hide_post_date_post != 'yes' ): ?>
-					<time datetime="<?php the_time('o-m-d') ?>" class="post-date" pubdate><?php the_time(apply_filters('themify_loop_date', 'M j, Y')) ?></time>
+					<time datetime="<?php the_time('o-m-d') ?>" class="post-date" pubdate><?php the_date( apply_filters( 'themify_loop_date', '' ) ) ?></time>
 				<?php endif; //post date ?>
 
 				<?php if ( $hide_post_title_post != 'yes' ): ?>
@@ -236,16 +258,16 @@ $container_class = implode(' ',
 		</article>
 		<?php themify_post_after(); // hook ?>
 
-		<?php endforeach; wp_reset_postdata(); ?>
+		<?php endforeach; wp_reset_postdata(); $post = $temp_post; ?>
 
 	<?php
 	} // end $is_theme_template
 
-	if ( $hide_page_nav_post != 'yes' ) {
-		echo $this->get_pagenav('', '', $the_query);
-	}
+	echo '</div><!-- .builder-posts-wrap -->';
+
+	echo 'yes' != $hide_page_nav_post ? $this->get_pagenav( '', '', $the_query ) : '';
 	?>
 
-	<?php do_action( 'themify_builder_after_template_content_render' ); ?>
+	<?php do_action( 'themify_builder_after_template_content_render' ); $this->remove_post_class( $animation_effect ); $this->in_the_loop = false; ?>
 </div>
 <!-- /module post -->

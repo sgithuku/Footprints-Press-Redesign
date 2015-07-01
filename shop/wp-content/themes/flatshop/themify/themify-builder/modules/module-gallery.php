@@ -11,19 +11,33 @@ class TB_Gallery_Module extends Themify_Builder_Module {
 			'slug' => 'gallery'
 		));
 	}
-}
 
-///////////////////////////////////////
-// Module Options
-///////////////////////////////////////
-Themify_Builder_Model::register_module( 'TB_Gallery_Module', 
-	apply_filters( 'themify_builder_module_gallery', array(
-		'options' => array(
+	public function get_options() {
+		$options = array(
 			array(
 				'id' => 'mod_title_gallery',
 				'type' => 'text',
 				'label' => __('Module Title', 'themify'),
 				'class' => 'large'
+			),
+			array(
+				'id' => 'layout_gallery',
+				'type' => 'radio',
+				'label' => __('Gallery Layout', 'themify'),
+				'options' => array(
+					'grid' => __('Grid', 'themify'),
+					'showcase' => __('Showcase', 'themify'),
+					'lightboxed' => __('Lightboxed', 'themify'),
+				),
+				'default' => 'grid',
+				'option_js' => true,
+			),
+			array(
+				'id' => 'thumbnail_gallery',
+				'type' => 'image',
+				'label' => __('Thumbnail', 'themify'),
+				'class' => 'large',
+				'wrap_with_class' => 'tf-group-element tf-group-element-lightboxed'
 			),
 			array(
 				'id' => 'shortcode_gallery',
@@ -47,6 +61,7 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 				'type' => 'text',
 				'label' => __('Thumbnail Width', 'themify'),
 				'class' => 'xsmall',
+				'hide' => Themify_Builder_Model::is_img_php_disabled() ? true : false,
 				'help' => 'px'
 			),
 			array(
@@ -54,7 +69,19 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 				'type' => 'text',
 				'label' => __('Thumbnail Height', 'themify'),
 				'class' => 'xsmall',
+				'hide' => Themify_Builder_Model::is_img_php_disabled() ? true : false,
 				'help' => 'px'
+			),
+			array(
+				'id' => 'image_size_gallery',
+				'type' => 'select',
+				'label' => Themify_Builder_Model::is_img_php_disabled() ? __('Image Size', 'themify') : false,
+				'empty' => array(
+					'val' => '',
+					'label' => ''
+				),
+				'hide' => Themify_Builder_Model::is_img_php_disabled() ? false : true,
+				'options' => themify_get_image_sizes_list( false )
 			),
 			array(
 				'id' => 'appearance_gallery',
@@ -68,9 +95,12 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 					array( 'name' => 'circle', 'value' => __('Circle', 'themify'), 'help' => __('(square format image only)', 'themify'))
 				)
 			)
-		),
-		// Styling
-		'styling' => array(
+		);
+		return $options;
+	}
+
+	public function get_styling() {
+		$styling = array(
 			// Animation
 			array(
 				'id' => 'separator_animation',
@@ -101,7 +131,9 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 				'id' => 'background_color',
 				'type' => 'color',
 				'label' => __('Background Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'background-color',
+				'selector' => '.module-gallery',
 			),
 			// Font
 			array(
@@ -117,13 +149,17 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 				'id' => 'font_family',
 				'type' => 'font_select',
 				'label' => __('Font Family', 'themify'),
-				'class' => 'font-family-select'
+				'class' => 'font-family-select',
+				'prop' => 'font-family',
+				'selector' => '.module-gallery',
 			),
 			array(
 				'id' => 'font_color',
 				'type' => 'color',
 				'label' => __('Font Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => '.module-gallery',
 			),
 			array(
 				'id' => 'multi_font_size',
@@ -133,7 +169,9 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 					array(
 						'id' => 'font_size',
 						'type' => 'text',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'font-size',
+						'selector' => '.module-gallery',
 					),
 					array(
 						'id' => 'font_size_unit',
@@ -154,7 +192,9 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 					array(
 						'id' => 'line_height',
 						'type' => 'text',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'line-height',
+						'selector' => '.module-gallery',
 					),
 					array(
 						'id' => 'line_height_unit',
@@ -178,7 +218,9 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 					array( 'value' => 'center', 'name' => __( 'Center', 'themify' ) ),
 					array( 'value' => 'right', 'name' => __( 'Right', 'themify' ) ),
 					array( 'value' => 'justify', 'name' => __( 'Justify', 'themify' ) )
-				)
+				),
+				'prop' => 'text-align',
+				'selector' => '.module-gallery',
 			),
 			// Link
 			array(
@@ -194,7 +236,9 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 				'id' => 'link_color',
 				'type' => 'color',
 				'label' => __('Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => '.module-gallery a'
 			),
 			array(
 				'id' => 'text_decoration',
@@ -206,7 +250,9 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 					array('value' => 'overline', 'name' => __('Overline', 'themify')),
 					array('value' => 'line-through',  'name' => __('Line through', 'themify')),
 					array('value' => 'none',  'name' => __('None', 'themify'))
-				)
+				),
+				'prop' => 'text-decoration',
+				'selector' => '.module-gallery a'
 			),
 			// Padding
 			array(
@@ -219,34 +265,95 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 				'meta' => array('html'=>'<h4>'.__('Padding', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'multi_padding',
+				'id' => 'multi_padding_top',
 				'type' => 'multi',
 				'label' => __('Padding', 'themify'),
 				'fields' => array(
 					array(
 						'id' => 'padding_top',
 						'type' => 'text',
-						'description' => __('top', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'padding-top',
+						'selector' => '.module-gallery',
 					),
+					array(
+						'id' => 'padding_top_unit',
+						'type' => 'select',
+						'description' => __('top', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_right',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_right',
 						'type' => 'text',
-						'description' => __('right', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'padding-right',
+						'selector' => '.module-gallery',
 					),
+					array(
+						'id' => 'padding_right_unit',
+						'type' => 'select',
+						'description' => __('right', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_bottom',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_bottom',
 						'type' => 'text',
-						'description' => __('bottom', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'padding-bottom',
+						'selector' => '.module-gallery',
 					),
+					array(
+						'id' => 'padding_bottom_unit',
+						'type' => 'select',
+						'description' => __('bottom', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_left',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_left',
 						'type' => 'text',
-						'description' => __('left (px)', 'themify'),
-						'class' => 'xsmall'
-					)
+						'class' => 'xsmall',
+						'prop' => 'padding-left',
+						'selector' => '.module-gallery',
+					),
+					array(
+						'id' => 'padding_left_unit',
+						'type' => 'select',
+						'description' => __('left', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
 				)
 			),
 			// Margin
@@ -260,34 +367,95 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 				'meta' => array('html'=>'<h4>'.__('Margin', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'multi_margin',
+				'id' => 'multi_margin_top',
 				'type' => 'multi',
 				'label' => __('Margin', 'themify'),
 				'fields' => array(
 					array(
 						'id' => 'margin_top',
 						'type' => 'text',
-						'description' => __('top', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'margin-top',
+						'selector' => '.module-gallery',
 					),
+					array(
+						'id' => 'margin_top_unit',
+						'type' => 'select',
+						'description' => __('top', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_right',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_right',
 						'type' => 'text',
-						'description' => __('right', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'margin-right',
+						'selector' => '.module-gallery',
 					),
+					array(
+						'id' => 'margin_right_unit',
+						'type' => 'select',
+						'description' => __('right', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_bottom',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_bottom',
 						'type' => 'text',
-						'description' => __('bottom', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'margin-bottom',
+						'selector' => '.module-gallery',
 					),
+					array(
+						'id' => 'margin_bottom_unit',
+						'type' => 'select',
+						'description' => __('bottom', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_left',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_left',
 						'type' => 'text',
-						'description' => __('left (px)', 'themify'),
-						'class' => 'xsmall'
-					)
+						'class' => 'xsmall',
+						'prop' => 'margin-left',
+						'selector' => '.module-gallery',
+					),
+					array(
+						'id' => 'margin_left_unit',
+						'type' => 'select',
+						'description' => __('left', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
 				)
 			),
 			// Border
@@ -308,26 +476,26 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 					array(
 						'id' => 'border_top_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-top-color',
+						'selector' => '.module-gallery',
 					),
 					array(
 						'id' => 'border_top_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'border-top-width',
+						'selector' => '.module-gallery',
 					),
 					array(
 						'id' => 'border_top_style',
 						'type' => 'select',
 						'description' => __('top', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
-					)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-top-style',
+						'selector' => '.module-gallery',
+					),
 				)
 			),
 			array(
@@ -338,25 +506,25 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 					array(
 						'id' => 'border_right_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-right-color',
+						'selector' => '.module-gallery',
 					),
 					array(
 						'id' => 'border_right_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'border-right-width',
+						'selector' => '.module-gallery',
 					),
 					array(
 						'id' => 'border_right_style',
 						'type' => 'select',
 						'description' => __('right', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-right-style',
+						'selector' => '.module-gallery',
 					)
 				)
 			),
@@ -368,25 +536,25 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 					array(
 						'id' => 'border_bottom_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-bottom-color',
+						'selector' => '.module-gallery',
 					),
 					array(
 						'id' => 'border_bottom_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'border-bottom-width',
+						'selector' => '.module-gallery',
 					),
 					array(
 						'id' => 'border_bottom_style',
 						'type' => 'select',
 						'description' => __('bottom', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-bottom-style',
+						'selector' => '.module-gallery',
 					)
 				)
 			),
@@ -398,25 +566,25 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 					array(
 						'id' => 'border_left_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-left-color',
+						'selector' => '.module-gallery',
 					),
 					array(
 						'id' => 'border_left_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'border-left-width',
+						'selector' => '.module-gallery',
 					),
 					array(
 						'id' => 'border_left_style',
 						'type' => 'select',
 						'description' => __('left', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-left-style',
+						'selector' => '.module-gallery',
 					)
 				)
 			),
@@ -432,12 +600,12 @@ Themify_Builder_Model::register_module( 'TB_Gallery_Module',
 				'class' => 'large exclude-from-reset-field',
 				'description' => sprintf( '<br/><small>%s</small>', __('Add additional CSS class(es) for custom styling', 'themify') )
 			)
-		),
-		'styling_selector' => array(
-			'.module-gallery' => array(
-				'background_color', 'font_family', 'font_size', 'line_height', 'text_align', 'padding', 'margin', 'border_top', 'border_right', 'border_bottom', 'border_left'
-			),
-			'.module-gallery a' => array( 'link_color', 'text_decoration' )
-		)
-	) )
-);
+		);
+		return $styling;
+	}
+}
+
+///////////////////////////////////////
+// Module Options
+///////////////////////////////////////
+Themify_Builder_Model::register_module( 'TB_Gallery_Module' );

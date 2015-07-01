@@ -27,6 +27,10 @@ add_action( 'wp_head', 'themify_ie_enhancements' );
 add_action( 'wp_head', 'themify_viewport_tag' );
 add_action( 'wp_head', 'themify_ie_standards_compliant');
 
+if( themify_get( 'setting-disable_responsive_design' ) == 'on' ) {
+	add_action( 'init', 'themify_disable_responsive_design' );
+}
+
 // Register custom menu
 add_action( 'init', 'themify_register_custom_nav');
 
@@ -34,10 +38,12 @@ add_action( 'init', 'themify_register_custom_nav');
 add_action( 'widgets_init', 'themify_theme_register_sidebars' );
 
 /////// Filters ////////
-// Apply some transition setup
-add_filter( 'themify_transition_setup', 'themify_transition_setup' );
-// Extend builder inview animation
-add_filter( 'themify_builder_animation_inview_selectors', 'themify_extend_animation_selectors' );
+if ( themify_is_transition_active() ) {
+	// Apply some transition setup
+	add_filter( 'themify_builder_create_animation_selectors', 'themify_transition_setup' );
+	// Extend builder inview animation
+	add_filter( 'themify_builder_animation_inview_selectors', 'themify_extend_animation_selectors' );
+}
 
 /**
  * Enqueue Stylesheets and Scripts
@@ -82,21 +88,21 @@ function themify_theme_enqueue_scripts() {
 	wp_enqueue_script( 'jquery-slider', THEME_URI . '/js/jquery.slider.js', array('jquery'), false, true );
 
 	// Nice scroll plugin - Load only in desktop
-	if ( ! $themify->detect->isMobile() ) {
+	if ( ! themify_theme_is_mobile() ) {
 		wp_enqueue_script( 'theme-scroll', THEME_URI . '/js/jquery.scroll.js', array('jquery'), $theme_version, true );
 	}
 
 	// Check transition Effect
 	if ( themify_is_transition_active() ) {
 		$bufferPx = apply_filters( 'infinite_scroll_bufferPx', 40 );
-		$transitionEffect = false;
+		$transitionEffect = true;
 	} else {
 		$bufferPx = apply_filters( 'infinite_scroll_bufferPx', 500 );
-		$transitionEffect = true;
+		$transitionEffect = false;
 	}
 
 	// Slide mobile navigation menu
-	wp_enqueue_script( 'slide-nav', THEME_URI . '/js/jquery.sidr.js', array('jquery'), $theme_version, true );
+	wp_enqueue_script( 'slide-nav', THEMIFY_URI . '/js/themify.sidemenu' . themify_minified() . '.js', array( 'jquery' ), $theme_version, true );
 
 	//auto height iframe plugin
 	wp_enqueue_script( 'auto-height-iframe', THEME_URI . '/js/jquery.iframe-auto-height.js', array('jquery'), false, true );
@@ -155,13 +161,14 @@ function themify_theme_enqueue_scripts() {
 		'slideshowSpeed' => $slideshowSpeed,
 		// FlyIn Animation
 		'transitionEffect' => $transitionEffect,
-		'transitionSetup' => apply_filters( 'themify_transition_setup', array() ),
 		// Header Parallax
 		'headerParallax' => themify_check('setting-parallax_scrolling_disabled')? false : true,
 		// Screen size at which horizontal menu is moved into side panel
 		'smallScreen' => '900',
 		// Resize refresh rate
 		'resizeRefresh' => '250',
+		// Masonry Layout Option
+		'masonryLayout' => themify_check( 'setting-shop_masonry_disabled' )? '': 'masonry-layout',
 	)));
 
 	if ( themify_is_woocommerce_active() ) {
@@ -206,8 +213,7 @@ function themify_transition_setup( $setup ) {
 		'selectors' => array(
 			'.shortcode.col4-3', '.shortcode.col4-2', '.shortcode.col4-1',
 			'.shortcode.col3-2', '.shortcode.col3-1', '.shortcode.col2-1',
-			'.loops-wrapper.grid4', '.loops-wrapper.grid3', '.loops-wrapper.grid2', '.loops-wrapper.grid2-thumb',
-			'.themify_builder_row'
+			'.loops-wrapper.grid4', '.loops-wrapper.grid3', '.loops-wrapper.grid2', '.loops-wrapper.grid2-thumb'
 		),
 		'specificSelectors' => array( 
 			'.grid2 .products .product' => 'fade-in-up',
@@ -240,7 +246,9 @@ function themify_extend_animation_selectors( $selector ) {
 		'.products .product.fade-in-up',
 		'.list-post > .post.fade-in-up',
 		'.fly-in-left', '.fly-in-right', '.fly-in-bottom',
-		'.product-image.fade-in', '.summary.fade-in'
+		'.product-image.fade-in', '.summary.fade-in',
+		'.shortcode.col4-3', '.shortcode.col4-2', '.shortcode.col4-1',
+		'.shortcode.col3-2', '.shortcode.col3-1', '.shortcode.col2-1',
 	);
 	$selector = array_merge( $selector, $extends );
 	return $selector;
@@ -283,7 +291,7 @@ function themify_ie_enhancements() {
  * @since 1.0.0
  */
 function themify_viewport_tag() {
-	echo "\n".'<meta name="viewport" content="width=width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">'."\n";
+	echo "\n".'<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">'."\n";
 }
 
 /**
@@ -657,8 +665,8 @@ if ( ! function_exists( 'themify_theme_comment' ) ) {
 			<p class="comment-author">
 				<?php printf('%s <cite>%s</cite>', get_avatar($comment,$size='48'), get_comment_author_link()); ?>
 				<small class="comment-time">
-					<?php comment_date( apply_filters('themify_comment_date', 'M d, Y') ); ?> @
-					<?php comment_time( apply_filters('themify_comment_time', 'H:i:s') ); ?>
+					<?php comment_date( apply_filters('themify_comment_date', '') ); ?> @
+					<?php comment_time( apply_filters('themify_comment_time', '') ); ?>
 					<?php edit_comment_link( __('Edit', 'themify'),' [',']'); ?>
 				</small>
 			</p>
@@ -725,4 +733,28 @@ function themify_theme_register_strings( $strings ) {
 }
 add_filter( 'themify_wpml_registered_strings', 'themify_theme_register_strings' );
 
-?>
+if( ! function_exists( 'themify_theme_is_mobile' ) ) :
+	function themify_theme_is_mobile() {
+        if ( function_exists( 'themify_is_touch' ) ) {
+            $isPhone = themify_is_touch( 'phone' );
+        } else {
+            if ( ! class_exists( 'Themify_Mobile_Detect' ) ) {
+                require_once THEMIFY_DIR . '/class-themify-mobile-detect.php';
+            }
+            $detect = new Themify_Mobile_Detect;
+            $isPhone = $detect->isMobile() && !$detect->isTablet();
+        }
+        return $isPhone;
+	}
+endif;
+
+/**
+ * List of layouts supported by the theme to display WooCommerce products
+ *
+ * @return array
+ * @since 1.5.2
+ */
+function themify_theme_woocommerce_post_layouts( $arr ) {
+	return array( 'list-post', 'grid2', 'grid3', 'grid4' );
+}
+add_filter( 'builder_woocommerce_theme_layouts', 'themify_theme_woocommerce_post_layouts' );

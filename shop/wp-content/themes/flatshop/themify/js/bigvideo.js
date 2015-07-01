@@ -24,9 +24,10 @@
 			// on a touchscreen unless the play event is attached to a user click
 			forceAutoplay:false,
 			controls:false,
-			doLoop:false,
+			doLoop:true,
 			container: element ? $(element) : $('body'),
-			shrinkable:false
+			shrinkable:false,
+			poster: ''
 		};
 
 		var BigVideo = this,
@@ -227,7 +228,7 @@
 				player.ready(function(){
 					player.volume(defaultVolume);
 				});
-				doLoop = false;
+				doLoop = true;
 			}
 			container.find('.big-video-image').css('display','none');
 			vid.css('display','block');
@@ -259,7 +260,7 @@
 				// create player
 				settings.container.prepend(wrap);
 				var autoPlayString = settings.forceAutoplay ? 'autoplay' : '';
-				player = $('<video class="'+vidEl.substr(1)+'" class="video-js vjs-default-skin" preload="auto" data-setup="{}" '+autoPlayString+' webkit-playsinline></video>');
+				player = $('<video class="'+vidEl.substr(1)+'" class="video-js vjs-default-skin" preload="auto" data-setup="{}" '+autoPlayString+' webkit-playsinline poster="' + settings.poster + '"></video>');
 				player.css('position','absolute');
 				wrap.append(player);
 

@@ -49,7 +49,7 @@ if ( $show ) :
 		);
 	}
 
-	$slider_loop = new WP_Query( $slider_query );
+	$slider_loop = new WP_Query( apply_filters( 'themify_slider_query_vars', $slider_query ) );
 	?>
 
 	<?php if ( $slider_loop->have_posts() ) : ?>

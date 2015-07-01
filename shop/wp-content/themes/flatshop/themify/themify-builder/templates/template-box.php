@@ -7,6 +7,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * @author Themify
  */
 
+// Load styles and scripts registered in Themify_Builder::register_frontend_js_css()
+$GLOBALS['ThemifyBuilder']->load_templates_js_css();
+
 $fields_default = array(
 	'mod_title_box' => '',
 	'content_box' => '',
@@ -25,9 +28,9 @@ extract( $fields_args, EXTR_SKIP );
 $animation_effect = $this->parse_animation_effect( $animation_effect );
 
 $container_class = implode(' ', 
-	apply_filters('themify_builder_module_classes', array(
+	apply_filters( 'themify_builder_module_classes', array(
 		'module', 'module-' . $mod_name, $module_ID, $animation_effect
-	) ) 
+	), $mod_name, $module_ID, $fields_args )
 );
 $inner_container_classes = implode(' ', apply_filters( 'themify_builder_module_inner_classes', array(
 		'module-' . $mod_name . '-content',	'ui', $appearance_box, $color_box, $add_css_box, $background_repeat
@@ -35,9 +38,9 @@ $inner_container_classes = implode(' ', apply_filters( 'themify_builder_module_i
 );
 ?>
 <!-- module box -->
-<div id="<?php echo $module_ID; ?>" class="<?php echo esc_attr( $container_class ); ?>">
+<div id="<?php echo esc_attr( $module_ID ); ?>" class="<?php echo esc_attr( $container_class ); ?>">
 	<?php if ( $mod_title_box != '' ): ?>
-	<h3 class="module-title"><?php echo $mod_title_box; ?></h3>
+	<h3 class="module-title"><?php echo wp_kses_post( $mod_title_box ); ?></h3>
 	<?php endif; ?>
 	
 	<?php do_action( 'themify_builder_before_template_content_render' ); ?>

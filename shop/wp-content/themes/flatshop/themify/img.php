@@ -9,248 +9,117 @@
 if ( ! function_exists( 'themify_do_img' ) ) {
 	/**
 	 * Resize images dynamically using wp built in functions
-	 * Original by Victor Teixeira
-	 * Modified by Elio Rivero: multisite check, usage of WP Image Editor class
 	 *
-	 * @global int $blog_id
-	 * @param int $attach_id
 	 * @param string $img_url
 	 * @param int $width
 	 * @param int $height
 	 * @param bool $crop
 	 * @return array
 	 */
-	function themify_do_img( $attach_id = null, $img_url = null, $width, $height, $crop = false ) {
+	function themify_do_img( $img_url = null, $width, $height, $crop = false ) {
 
-		// this is an attachment, so we have the ID
-		if ( $attach_id ) {
+		$src = esc_url( $img_url );
 
-			$image_src = wp_get_attachment_image_src( $attach_id, 'full' );
-			$file_path = get_attached_file( $attach_id );
+		$upload_dir = wp_upload_dir();
+		$base_url = $upload_dir['baseurl'];
 
-			// this is not an attachment, let's use the image url
-		} elseif ( $img_url ) {
-
-			$parsed_url = parse_url( $img_url );
-
-			$this_host = parse_url( get_site_url(), PHP_URL_HOST );
-			// Return URL as is if it's an image from a different domain
-			if ( $parsed_url['host'] != $this_host ) {
-				return array( 'url' => $img_url );
-			}
-
-			// Get file path
-			$file_path = untrailingslashit( $_SERVER['DOCUMENT_ROOT'] ) . $parsed_url['path'];
-
-			if ( is_multisite() ) {
-				$blog_id = get_current_blog_id();
-				$this_blog = get_blog_details( $blog_id );
-				$this_site = get_current_site();
-				if ( false !== stripos( $file_path, '/files/' ) ) {
-					if ( '/' != $this_site->path ) {
-						$file_path = preg_replace(
-							'#' . untrailingslashit( $this_site->path ) . '(.*?)files/#',
-							$this_site->path . '/wp-content/blogs.dir/' . $blog_id . '/files/',
-							$file_path
-						);
-					} else {
-						$file_path = str_replace( $this_blog->path . 'files/', get_current_site()->path . 'wp-content/blogs.dir/' . $blog_id . '/files/', $file_path );
-					}
-				} elseif ( '/' != $this_blog->path ) {
-					$file_path = ABSPATH . str_replace( $this_blog->path, '', $parsed_url['path'] );
-				}
-			}
-
-			/**
-			 * Keeps width and height of original image.
-			 * @var array $orig_size
-			 */
-			$orig_size = getimagesize( $file_path );
-
-			$image_src[0] = $img_url;
-			$image_src[1] = $orig_size[0];
-			$image_src[2] = $orig_size[1];
-		} else {
-			// if nothing was provided, return original image url
-			return array( 'url' => $img_url );
-		}
-
-		$file_info = pathinfo( $file_path );
-		$extension = isset( $file_info['extension'] ) ? '.'. $file_info['extension'] : '';
-
-		// the image path without the extension
-		if ( isset( $file_info['dirname'] ) && isset( $file_info['filename'] ) ) {
-			$no_ext_path = $file_info['dirname'].'/'.$file_info['filename'];
-		} else {
-			// we can't do anything, return original image url
-			return array( 'url' => $img_url );
-		}
-
-		add_filter('image_resize_dimensions', 'themify_img_resize_dimensions', 10, 5);
-		$dims = image_resize_dimensions($image_src[1], $image_src[2], $width, $height, $crop);
-		$new_w = $dims[4];
-		$new_h = $dims[5];
-		remove_filter('image_resize_dimensions', 'themify_img_resize_dimensions', 10, 5);
-
-		// Expected image path
-		$cropped_img_path = $no_ext_path.'-'.$new_w.'x'.$new_h.$extension;
-
-		if ( $image_src[1] == $new_w && $image_src[2] == $new_h ) {
-			// default output - without resizing
-			$ql_image = array (
-				'url' => $image_src[0],
-				'width' => $image_src[1],
-				'height' => $image_src[2]
+		// Check if the image is an attachment. If it's external return url, width and height.
+		if ( substr( $src, -strlen( $base_url ) ) === $base_url ) {
+			return array(
+				'url' => $src,
+				'width' => $width,
+				'height' => $height,
 			);
-			return $ql_image;
 		}
 
-		// check if the resized version exists (for $crop = true, will also work for $crop = false if the sizes match)
-		if ( file_exists( $cropped_img_path ) ) {
+		// Get post's attachment meta data to look for references to the requested image size
+		$attachment_id = themify_get_attachment_id_from_url( $src, $base_url );
 
-			$cropped_img_url = str_replace( basename( $image_src[0] ), basename( $cropped_img_path ), $image_src[0] );
+		// If no relationship between a post and a image size was found, return url, width and height.
+		if ( ! $attachment_id ) {
+			return array(
+				'url' => $src,
+				'width' => $width,
+				'height' => $height,
+			);
+		}
 
-			if ( is_multisite() ) {
-				if ( false !== stripos( $cropped_img_url, '/files/' ) ) {
-					$cropped_img_url = preg_replace(
-						'#/files/(.*?)#',
-						'/wp-content/blogs.dir/' . $blog_id . '/files/',
-						$cropped_img_url
+		// Go through the attachment meta data sizes looking for an image size match.
+		$meta = wp_get_attachment_metadata( $attachment_id );
+
+		if ( is_array( $meta ) && isset( $meta['sizes'] ) && is_array( $meta['sizes'] ) ) {
+			foreach( $meta['sizes'] as $key => $size ) {
+				if ( $size['width'] == $width && $size['height'] == $height ) {
+					return array(
+						'url' => str_replace( basename( $src ), $size['file'], $src ),
+						'width' => $width,
+						'height' => $height,
 					);
 				}
 			}
-
-			if ( themify_maybe_do_retina_size() ) {
-				$img_file = str_replace( $new_w.'x'.$new_h, $new_w.'x'.$new_h.'@2x', $cropped_img_path );
-				themify_do_retina_img( $img_url, $width, $height, $crop, $new_w, $new_h, $image_src, $img_file, $file_path );
-			}
-
-			$ql_image = array (
-				'url' => $cropped_img_url,
-				'width' => $new_w,
-				'height' => $new_h
-			);
-			return $ql_image;
 		}
 
-		// no cache files - let's finally resize it
-		$image = wp_get_image_editor( $file_path );
-
-		if ( ! is_wp_error( $image ) ) {
-			if ( false == $crop ) {
-				add_filter('image_resize_dimensions', 'themify_img_resize_dimensions', 10, 5);
-			}
-			$image->set_quality(95);
-			$image->resize( $new_w, $new_h, $crop );
-			$img_file = $image->generate_filename();
-
-			$new_image = $image->save( $img_file );
-
-			$new_img = str_replace( basename( $image_src[0] ), basename( $new_image['path'] ), $image_src[0] );
-			if ( is_multisite() ) {
-				if ( false !== stripos( $new_img, '/files/' ) ) {
-					$new_img = preg_replace(
-						'#/files/(.*?)#',
-						'/wp-content/blogs.dir/' . $blog_id . '/files/',
-						$new_img
-					);
-				}
-			}
-
-			if ( false == $crop ) {
-				remove_filter('image_resize_dimensions', 'themify_img_resize_dimensions');
-			}
-			// resized output
-			$ql_image = array (
-				'url' => $new_img,
-				'width' => $new_image['width'],
-				'height' => $new_image['height']
-			);
-
-			// Add the resized dimensions to original image metadata,
-			// so we can delete resized images if the original image is deleted from Media Library
-			$attachment_id = themify_get_attachment_id_from_url( $img_url );
-			if ( $attachment_id ) {
-				$metadata = wp_get_attachment_metadata( $attachment_id );
-				if ( isset( $metadata['image_meta'] ) ) {
-					$metadata['image_meta']['resized_images'][] = $new_w .'x'. $new_h;
-					wp_update_attachment_metadata( $attachment_id, $metadata );
-				}
-			}
-
-			if ( themify_maybe_do_retina_size() ) {
-				themify_do_retina_img( $img_url, $width, $height, $crop, $new_w, $new_h, $image_src, $img_file, $file_path );
-			}
-
-			// Return resized image
-			return $ql_image;
-		} else {
-			// there was an error, return original image url
-			return array( 'url' => $img_url );
+		// Requested image size doesn't exists, so let's create one
+		if ( true == $crop ) {
+			add_filter( 'image_resize_dimensions', 'themify_img_resize_dimensions', 10, 5 );
 		}
+		$image = themify_make_image_size( $attachment_id, $width, $height, $meta, $src );
+		if ( true == $crop ) {
+			remove_filter( 'image_resize_dimensions', 'themify_img_resize_dimensions', 10 );
+		}
+		return $image;
 	}
 }
 
-if ( ! function_exists( 'themify_do_retina_img' ) ) {
+if ( ! function_exists( 'themify_make_image_size' ) ) {
 	/**
-	 * Generate image for high resolution devices.
+	 * Creates new image size.
 	 *
-	 * @since 1.9.0
+	 * @uses get_attached_file()
+	 * @uses image_make_intermediate_size()
+	 * @uses wp_update_attachment_metadata()
+	 * @uses get_post_meta()
+	 * @uses update_post_meta()
 	 *
-	 * @param string $img_url
-	 * @param int $width
-	 * @param int $height
-	 * @param bool $crop
-	 * @param int $new_w
-	 * @param int $new_h
-	 * @param array $image_src
-	 * @param string $img_file
-	 * @param string $file_path
+	 * @param $attachment_id
+	 * @param $width
+	 * @param $height
+	 * @param $meta
+	 * @param $original_src
 	 *
 	 * @return array
-	 */ 
-	function themify_do_retina_img( $img_url, $width, $height, $crop, $new_w, $new_h, $image_src, $img_file, $file_path ) {
-		// @2x image file path
-		$destfilename = preg_replace( '/([0-9]+)x([0-9]+)/', '$1x$2@2x', $img_file );
+	 */
+	function themify_make_image_size( $attachment_id, $width, $height, $meta, $original_src ) {
+		$attached_file = get_attached_file( $attachment_id );
+		$resized = image_make_intermediate_size( $attached_file, $width, $height, true );
+		if ( $resized && ! is_wp_error( $resized ) ) {
 
-		// check if retina image file exists
-		if ( ! file_exists( $destfilename ) || ! getimagesize( $destfilename ) ) {
-		
-			// Retina dimensions
-			$retina_w = $width*2;
-			$retina_h = $height*2;
+			// Save the new size in meta data
+			$key = sprintf( 'resized-%dx%d', $width, $height );
+			$meta['sizes'][$key] = $resized;
+			$src = str_replace( basename( $original_src ), $resized['file'], $original_src );
 
-			// Get expected image size after cropping
-			$dims_x2 = image_resize_dimensions($image_src[1], $image_src[2], $retina_w, $retina_h, $crop);
-			$dst_x2_w = $dims_x2[4];
-			$dst_x2_h = $dims_x2[5];
+			wp_update_attachment_metadata( $attachment_id, $meta );
 
-			// If possible, make the @2x image
-			if ( $dst_x2_h ) {
+			// Save size in backup sizes so it's deleted when original attachment is deleted.
+			$backup_sizes = get_post_meta( $attachment_id, '_wp_attachment_backup_sizes', true );
+			if ( ! is_array( $backup_sizes ) ) $backup_sizes = array();
+			$backup_sizes[$key] = $resized;
+			update_post_meta( $attachment_id, '_wp_attachment_backup_sizes', $backup_sizes );
 
-				$retina_img = wp_get_image_editor( $file_path );
-
-				if ( ! is_wp_error( $retina_img ) ) {
-					
-					$retina_img->resize( $retina_w, $retina_h, $crop );
-					$retina_img->set_quality( 95 );
-					$suffix = $new_w . 'x' . $new_h . '@2x';
-					$filename = $retina_img->generate_filename( $suffix );
-					$retina_img = $retina_img->save($filename);
-
-					// Add the resized dimensions to original image metadata,
-					// so we can delete resized images if the original image is deleted from Media Library
-					$attachment_id = themify_get_attachment_id_from_url( $img_url );
-					if ( $attachment_id ) {
-						$metadata = wp_get_attachment_metadata( $attachment_id );
-						if ( isset( $metadata['image_meta'] ) ) {
-							$metadata['image_meta']['resized_images'][] = $suffix;
-							wp_update_attachment_metadata( $attachment_id, $metadata );
-						}
-					}
-				}
-			}
+			// Return resized image url, width and height.
+			return array(
+				'url' => esc_url( $src ),
+				'width' => $width,
+				'height' => $height,
+			);
 		}
+		// Return resized image url, width and height.
+		return array(
+			'url' => $original_src,
+			'width' => $width,
+			'height' => $height,
+		);
 	}
 }
 
@@ -295,99 +164,14 @@ function themify_img_resize_dimensions( $default, $orig_w, $orig_h, $dest_w, $de
  * Get attachment ID for image from its url.
  *
  * @param string $url
+ * @param string $base_url
  * @return bool|null|string
  */
-function themify_get_attachment_id_from_url( $url = '' ) {
+function themify_get_attachment_id_from_url( $url = '', $base_url = '' ) {
+	// If this is the URL of an auto-generated thumbnail, get the URL of the original image
+	$url = preg_replace( '/-\d+x\d+(?=\.(jpg|jpeg|png|gif)$)/i', '', str_replace( $base_url . '/', '', $url ) );
+
+	// Finally, run a custom database query to get the attachment ID from the modified attachment URL
 	global $wpdb;
-	$attachment_id = false;
-
-	// If there is no url, return.
-	if ( '' == $url ) {
-		return false;
-	}
-
-	// Get the upload directory paths
-	$upload_dir_paths = wp_upload_dir();
-
-	// Make sure the upload path base directory exists in the attachment URL, to verify that we're working with a media library image
-	if ( false !== strpos( $url, $upload_dir_paths['baseurl'] ) ) {
-
-		// If this is the URL of an auto-generated thumbnail, get the URL of the original image
-		$url = preg_replace( '/-\d+x\d+(?=\.(jpg|jpeg|png|gif)$)/i', '', $url );
-
-		// Remove the upload path base directory from the attachment URL
-		$url = str_replace( $upload_dir_paths['baseurl'] . '/', '', $url );
-
-		// Finally, run a custom database query to get the attachment ID from the modified attachment URL
-		$attachment_id = $wpdb->get_var( $wpdb->prepare( "SELECT wposts.ID FROM $wpdb->posts wposts, $wpdb->postmeta wpostmeta WHERE wposts.ID = wpostmeta.post_id AND wpostmeta.meta_key = '_wp_attached_file' AND wpostmeta.meta_value = '%s' AND wposts.post_type = 'attachment'", $url ) );
-
-	}
-
-	return $attachment_id;
-}
-
-if ( ! function_exists( 'themify_delete_extra_image_sizes' ) ) {
-	/**
-	 * Deletes the resized images when the original image is deleted from the WordPress Media Library.
-	 *
-	 * @since 1.9.0
-	 */
-	function themify_delete_extra_image_sizes( $post_id ) {
-		// Get attachment image metadata
-		$metadata = wp_get_attachment_metadata( $post_id );
-		if ( ! $metadata ) {
-			return;
-		}
-
-		// Do some bailing if we cannot continue
-		if ( ! isset( $metadata['file'] ) || ! isset( $metadata['image_meta']['resized_images'] ) ) {
-			return;
-		}
-		$pathinfo = pathinfo( $metadata['file'] );
-		$resized_images = $metadata['image_meta']['resized_images'];
-
-		// Get WordPress uploads directory (and bail if it doesn't exist)
-		$wp_upload_dir = wp_upload_dir();
-		$upload_dir = $wp_upload_dir['basedir'];
-		if ( ! is_dir( $upload_dir ) ) {
-			return;
-		}
-
-		// Delete the resized images
-		foreach ( $resized_images as $dims ) {
-			// Get the resized images filename
-			$file = $upload_dir .'/'. $pathinfo['dirname'] .'/'. $pathinfo['filename'] . '-'. $dims .'.'. $pathinfo['extension'];
-			$file_retina = $upload_dir .'/'. $pathinfo['dirname'] .'/'. $pathinfo['filename'] . '-'. $dims .'@2x.'. $pathinfo['extension'];
-
-			// Delete the resized image
-			@unlink( $file );
-			@unlink( $file_retina );
-		}
-	}
-}
-add_action( 'delete_attachment', 'themify_delete_extra_image_sizes' );
-
-if ( ! function_exists( 'themify_maybe_do_retina_size' ) ) {
-	/**
-	 * Checks user choice on retina images generation and display.
-	 *
-	 * @since 1.9.0
-	 *
-	 * @return bool
-	 */
-	function themify_maybe_do_retina_size() {
-		// Are we in desktop or mobile?
-		if ( themify_is_touch() ) {
-			// Mobile. Does user want to make/show retina images in mobile?
-			if ( themify_check( 'setting-enable_retina_mobile' ) ) {
-				return true;
-			}
-		} else {
-			// Desktop. Does user want to make/show retina images in desktop?
-			if ( themify_check( 'setting-enable_retina_desktop' ) ) {
-				return true;
-			}
-		}
-		return false;
-	}
+	return $wpdb->get_var( $wpdb->prepare( "SELECT wposts.ID FROM $wpdb->posts wposts, $wpdb->postmeta wpostmeta WHERE wposts.ID = wpostmeta.post_id AND wpostmeta.meta_key = '_wp_attached_file' AND wpostmeta.meta_value = '%s' AND wposts.post_type = 'attachment'", $url ) );
 }

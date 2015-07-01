@@ -14,6 +14,8 @@ class Themify_Sub_Accordion_Start extends WP_Customize_Control {
 	 */
 	public $type = 'themify_subaccordion_start';
 
+	public $accordion_id;
+
 	/**
 	 * @param WP_Customize_Manager $manager
 	 * @param string               $id
@@ -22,6 +24,7 @@ class Themify_Sub_Accordion_Start extends WP_Customize_Control {
 	 */
 	function __construct( $manager, $id, $args = array(), $options = array() ) {
 		parent::__construct( $manager, $id, $args );
+		$this->accordion_slug = sanitize_title_with_dashes( $this->label );
 	}
 
 	/**
@@ -30,7 +33,10 @@ class Themify_Sub_Accordion_Start extends WP_Customize_Control {
 	function render_content() {
 		?>
 		<a href="#" class="themify-suba-toggle"><?php echo esc_html( $this->label ); ?></a>
-		<ul class="themify-subaccordion"><!-- Accordion Start -->
+		<!-- Accordion Start -->
+		<ul class="themify-subaccordion" data-accordion="themify-accordion-<?php echo esc_attr( $this->accordion_id ); ?>">
+		</ul>
+		<!-- Accordion End -->
 		<?php
 	}
 
@@ -60,12 +66,9 @@ class Themify_Sub_Accordion_End extends WP_Customize_Control {
 	}
 
 	/**
-	 * Display the font dropdown.
+	 * Display the accordion closing tag.
 	 */
 	function render_content() {
-		?>
-		</ul><!-- Accordion End -->
-		<?php
 	}
 
 }

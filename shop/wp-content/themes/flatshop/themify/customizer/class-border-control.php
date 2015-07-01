@@ -54,14 +54,14 @@ class Themify_Border_Control extends Themify_Control {
 		<?php
 		$first = true;
 		foreach ( $sides as $side => $side_label ) : ?>
-			<div class="themify-customizer-brick <?php echo $first ? 'useforall' : 'component'; ?>">
-				<div class="wide-label <?php echo $first ? 'same-label' : ''; ?>" <?php echo $first ? 'data-same="' . __( 'Border', 'themify' ) . '" data-notsame="' . $side_label . '"' : ''; ?>><?php echo
+			<div class="themify-customizer-brick <?php if ( $first ) : echo 'useforall'; else : echo 'component'; endif; ?>">
+				<div class="wide-label <?php if ( $first ) : echo 'same-label'; endif; ?>" <?php if ( $first ) : echo 'data-same="' . esc_attr__( 'Border', 'themify' ) . '" data-notsame="' . esc_attr( $side_label ) . '"'; endif; ?>><?php echo
 					$side_label;
 					?></div>
 
 				<!-- Border Style -->
 				<div class="custom-select">
-					<select class="border-style" data-side="<?php echo $side; ?>">
+					<select class="border-style" data-side="<?php echo esc_attr( $side ); ?>">
 						<?php foreach ( $styles as $style => $label ) : ?>
 							<?php
 							// Check style
@@ -71,7 +71,7 @@ class Themify_Border_Control extends Themify_Control {
 								$current_style = isset( $values->{$side} ) && isset( $values->{$side}->style ) ? $values->{$side}->style : '';
 							}
 							?>
-							<option value="<?php echo $style; ?>" <?php selected( $current_style, $style ); ?>><?php echo $label; ?></option>
+							<option value="<?php echo esc_attr( $style ); ?>" <?php selected( $current_style, $style ); ?>><?php echo esc_html( $label ); ?></option>
 						<?php endforeach; ?>
 					</select>
 				</div>
@@ -88,8 +88,8 @@ class Themify_Border_Control extends Themify_Control {
 						$opacity = isset( $values->{$side} ) && isset( $values->{$side}->opacity ) ? $values->{$side}->opacity : '';
 					}
 					?>
-					<input type="text" class="color-select" data-side="<?php echo $side; ?>" value="<?php echo $color; ?>" data-opacity="<?php echo $opacity; ?>"/>
-					<a class="remove-color ti-close" href="#" <?php echo ( '' != $color || '' != $opacity ) ? 'style="display:inline"' : ''; ?> data-side="<?php echo $side; ?>"></a>
+					<input type="text" class="color-select" data-side="<?php echo esc_attr( $side ); ?>" value="<?php echo esc_attr( $color ); ?>" data-opacity="<?php echo esc_attr( $opacity ); ?>"/>
+					<a class="remove-color ti-close" href="#" <?php echo ( '' != $color || '' != $opacity ) ? 'style="display:inline"' : ''; ?> data-side="<?php echo esc_attr( $side ); ?>"></a>
 				</div>
 
 				<!-- Border Width -->
@@ -101,7 +101,7 @@ class Themify_Border_Control extends Themify_Control {
 					$width = isset( $values->{$side} ) && isset( $values->{$side}->width ) ? $values->{$side}->width : '';
 				}
 				?>
-				<input type="text" class="dimension-width border-width" data-side="<?php echo $side; ?>" value="<?php echo $width; ?>" />
+				<input type="text" class="dimension-width border-width" data-side="<?php echo esc_attr( $side ); ?>" value="<?php echo esc_attr( $width ); ?>" />
 				<label class="dimension-unit-label"><?php _e( 'px', 'themify' ); ?></label>
 			</div>
 		<?php
@@ -111,13 +111,13 @@ class Themify_Border_Control extends Themify_Control {
 		<div class="themify-customizer-brick collapse-same">
 			<!-- Apply the same settings to all sides -->
 			<?php $same_id = $this->id . '_same'; ?>
-			<input id="<?php echo $same_id; ?>" type="checkbox" class="same" <?php checked( $same, 'same' ); ?> value="same"/>
-			<label for="<?php echo $same_id; ?>">
+			<input id="<?php echo esc_attr( $same_id ); ?>" type="checkbox" class="same" <?php checked( $same, 'same' ); ?> value="same"/>
+			<label for="<?php echo esc_attr( $same_id ); ?>">
 				<?php _e( 'Apply to all borders.', 'themify' ); ?>
 			</label>
 		</div>
 
-		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo $this->type; ?>_control themify-customizer-value-field"/>
+		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
 		<?php
 	}
 }

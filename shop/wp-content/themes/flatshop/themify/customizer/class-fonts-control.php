@@ -34,15 +34,16 @@ class Themify_Font_Control extends Themify_Control {
 		$v = $this->value();
 		$values = json_decode( $v );
 		wp_enqueue_script( 'json2' );
+		$font_options = isset( $this->font_options ) ? $this->font_options : array();
 		?>
 
 		<?php if ( $this->show_label && ! empty( $this->label ) ) : ?>
 			<span class="customize-control-title themify-control-title"><?php echo esc_html( $this->label ); ?></span>
 		<?php endif; ?>
 
-		<?php $this->render_fonts( $values ); ?>
+		<?php $this->render_fonts( $values, $font_options ); ?>
 
-		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo $this->type; ?>_control themify-customizer-value-field"/>
+		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
 	<?php
 	}
 

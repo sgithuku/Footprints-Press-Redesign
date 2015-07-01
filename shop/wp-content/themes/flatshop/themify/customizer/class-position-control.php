@@ -58,11 +58,11 @@ class Themify_Position_Control extends Themify_Control {
 				<select class="position">
 					<option value=""></option>
 					<?php foreach ( $positions as $position => $label ) : ?>
-						<option value="<?php echo $position; ?>" <?php selected( $position, $current_position ); ?>><?php echo $label; ?></option>
+						<option value="<?php echo esc_attr( $position ); ?>" <?php selected( $position, $current_position ); ?>><?php echo esc_html( $label ); ?></option>
 					<?php endforeach; ?>
 				</select>
 			</div>
-			<label><?php _e( 'Position', 'themify' ); ?></label>
+			<label><?php _e( 'Position', 'themify' ); ?></label><a href="http://themify.me/docs/styling#properties-positioning" target="_blank" class="doc-link">(?)</a>
 
 		</div>
 
@@ -71,16 +71,15 @@ class Themify_Position_Control extends Themify_Control {
 			?>
 			<div class="themify-customizer-brick position-wrap">
 
-				<div class="auto-prop-combo js-hide-<?php echo $side; ?> hcollapse">
+				<div class="auto-prop-combo js-hide-<?php echo esc_attr( $side ); ?> hcollapse">
 
-					<input type="text" class="dimension-width" value="<?php echo $width; ?>" data-side="<?php echo $side;
-					?>"	/>
+					<input type="text" class="dimension-width" value="<?php echo esc_attr( $width ); ?>" data-side="<?php echo esc_attr( $side );	?>"	/>
 
 					<div class="custom-select">
-						<select class="dimension-unit" data-side="<?php echo $side; ?>">
+						<select class="dimension-unit" data-side="<?php echo esc_attr( $side ); ?>">
 							<?php foreach ( $units as $unit ) :
 								$unit_val = isset( $values->{$side}->unit ) ? $values->{$side}->unit : 'px'; ?>
-								<option value="<?php echo $unit; ?>" <?php selected( $unit_val, $unit ); ?>><?php echo $unit; ?></option>
+								<option value="<?php echo esc_attr( $unit ); ?>" <?php selected( $unit_val, $unit ); ?>><?php echo esc_html( $unit ); ?></option>
 							<?php endforeach; ?>
 						</select>
 					</div>
@@ -93,9 +92,9 @@ class Themify_Position_Control extends Themify_Control {
 				$auto = isset( $values->{$side}->auto ) ? $values->{$side}->auto : '';
 				$auto_id = $this->id . '_' . $side . '_auto';
 				?>
-				<label for="<?php echo $id; ?>" class="dimension-row-label"><?php echo $side_label; ?></label>
-				<input id="<?php echo $auto_id; ?>" type="checkbox" class="auto-prop" <?php checked( $auto, 'auto' ); ?> value="auto" data-hide="js-hide-<?php echo $side; ?>" data-side="<?php echo $side; ?>"/>
-				<label for="<?php echo $auto_id; ?>">
+				<label class="dimension-row-label"><?php echo esc_html( $side_label ); ?></label>
+				<input id="<?php echo esc_attr( $auto_id ); ?>" type="checkbox" class="auto-prop" <?php checked( $auto, 'auto' ); ?> value="auto" data-hide="js-hide-<?php echo esc_attr( $side ); ?>" data-side="<?php echo esc_attr( $side ); ?>"/>
+				<label for="<?php echo esc_attr( $auto_id ); ?>">
 					<?php _e( 'Auto', 'themify' ); ?>
 				</label>
 			</span>
@@ -103,7 +102,7 @@ class Themify_Position_Control extends Themify_Control {
 			</div>
 		<?php endforeach; ?>
 
-		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo $this->type; ?>_control themify-customizer-value-field"/>
+		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
 		<?php
 	}
 }

@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: gallery, slider, images, image, plugin, fotorama, photos, slideshow, shortcode
 Requires at least: 3.5
 Tested up to: 3.9.1
-Stable tag: 4.6.0
+Stable tag: 4.6.3
 License: MIT
 License URI: http://fotorama.io/license
 

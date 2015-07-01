@@ -64,7 +64,7 @@ class Themify_Margin_Control extends Themify_Control {
 		<?php
 		$first = true;
 		foreach ( $sides as $side => $side_label ) : ?>
-			<div class="themify-customizer-brick <?php echo $first ? 'useforall' : 'component'; ?>">
+			<div class="themify-customizer-brick <?php if ( $first ) : echo 'useforall'; else : echo 'component'; endif; ?>">
 
 				<!-- Margin/Padding Width -->
 				<?php
@@ -77,20 +77,20 @@ class Themify_Margin_Control extends Themify_Control {
 				$id = $this->id . '_' . $dimension_type . '_' . $side;
 				?>
 				<?php if ( 'margin' == $dimension_type ) : ?>
-				<div class="auto-prop-combo js-hide-<?php echo $side; ?> hcollapse">
+				<div class="auto-prop-combo js-hide-<?php echo esc_attr( $side ); ?> hcollapse">
 					<?php endif; ?>
 
-					<input type="text" class="dimension-width <?php echo $dimension_type; ?>-width" data-side="<?php echo $side; ?>" value="<?php echo $width; ?>" id="<?php echo $id; ?>" />
+					<input type="text" class="dimension-width <?php echo esc_attr( $dimension_type ); ?>-width" data-side="<?php echo esc_attr( $side ); ?>" value="<?php echo esc_attr( $width ); ?>" id="<?php echo esc_attr( $id ); ?>" />
 					<div class="custom-select">
-						<select class="dimension-unit <?php echo $dimension_type; ?>-unit" data-side="<?php echo $side; ?>">
+						<select class="dimension-unit <?php echo esc_attr( $dimension_type ); ?>-unit" data-side="<?php echo esc_attr( $side ); ?>">
 							<?php foreach ( $units as $unit ) : ?>
-								<option value="<?php echo $unit; ?>" <?php selected( $unit, $current_unit ); ?>><?php echo $unit; ?></option>
+								<option value="<?php echo esc_attr( $unit ); ?>" <?php selected( $unit, $current_unit ); ?>><?php echo esc_html( $unit ); ?></option>
 							<?php endforeach; ?>
 						</select>
 					</div>
 
 				<?php if ( 'padding' == $dimension_type ) : ?>
-					<label for="<?php echo $id; ?>" class="dimension-row-label <?php echo $first ? 'same-label' : ''; ?>" <?php echo $first ? 'data-same="' . $property . '" data-notsame="' . $side_label . '"' : ''; ?>><?php echo $side_label; ?></label>
+					<label for="<?php echo esc_attr( $id ); ?>" class="dimension-row-label <?php if ( $first ) : echo 'same-label'; endif; ?>" <?php if ( $first ) : echo 'data-same="' . esc_attr( $property ) . '" data-notsame="' . esc_attr( $side_label ) . '"'; endif; ?>><?php echo esc_html( $side_label ); ?></label>
 				<?php endif; ?>
 
 				<?php if ( 'margin' == $dimension_type ) : ?>
@@ -103,9 +103,9 @@ class Themify_Margin_Control extends Themify_Control {
 						$auto = isset( $values->{$side} ) && isset( $values->{$side}->auto ) ? $values->{$side}->auto : '';
 						$auto_id = $this->id . '_' . $side . '_auto';
 						?>
-						<label for="<?php echo $id; ?>" class="dimension-row-label <?php echo $first ? 'same-label' : ''; ?>" <?php echo $first ? 'data-same="' . $property . '" data-notsame="' . $side_label . '"' : ''; ?>><?php echo $side_label; ?></label>
-						<input id="<?php echo $auto_id; ?>" type="checkbox" class="auto-prop" <?php checked( $auto, 'auto' ); ?> value="auto" data-hide="js-hide-<?php echo $side; ?>" data-side="<?php echo $side; ?>"/>
-						<label for="<?php echo $auto_id; ?>">
+						<label for="<?php echo esc_attr( $id ); ?>" class="dimension-row-label <?php if ( $first ) : echo 'same-label'; endif; ?>" <?php if ( $first ) : echo 'data-same="' . esc_attr( $property ) . '" data-notsame="' . esc_attr( $side_label ) . '"'; endif; ?>><?php echo esc_html( $side_label ); ?></label>
+						<input id="<?php echo esc_attr( $auto_id ); ?>" type="checkbox" class="auto-prop" <?php checked( $auto, 'auto' ); ?> value="auto" data-hide="js-hide-<?php echo esc_attr( $side ); ?>" data-side="<?php echo esc_attr( $side ); ?>"/>
+						<label for="<?php echo esc_attr( $auto_id ); ?>">
 							<?php _e( 'Auto', 'themify' ); ?>
 						</label>
 				</span>
@@ -120,13 +120,13 @@ class Themify_Margin_Control extends Themify_Control {
 		<div class="themify-customizer-brick collapse-same">
 			<!-- Apply the same settings to all sides -->
 			<?php $same_id = $this->id . '_same'; ?>
-			<input id="<?php echo $same_id; ?>" type="checkbox" class="same" <?php checked( $same, 'same' ); ?> value="same"/>
-			<label for="<?php echo $same_id; ?>">
-				<?php echo $apply_to_all; ?>
+			<input id="<?php echo esc_attr( $same_id ); ?>" type="checkbox" class="same" <?php checked( $same, 'same' ); ?> value="same"/>
+			<label for="<?php echo esc_attr( $same_id ); ?>">
+				<?php echo esc_html( $apply_to_all ); ?>
 			</label>
 		</div>
 
-		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo $this->type; ?>_control themify-customizer-value-field"/>
+		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
 		<?php
 	}
 }

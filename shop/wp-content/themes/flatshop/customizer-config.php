@@ -20,7 +20,7 @@ function themify_theme_customizer_definition( $args ) {
 			),
 			'control' => array(
 				'type'    => 'Themify_Background_Control', // Type of the control to render.
-				'label'   => __( 'Body', 'themify' ), // Visible name of the control.
+				'label'   => __( 'Body Background', 'themify' ), // Visible name of the control.
 				'show_label' => true, // Whether to show the control name or not. Defaults to true.
 				'section' => 'themify_options', // Optional section ID where the control will be added.
 			),
@@ -28,33 +28,10 @@ function themify_theme_customizer_definition( $args ) {
 			'prop' => 'background', // Styling to apply, can be a CSS property or a custom set of properties.
 		),
 
-		'body_border' => array(
-			'control' => array(
-				'type'    => 'Themify_Border_Control',
-			),
-			'selector' => 'body',
-			'prop' => 'border',
-		),
-
-		'body_padding' => array(
-			'control' => array(
-				'type'    => 'Themify_Padding_Control',
-			),
-			'selector' => 'body',
-			'prop' => 'padding',
-		),
-
-		'body_margin' => array(
-			'control' => array(
-				'type'    => 'Themify_Margin_Control',
-			),
-			'selector' => 'body',
-			'prop' => 'margin',
-		),
-
 		'body_font' => array(
 			'control' => array(
 				'type'    => 'Themify_Font_Control',
+				'label'   => __( 'Body Font', 'themify' ),
 			),
 			'selector' => 'body',
 			'prop' => 'font',
@@ -102,6 +79,31 @@ function themify_theme_customizer_definition( $args ) {
 			),
 			'selector' => 'a:hover',
 			'prop' => 'color',
+		),
+		
+		'body_border' => array(
+			'control' => array(
+				'type'    => 'Themify_Border_Control',
+				'label'	  => __( 'Body Padding/Margin/Border', 'themify' ),
+			),
+			'selector' => 'body',
+			'prop' => 'border',
+		),
+
+		'body_padding' => array(
+			'control' => array(
+				'type'    => 'Themify_Padding_Control',
+			),
+			'selector' => 'body',
+			'prop' => 'padding',
+		),
+
+		'body_margin' => array(
+			'control' => array(
+				'type'    => 'Themify_Margin_Control',
+			),
+			'selector' => 'body',
+			'prop' => 'margin',
 		),
 
 		'end_body_acc' => $themify_customizer->accordion_end(),
@@ -202,7 +204,7 @@ function themify_theme_customizer_definition( $args ) {
 		'content_width' => array(
 			'control' => array(
 				'type'  => 'Themify_Width_Control',
-				'label' => __( 'Content', 'themify' ),
+				'label' => __( 'Content Container', 'themify' ),
 			),
 			'selector' => '#content',
 			'prop' => 'width',
@@ -251,7 +253,7 @@ function themify_theme_customizer_definition( $args ) {
 		'sidebar_width' => array(
 			'control' => array(
 				'type'  => 'Themify_Width_Control',
-				'label' => __( 'Sidebar', 'themify' ),
+				'label' => __( 'Sidebar Container', 'themify' ),
 			),
 			'selector' => '#sidebar',
 			'prop' => 'width',
@@ -662,6 +664,16 @@ function themify_theme_customizer_definition( $args ) {
 			'prop' => 'font',
 		),
 
+		'header_font_color' => array(
+			'control' => array(
+				'type'    => 'Themify_Color_Control',
+				'label'   => __( 'Header Font Color', 'themify' ),
+				'show_label' => false,
+			),
+		'selector' => '#header',
+			'prop' => 'color',
+		),
+
 		'header_link_font' => array(
 			'control' => array(
 				'type'    => 'Themify_Text_Decoration_Control',
@@ -722,7 +734,7 @@ function themify_theme_customizer_definition( $args ) {
 		'site-logo_position' => array(
 			'control' => array(
 				'type'    => 'Themify_Position_Control',
-				'label'   => __( 'Position', 'themify' ),
+				'label'   => __( 'Site Logo Position', 'themify' ),
 			),
 			'selector' => '#site-logo',
 			'prop' => 'position',
@@ -741,7 +753,7 @@ function themify_theme_customizer_definition( $args ) {
 		'site-tagline_position' => array(
 			'control' => array(
 				'type'    => 'Themify_Position_Control',
-				'label'   => __( 'Position', 'themify' ),
+				'label'   => __( 'Site Tagline Position', 'themify' ),
 			),
 			'selector' => '#site-description',
 			'prop' => 'position',
@@ -774,6 +786,7 @@ function themify_theme_customizer_definition( $args ) {
 			'control' => array(
 				'type'  => 'Themify_Width_Control',
 				'label' => __( 'Width', 'themify' ),
+				'show_label' => false,
 			),
 			'selector' => '#main-nav',
 			'prop' => 'width',
@@ -781,8 +794,9 @@ function themify_theme_customizer_definition( $args ) {
 
 		'main_nav_height' => array(
 			'control' => array(
-				'type'  => 'Themify_Width_Control',
+				'type'  => 'Themify_Height_Control',
 				'label' => __( 'Height', 'themify' ),
+				'show_label' => false,
 			),
 			'selector' => '#main-nav',
 			'prop' => 'height',
@@ -1873,7 +1887,7 @@ function themify_theme_customizer_definition( $args ) {
 
 		'post_date_height' => array(
 			'control' => array(
-				'type'  => 'Themify_Width_Control',
+				'type'  => 'Themify_Height_Control',
 			),
 			'selector' => '.post-date',
 			'prop' => 'height',
@@ -2864,6 +2878,63 @@ function themify_theme_customizer_definition( $args ) {
 		// Accordion End   ---------------------------
 
 		// Accordion Start ---------------------------
+		'start_module_title_acc' => $themify_customizer->accordion_start( __( 'Module Title', 'themify' ) ),
+
+		// Module Title .module-title
+
+		'module_title_color' => array(
+			'control' => array(
+				'type'    => 'Themify_Color_Control',
+				'label'   => __( 'Module Title', 'themify' ),
+			),
+			'selector' => '.module-title',
+			'prop' => 'color',
+		),
+
+		'module_title_font' => array(
+			'control' => array(
+				'type'    => 'Themify_Font_Control',
+			),
+			'selector' => '.module-title',
+			'prop' => 'font',
+		),
+
+		'module_title_background' => array(
+			'control' => array(
+				'type'    => 'Themify_Background_Control',
+			),
+			'selector' => '.module-title',
+			'prop' => 'background',
+		),
+
+		'module_title_border' => array(
+			'control' => array(
+				'type'    => 'Themify_Border_Control',
+			),
+			'selector' => '.module-title',
+			'prop' => 'border',
+		),
+
+		'module_title_padding' => array(
+			'control' => array(
+				'type'  => 'Themify_Padding_Control',
+			),
+			'selector' => '.module-title',
+			'prop' => 'padding',
+		),
+
+		'module_title_margin' => array(
+			'control' => array(
+				'type'  => 'Themify_Margin_Control',
+			),
+			'selector' => '.module-title',
+			'prop' => 'margin',
+		),
+
+		'end_module_title_acc' => $themify_customizer->accordion_end(),
+		// Accordion End   ---------------------------
+
+		// Accordion Start ---------------------------
 		'start_sidebar_acc' => $themify_customizer->accordion_start( __( 'Sidebar', 'themify' ) ),
 
 		// Sidebar Font #sidebar
@@ -3191,22 +3262,30 @@ function themify_theme_customizer_definition( $args ) {
 			'prop' => 'font',
 		),
 
-		// Footer Widget #sidebar .widget
+		// Footer Widget .footer-widgets .widget
 
 		'footer_widget_color' => array(
 			'control' => array(
 				'type'    => 'Themify_Color_Control',
 				'label'   => __( 'Footer Widget Container', 'themify' ),
 			),
-			'selector' => '#footer .widget',
+			'selector' => '.footer-widgets .widget',
 			'prop' => 'color',
+		),
+
+		'footer_widget_font' => array(
+			'control' => array(
+				'type'    => 'Themify_Font_Control',
+			),
+			'selector' => '.footer-widgets',
+			'prop' => 'font',
 		),
 
 		'footer_widget_background' => array(
 			'control' => array(
 				'type'    => 'Themify_Background_Control',
 			),
-			'selector' => '#footer .widget',
+			'selector' => '.footer-widgets .widget',
 			'prop' => 'background',
 		),
 
@@ -3214,7 +3293,7 @@ function themify_theme_customizer_definition( $args ) {
 			'control' => array(
 				'type'    => 'Themify_Border_Control',
 			),
-			'selector' => '#footer .widget',
+			'selector' => '.footer-widgets .widget',
 			'prop' => 'border',
 		),
 
@@ -3222,7 +3301,7 @@ function themify_theme_customizer_definition( $args ) {
 			'control' => array(
 				'type'  => 'Themify_Padding_Control',
 			),
-			'selector' => '#footer .widget',
+			'selector' => '.footer-widgets .widget',
 			'prop' => 'padding',
 		),
 
@@ -3230,18 +3309,18 @@ function themify_theme_customizer_definition( $args ) {
 			'control' => array(
 				'type'  => 'Themify_Margin_Control',
 			),
-			'selector' => '#footer .widget',
+			'selector' => '.footer-widgets .widget',
 			'prop' => 'margin',
 		),
 
-		// Footer Widget Title #footer .widgettitle
+		// Footer Widget Title .footer-widgets .widgettitle
 
 		'footer_widget_title_color' => array(
 			'control' => array(
 				'type'    => 'Themify_Color_Control',
 				'label'   => __( 'Footer Widget Title', 'themify' ),
 			),
-			'selector' => '#footer .widgettitle',
+			'selector' => '.footer-widgets .widgettitle',
 			'prop' => 'color',
 		),
 
@@ -3249,7 +3328,7 @@ function themify_theme_customizer_definition( $args ) {
 			'control' => array(
 				'type'    => 'Themify_Font_Control',
 			),
-			'selector' => '#footer .widgettitle',
+			'selector' => '.footer-widgets .widgettitle',
 			'prop' => 'font',
 		),
 
@@ -3258,7 +3337,7 @@ function themify_theme_customizer_definition( $args ) {
 				'type'    => 'Themify_Color_Transparent_Control',
 				'color_label' => __( 'Background Color', 'themify' ),
 			),
-			'selector' => '#footer .widgettitle',
+			'selector' => '.footer-widgets .widgettitle',
 			'prop' => 'background',
 		),
 
@@ -3266,7 +3345,7 @@ function themify_theme_customizer_definition( $args ) {
 			'control' => array(
 				'type'    => 'Themify_Border_Control',
 			),
-			'selector' => '#footer .widgettitle',
+			'selector' => '.footer-widgets .widgettitle',
 			'prop' => 'border',
 		),
 
@@ -3274,7 +3353,7 @@ function themify_theme_customizer_definition( $args ) {
 			'control' => array(
 				'type'  => 'Themify_Padding_Control',
 			),
-			'selector' => '#footer .widgettitle',
+			'selector' => '.footer-widgets .widgettitle',
 			'prop' => 'padding',
 		),
 
@@ -3282,11 +3361,11 @@ function themify_theme_customizer_definition( $args ) {
 			'control' => array(
 				'type'  => 'Themify_Margin_Control',
 			),
-			'selector' => '#footer .widgettitle',
+			'selector' => '.footer-widgets .widgettitle',
 			'prop' => 'margin',
 		),
 
-		// Footer Widget List Styling #footer .widget li
+		// Footer Widget List Styling .footer-widgets .widget li
 
 		'footer_widget_list_background' => array(
 			'control' => array(
@@ -3294,7 +3373,7 @@ function themify_theme_customizer_definition( $args ) {
 				'label'   => __( 'Footer Widget List Styling', 'themify' ),
 				'color_label' => __( 'Background Color', 'themify' ),
 			),
-			'selector' => '#footer .widget li',
+			'selector' => '.footer-widgets .widget li',
 			'prop' => 'background',
 		),
 
@@ -3302,7 +3381,7 @@ function themify_theme_customizer_definition( $args ) {
 			'control' => array(
 				'type'    => 'Themify_Border_Control',
 			),
-			'selector' => '#footer .widget li',
+			'selector' => '.footer-widgets .widget li',
 			'prop' => 'border',
 		),
 
@@ -3310,7 +3389,7 @@ function themify_theme_customizer_definition( $args ) {
 			'control' => array(
 				'type'  => 'Themify_Padding_Control',
 			),
-			'selector' => '#footer .widget li',
+			'selector' => '.footer-widgets .widget li',
 			'prop' => 'padding',
 		),
 
@@ -3318,7 +3397,7 @@ function themify_theme_customizer_definition( $args ) {
 			'control' => array(
 				'type'  => 'Themify_Margin_Control',
 			),
-			'selector' => '#footer .widget li',
+			'selector' => '.footer-widgets .widget li',
 			'prop' => 'margin',
 		),
 
@@ -3333,6 +3412,7 @@ function themify_theme_customizer_definition( $args ) {
 			'control' => array(
 				'type'    => 'Themify_CustomCSS_Control',
 				'label'   => __( 'Custom CSS', 'themify' ),
+				'show_label' => false,
 			),
 			'selector' => 'customcss',
 			'prop' => 'customcss',

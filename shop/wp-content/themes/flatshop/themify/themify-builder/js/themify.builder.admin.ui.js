@@ -1,4 +1,8 @@
-;(function($, window, document, undefined) {
+;var ThemifyPageBuilder;
+(function($, window, document, undefined) {
+
+	'use strict';
+
 	// Serialize Object Function
 	if ( 'undefined' === typeof $.fn.serializeObject ) {
 		$.fn.serializeObject = function() {
@@ -19,22 +23,16 @@
 	}
 
 	// Builder Function
-	var ThemifyPageBuilder = {
+	ThemifyPageBuilder = {
+		
+		clearClass: 'col6-1 col5-1 col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full',
+
+		gridClass: ['col-full', 'col4-1', 'col4-2', 'col4-3', 'col3-1', 'col3-2', 'col6-1', 'col5-1'],
+
 		init: function() {
 			this.tfb_hidden_editor_object = tinyMCEPreInit.mceInit['tfb_lb_hidden_editor'];
 			this.preLoader = $('<div/>', {id: 'themify_builder_loader'});
 			this.alertLoader = $('<div/>', {id: 'themify_builder_alert', class: 'alert'});
-
-			// define step rule
-			this.rule_cols_4 = ['[4-1][4-1][4-1][4-1]', '[4-2][4-1][4-1]', '[4-3][4-1]', '[4-1][4-3]', '[4-1][4-2][4-1]', '[4-1][4-1][4-2]'];
-			this.rule_cols_full = ['[col-full]'];
-			this.rule_cols_3 = ['[3-1][3-1][3-1]', '[3-2][3-1]', '[3-1][3-2]'];
-			this.rule_cols_2 = ['[4-2][4-2]'];
-
-			// cols width
-			this.col4_w = 0;
-			this.col3_w = 0;
-			this.col2_w = 0;
 
 			// auto save metabox when save post
 			this.isPostSave = false;
@@ -50,16 +48,16 @@
 		bindEvents: function() {
 			var self = ThemifyPageBuilder,
 				$body = $('body'),
-				resizeId;
+				resizeId,
+				eventToUse = 'true' == themifyBuilder.isTouch ? 'touchend' : 'mouseenter mouseleave';
 
 			/* rows */
-			$('.themify_builder_row_panel .add_new a').bind('click', this.addRow)
 			$body.on('click', '.toggle_row', this.toggleRow)
 			.on('click', '.themify_builder_option_row', this.optionRow)
 			.on('click', '.themify_builder_delete_row', this.deleteRow)
 			.on('click', '.themify_builder_duplicate_row', this.duplicateRow)
-			.on('hover', '.themify_builder_row .row_menu', this.MenuHover);
-			$('.themify_builder_row_panel').on('hover', '.module_menu', this.MenuHover);
+			.on( eventToUse , '.themify_builder_row .row_menu', this.MenuHover);
+			$('.themify_builder_row_panel').on( eventToUse, '.module_menu', this.MenuHover);
 
 			/* module */
 			$body.on('click', '.themify_module_options', this.optionsModule)
@@ -72,10 +70,19 @@
 			.on('click', '.reset-module-styling', this.resetModuleStyling)
 
 			/* lightbox */
-			.on('click', '.close_lightbox, #themify_builder_overlay', this.closeLightBox)
+			.on('click', '#themify_builder_lightbox_parent .close_lightbox', this.closeLightBox)
 			.on('click', '.tf-option-checkbox-js', this.clickCheckBoxOption)
-			.on('click', '#tfb_module_settings input[type="text"], #tfb_module_settings textarea', function(){
+			.on('click', '#tfb_module_settings input[type="text"], #tfb_module_settings textarea, .themify_builder_row .gutter_select', function(){
 				$(this).focus();
+			})
+			.on('dblclick', '#themify_builder_overlay', function( event ){
+				var id = $(event.target).prop('id');
+				if ( id !== '' && id == 'themify_builder_overlay' ) {
+					$('#themify_builder_lightbox_parent').find('.close_lightbox').trigger('click');
+				}
+			})
+			.on('click', '.builder_cancel_lightbox',  function(){
+				$('#themify_builder_lightbox_parent').find('.close_lightbox').trigger('click');
 			})
 
 			/* save module option */
@@ -93,13 +100,6 @@
 					$('input[name*="builder_switch_frontend"]').val(0);
 				}
 				self.postSave(e);
-			});
-
-			$(window).load(function(){
-				//make sure the hidden WordPress Editor is in Visual mode
-				if ( typeof switchEditors !== 'undefined' && typeof tinyMCE !== 'undefined' ) {
-					switchEditors.go('tfb_lb_hidden_editor','tmce');
-				}
 			});
 
 			// module events
@@ -132,15 +132,12 @@
 			// equal height
 			self.equalHeight();
 
-			// title dragger
-			self.colDraggerTitle();
-
 			// switch frontend
 			$('#themify_builder_switch_frontend').on('click', this.switchFrontEnd);
 
 			// lightbox form fields
 			$body.on('change', '#tfb_module_settings .query_category_single', function(){
-				$(this).parent().find('.query_category_multiple').val($(this).val());
+				$(this).closest('.themify_builder_input').find('.query_category_multiple').val($(this).val());
 			});
 
 			// Styling
@@ -152,11 +149,19 @@
 			}).on('editing_module_option', function(){
 				$('.themify_builder_options_tab_content').hide().first().show();
 				$('ul.themify_builder_options_tab li:first').addClass('current');
-			});
+			})
+
+			// Grid Menu List
+			.on('click', '.themify_builder_grid_list li a', this._gridMenuClicked)
+			.on(eventToUse, '.themify_builder_row .grid_menu', this._gridHover)
+			.on('change', '.themify_builder_row .gutter_select', this._gutterChange)
+			.on('click', '.themify_builder_sub_row .sub_row_delete', this._subRowDelete)
+			.on('click', '.themify_builder_sub_row .sub_row_duplicate', this._subRowDuplicate);
 
 			// Module actions
 			self.moduleActions();
 			self.newRowAvailable();
+			self._selectedGridMenu();
 		},
 
 		saveByKeyInput: function() {
@@ -172,26 +177,75 @@
 			});
 		},
 
-		setColorPicker: function() {
-			$('.builderColorSelect').each(function(){
-				var input = $(this).parent().parent().find('.builderColorSelectInput'),
-						set_color = (input.val() == '') ? '#ffffff' : input.val(),
-						minicolors = $(this);
-				
-				minicolors.minicolors({
-					defaultValue: set_color,
+		setColorPicker: function(context) {
+			$('.builderColorSelect', context).each(function(){
+				var $minicolors = $(this),
+					// Hidden field used to save the value
+					$input = $minicolors.parent().parent().find('.builderColorSelectInput'),
+					// Visible field used to show the color only
+					$colorDisplay = $minicolors.parent().parent().find('.colordisplay'),
+					setColor = '',
+					setOpacity = 1.0,
+					sep = '_';
+
+				if ( '' != $input.val() ) {
+					// Get saved value from hidden field
+					var colorOpacity = $input.val();
+					if ( -1 != colorOpacity.indexOf(sep) ) {
+						// If it's a color + opacity, split and assign the elements
+						colorOpacity = colorOpacity.split(sep);
+						setColor = colorOpacity[0];
+						setOpacity = colorOpacity[1] ? colorOpacity[1] : 1;
+					} else {
+						// If it's a simple color, assign solid to opacity
+						setColor = colorOpacity;
+						setOpacity = 1.0;
+					}
+					// If there was a color set, show in the dummy visible field
+					$colorDisplay.val( setColor );
+				}
+
+				$minicolors.minicolors({
+					opacity: 1,
 					textfield: false,
 					change: function(hex, opacity) {
-						// Generate text to show in console
-						var text = hex ? hex : '';
-						this.parent().parent().find('.builderColorSelectInput').val(text.replace('#', ''));
+						if ( '' != hex ) {
+							if ( opacity && '0.99' == opacity ) {
+								opacity = '1';
+							}
+							var value = hex.replace('#', '') + sep + opacity;
+							this.parent().parent().find('.builderColorSelectInput').val(value);
+							$colorDisplay.val( hex.replace('#', '') );
+						}
 					}
 				});
+				// After initialization, set initial swatch, either defaults or saved ones
+				$minicolors.minicolors('value', setColor);
+				$minicolors.minicolors('opacity', setOpacity);
 			});
 
-			$('body').on('blur', '.builderColorSelectInput', function(){
-				var temp_color = ($(this).val() == '') ? '#ffffff' : '#' + $(this).val();
-				$(this).parent().find(".builderColorSelect").minicolors('value', temp_color);
+			$('body').on('blur', '.colordisplay', function(){
+				var $input = $(this),
+					tempColor = '',
+					$minicolors = $input.parent().find('.builderColorSelect'),
+					$field = $input.parent().find('.builderColorSelectInput');
+				if ( '' != $input.val() ) {
+					tempColor = $input.val();
+				}
+				$input.val( tempColor.replace('#', '') );
+				$field.val( $input.val().replace(/[abcdef0123456789]{3,6}/i, tempColor.replace('#', '')) );
+				$minicolors.minicolors('value', tempColor);
+			}).on('keyup', '.colordisplay', function(){
+				var $input = $(this),
+					tempColor = '',
+					$minicolors = $input.parent().find('.builderColorSelect'),
+					$field = $input.parent().find('.builderColorSelectInput');
+				if ( '' != $input.val() ) {
+					tempColor = $input.val();
+				}
+				$input.val( tempColor.replace('#', '') );
+				$field.val( $input.val().replace(/[abcdef0123456789]{3,6}/i, tempColor.replace('#', '')) );
+				$minicolors.minicolors('value', tempColor);
 			});
 		},
 
@@ -216,7 +270,7 @@
 			});
 			$( ".themify_module_holder" ).sortable({
 				placeholder: 'themify_builder_ui_state_highlight',
-				items: '.themify_builder_module',
+				items: '.themify_builder_module, .themify_builder_sub_row',
 				connectWith: '.themify_module_holder',
 				cursor: 'move',
 				revert: 100,
@@ -231,29 +285,24 @@
 				stop: function(event, ui) {
 					var parent = ui.item.parent();
 
-					if(!ui.item.hasClass('active_module')){
-						var module_name = ui.item.data('module-name');
-						var _this = this;
+					if(!ui.item.hasClass('active_module') && !ui.item.hasClass('themify_builder_sub_row')){
+						var tmpl_params = {slug: ui.item.data('module-slug'), name: ui.item.data('module-name') },
+							module_item_tmpl = wp.template('builder_module_item'),
+							module_item = module_item_tmpl( tmpl_params ),
+							$newElems = $(module_item);
+						
 						$( this ).parent().find( ".empty_holder_text" ).hide();
-						ui.item.addClass('active_module').find('.add_module').hide();
-						$.ajax({
-							type: "POST",
-							url: themifyBuilder.ajaxurl,
-							data:
-							{
-								action : 'tfb_add_element',
-								tfb_load_nonce : themifyBuilder.tfb_load_nonce,
-								tfb_template_name : 'module',
-								tfb_module_name : module_name
-							},
-							success: function( data ){
-								var $newElems = $(data);
-								ui.item.replaceWith($newElems);
-								self.moduleEvents();
-								$newElems.find('.themify_module_options').trigger('click');
-							}
-						});
+						ui.item.replaceWith($newElems);
+						$newElems.find('.themify_module_options').trigger('click');
+						self.moduleEvents();
 					} else {
+						// Make sub_row only can nested one level
+						if ( ui.item.hasClass('themify_builder_sub_row') && ui.item.parents('.themify_builder_sub_row').length ) {
+							var $clone_for_move = ui.item.find('.active_module').clone();
+							$clone_for_move.insertAfter(ui.item);
+							ui.item.remove();
+						}
+
 						self.newRowAvailable();
 						self.moduleEvents();
 					}
@@ -271,442 +320,19 @@
 					$('.themify_builder_row_panel .themify_builder_ui_state_highlight').height(placeholder_h);
 				}
 			}).disableSelection();
-			
-			$( '.themify_builder_col' ).resizable({
-				grid: 167,
-				distance: 30,
-				maxWidth: $('.themify_builder_row_content').width(),
-				handles: {'e' : '.col_dragger', 'w':'.col_dragger'},
-				helper: 'ui-resizable-helper',
-				start: function( event, ui ){
-					self.col4_w = 0;
-					self.col3_w = 0;
-					self.col2_w = 0;
 
-					// col width detection
-					var col_i = 0,
-						$colDetection4 = $('.themify_builder_col_detection_4'),
-						col_ii = 0,
-						$colDetection3 = $('.themify_builder_col_detection_3');
-					$colDetection4.show();
-					$('.themify_builder_col_detection_4 .themify_builder_row_content').children().each(function(){
-
-						if(col_i < 1){
-							self.col4_w += $(this).width();
+			var grid_menu_tmpl = wp.template( 'builder_grid_menu' ),
+				grid_menu_render = grid_menu_tmpl({});
+			$('.themify_builder_row_content').each(function(){
+				$(this).children().each(function(){
+					var $holder = $(this).find('.themify_module_holder').first();
+					$holder.children('.themify_builder_module').each(function(){
+						if ( $(this).find('.grid_menu').length == 0 ) {
+							$(this).append($(grid_menu_render));
 						}
-
-						if(col_i < 2){
-							self.col2_w += $(this).width();
-						}
-
-						col_i += 1;
 					});
-					$colDetection4.hide();
-
-					$colDetection3.show();
-					$('.themify_builder_col_detection_3 .themify_builder_row_content').children().each(function(){
-
-						if( col_ii < 1 && $(this).hasClass('col3-1') ) {
-							self.col3_w += $(this).width();
-						}
-
-						col_ii += 1;
-					});
-					$colDetection3.hide();
-
-				},
-				resize: function( event, ui ){
-					var parent = ui.element.parent(),
-					gridFormat = self.detectGridFormat(parent),
-					gridString = gridFormat.join('');
-
-					// snap control
-					if($.inArray(gridString, self.rule_cols_full) > -1){
-						gridOpt = self.col4_w;
-					}
-					else if($.inArray(gridString, self.rule_cols_2) > -1){
-						gridOpt = self.col4_w;
-					}
-					else if($.inArray(gridString, self.rule_cols_3) > -1){
-						gridOpt = self.col3_w;
-					}
-					else{
-						gridOpt = self.col4_w;
-					}
-
-					// 3 column grid indicator
-					if(self.getDirection(ui) == 'right'){
-						if( gridString == '[4-1][4-2][4-1]' && ui.originalSize.width < self.col3_w ) {
-							var s_temp = ui.originalSize.width + (self.col3_w - ui.originalSize.width + 17);
-							gridOpt = s_temp > ui.size.width ? self.col3_w - ui.originalSize.width : self.col3_w + 17;
-						}
-					}
-					if(self.getDirection(ui) == 'left'){
-						if( gridString == '[4-2][4-1][4-1]' && ui.originalSize.width > self.col3_w ) {
-							var s_temp = ui.originalSize.width - (ui.originalSize.width - self.col3_w - 17);
-							gridOpt = s_temp < ui.size.width ? ui.originalSize.width - self.col3_w - 17 : self.col2_w;
-						}
-					}
-
-					$(this).resizable( 'option', 'grid', gridOpt );
-
-					// restrict border
-					if(self.getDirection(ui) == 'right'){
-						var cont = 0;
-						ui.element.nextAll().addClass('next-all');
-						parent.find('.next-all').each(function(){
-							cont += $(this).width();
-						});
-
-						var containtment = (cont + ui.originalSize.width) + 30;
-						$(this).resizable( 'option', 'maxWidth', containtment);
-						parent.children().removeClass('next-all');
-
-						if(ui.element.hasClass('last')){
-							$(this).resizable( 'option', 'grid', 9999 ); // prevent border on right
-						}
-
-					}
-					
-				},
-				stop: function( event, ui ){
-
-					// determine resize deltas
-					var self = ThemifyPageBuilder,
-					delta_x = ui.element.width() - ui.originalSize.width,
-					parent = ui.element.parent(),
-					elem_w = parseInt(ui.element.width() / parent.width() * 100),
-					temp_class,
-					dir = '',
-					gridFormat = self.detectGridFormat(parent),
-					gridString = gridFormat.join('');
-
-					if (delta_x > 0) { 
-						dir += 'right';
-					} else if (delta_x < 0) { 
-						dir += 'left';
-					}
-
-					// define class
-					if( ui.element.hasClass('col3-1') || ui.element.hasClass('col3-2') ){
-						if(elem_w <= 33 + 5){
-							temp_class = 'col3-1';
-						}
-						else if(elem_w <= 66 + 5){
-							temp_class = 'col3-2';
-						}
-						else if(elem_w <= 100 + 5){
-							temp_class = 'col-full';
-						}
-					}
-					else{
-						if(elem_w <= 25 + 5) {
-							temp_class = 'col4-1';
-						}
-						else if(elem_w <= 50 + 5) {
-							temp_class = 'col4-2';
-						}
-						else if(elem_w <= 75 + 5){
-							temp_class = 'col4-3';
-						}
-						else if(elem_w >= 80 + 5){
-							temp_class = 'col-full';
-						}  
-					}
-
-					if( dir == 'right' ){
-
-						// cols 2 grid
-						if($.inArray(gridFormat.join(''), self.rule_cols_2) > -1){
-							var new_w = ui.originalSize.width + ui.element.next().width();
-								
-							if( new_w < ui.element.width() + 5 ){
-								self.moveActiveModule(ui.element.next(), ui.element, 'next');
-								ui.element.next().remove();
-							}
-							else{
-								 parent.children()
-								.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-								.addClass('col4-1');
-								temp_class = 'col4-3';
-							}
-						}
-
-						// rule 3 columns move to right
-						else if($.inArray(gridString, self.rule_cols_3) > -1){
-
-							if( gridString == '[3-1][3-2]' && ui.element.index() == 0 ){
-								var new_w = ui.originalSize.width + ui.element.next().width();
-								
-								if( new_w == ui.element.width() ){
-									self.moveActiveModule(ui.element.next(), ui.element, 'next');
-									ui.element.next().remove();
-								}
-								else{
-									 parent.children()
-									.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-									.addClass('col4-2');
-									temp_class = 'col4-2';
-								}
-
-							}
-							else{
-								var iterate = parseInt((ui.element.width() - ui.originalSize.width) / self.col3_w);
-								var w3 = 0;
-
-								for (i = 0; i < iterate; i++) {
-									self.moveActiveModule(ui.element.next(), ui.element, 'next');
-									ui.element.next().remove();
-								}
-
-								parent.children().each(function(){
-									w3 += $(this).width();
-								});
-
-								// add new col
-								var it2 = parseInt( (parent.width() - w3) / self.col3_w );
-								for (i=0; i < it2; i++){
-									self.addCols(ui, 'col3-1');
-								}
-							}
-
-						}
-
-						// rule 4 columns move to right
-						else if($.inArray(gridString, self.rule_cols_4) > -1){
-
-							if( (gridString == '[4-1][4-2][4-1]' && ui.element.index() == 0) || ( gridString == '[4-1][4-1][4-2]' ) && temp_class != 'col-full' ){
-								
-								if( (ui.element.width() + 5) >= parent.width() ){
-									var iterate = parseInt((ui.element.width() - ui.originalSize.width) / self.col4_w);
-									for (i = 0; i < iterate; i++) {
-										self.moveActiveModule(ui.element.next(), ui.element, 'next');
-										ui.element.next().remove();
-									}
-								}
-								else{
-									parent.children()
-									.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-									.addClass('col3-1');
-									temp_class = 'col3-1';
-								}
-							}
-							else if( (gridString == '[4-1][4-3]' && ui.element.index() == 0 && temp_class != 'col-full') ){
-								var con_w = ui.originalSize.width + ui.element.next().width();
-								var new_w = con_w - ui.element.width();
-
-								ui.element.next()
-								.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-								.addClass(self.returnGridWidth(new_w, ui, 'col4'));
-
-							}
-							else{
-								var iterate = parseInt((ui.element.width() - ui.originalSize.width) / self.col4_w);
-								var w3 = 0;
-								
-								for (i = 0; i < iterate; i++) {
-									self.moveActiveModule(ui.element.next(), ui.element, 'next');
-									ui.element.next().remove();
-								}
-
-								parent.children().each(function(){
-									w3 += $(this).width();
-								});
-
-								// add new col
-								var it2 = parseInt( (parent.width() - w3) / self.col4_w );
-								for (i=0; i < it2; i++){
-									self.addCols(ui, 'col4-1');
-								}
-							}
-							
-						}
-
-
-					} // dir right
-
-					if( dir == 'left' ){
-						
-						// cols full
-						if($.inArray(gridString, self.rule_cols_full) > -1){
-							var iterate = parseInt((ui.originalSize.width - ui.element.width()) / self.col4_w);
-							if(iterate > 3) { iterate = 3;}
-							for (i = 0; i < iterate; i++) {
-								self.addCols(ui, 'col4-1');
-							}
-						}
-
-						// cols 2
-						else if($.inArray(gridFormat.join(''), self.rule_cols_2) > -1){
-							
-							if( ui.element.hasClass('last') ){
-								parent.children()
-								.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-								.addClass('col3-1');
-								temp_class = 'col3-1';
-								
-								if( parent.children().length == 2){
-									self.addCols(ui, 'col3-1');
-								}  
-							}
-							else {
-
-								var new_w = ui.element.width();
-								if( new_w > 0){
-									ui.element.next()
-									.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-									.addClass('col4-3');
-									temp_class = 'col4-1';
-								}
-								else{
-									ui.element.next()
-									.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-									.addClass('col-full');
-									self.moveActiveModule(ui, ui.element.next(), 'prev');
-									ui.element.remove();
-								}
-								
-							}
-							
-						}
-
-						// cols 3
-						else if($.inArray(gridString, self.rule_cols_3) > -1){
-							
-							if( (gridString == '[3-2][3-1]' && ui.element.hasClass('last')) || (gridString == '[3-1][3-2]' && ui.element.hasClass('last')) ){
-								parent.children()
-								.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-								.addClass('col3-1');
-								
-								self.addCols(ui, 'col3-1');
-							}
-							else if(gridString == '[3-1][3-1][3-1]' && ui.element.hasClass('last')){
-								parent.children()
-								.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-								.addClass('col4-1');
-								temp_class = 'col4-1';
-								
-								self.addCols(ui, 'col4-1');
-							}
-							else if(ui.element.hasClass('col3-1')){
-								var new_w = ui.originalSize.width + ui.element.next().width();
-								ui.element.next()
-								.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-								.addClass(self.returnGridWidth(new_w, ui, 'col3'));
-
-								self.moveActiveModule(ui, ui.element.next(), 'prev');
-								ui.element.remove();
-							}
-							else{
-								var new_w = ui.element.width();
-								
-								if( new_w > 0){
-									ui.element.next()
-									.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-									.addClass('col4-2');
-									temp_class = 'col4-2';
-								}
-								else{
-									ui.element.next()
-									.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-									.addClass('col-full');
-									self.moveActiveModule(ui, ui.element.next(), 'prev');
-									ui.element.remove();
-								}
-
-							}
-
-						}
-
-						// cols 4
-						else if($.inArray(gridString, self.rule_cols_4) > -1){
-
-							if( (gridString == '[4-2][4-1][4-1]' && ui.element.index() == 0) || ( gridString == '[4-1][4-2][4-1]' && ui.element.index() == 1 ) ){
-								if( ui.element.width() > 1){
-									parent.children()
-									.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-									.addClass('col3-1');
-									temp_class = 'col3-1';
-								}
-								else{
-									ui.element.next()
-									.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-									.addClass('col4-3');
-									self.moveActiveModule(ui, ui.element.next(), 'prev');
-									ui.element.remove();
-								}
-							}
-							else if( (ui.element.hasClass('col4-3') && ui.element.index() == 0 ) || ( ui.element.hasClass('col4-2') && !ui.element.hasClass('last') ) ){
-								var con_w = ui.originalSize.width + ui.element.next().width();
-								var new_w = con_w - ui.element.width();
-
-								ui.element.next()
-									.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-									.addClass(self.returnGridWidth(new_w, ui, 'col4'));
-
-								if( ui.element.width() <= 1 ){
-									self.moveActiveModule(ui, ui.element.next(), 'prev');
-									ui.element.remove(); 
-								}
-								
-							}
-							else if( (gridString == '[4-3][4-1]' && ui.element.hasClass('last')) || (gridString == '[4-1][4-2][4-1]' && ui.element.hasClass('last')) ){
-								var new_w = ui.element.prev().width() - ui.originalSize.width;
-								ui.element.prev()
-								.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-								.addClass(self.returnGridWidth(new_w, ui, 'col4'));
-
-								self.addCols(ui, 'col4-1');
-							}
-							else if( gridString == '[4-2][4-1][4-1]' && ui.element.hasClass('last')){
-								var new_w = ui.element.prev().prev().width() - ui.originalSize.width;
-								ui.element.prev().prev()
-								.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-								.addClass(self.returnGridWidth(new_w, ui, 'col4'));
-
-								self.addCols(ui, 'col4-1');
-							}
-							else{
-								if(ui.element.next().length >0){
-									var new_w = ui.originalSize.width + ui.element.next().width();
-									ui.element.next()
-									.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full')
-									.addClass(self.returnGridWidth(new_w, ui, 'col4'));
-
-									self.moveActiveModule(ui, ui.element.next(), 'prev');
-									ui.element.remove(); 
-								}
-
-								// add column
-								if(parent.children().length < 4) {
-									var iterate = parseInt((ui.originalSize.width - ui.element.width()) / self.col4_w);
-									if(iterate > 3) { iterate = 3;}
-									for (i = 0; i < iterate; i++) {
-										self.addCols(ui, 'col4-1');
-									}
-								}
-
-							}
-						}
-
-					} // dir left
-
-					// clear class cols
-					ui.element.removeClass('col4-1 col4-2 col4-3 col3-1 col3-2 col2-1 col-full');
-					ui.element.addClass(temp_class);
-
-					ui.element.css({height: '', width: '', left: ''});
-					self.gridRefresh( ui );
-
-					// equalheight
-					self.equalHeight();
-					self.colDraggerTitle();
-					
-				}
+				});
 			});
-
-			self.colDraggerUpdate(); // update dragger
-
 		},
 
 		getDocHeight: function(){
@@ -719,27 +345,10 @@
 		},
 
 		setupLightbox: function() {
-			var markup = '<div id="themify_builder_lightbox_parent" class="themify_builder themify_builder_admin builder-lightbox clearfix">' +
-
-				'<h3 class="themify_builder_lightbox_title"></h3>' +
-
-				'<a href="#" class="close_lightbox"><i class="ti ti-close"></i></a>' +
-
-				'<div id="themify_builder_lightbox_container"></div>' +
-
-			'</div>' +
-
-			'<div id="themify_builder_overlay"></div>';
-
-			$(markup).hide().appendTo('body');
-
-		},
-
-		addRow: function(e) {
-			e.preventDefault();
-			var self = ThemifyPageBuilder;
-			$('#themify_builder_row_wrapper').append(themifyBuilder.newRowTemplate);
-			self.moduleEvents();
+			var isThemifyTheme = 'true' == themifyBuilder.isThemifyTheme? 'is-themify-theme' : 'is-not-themify-theme',
+				lightbox_tmpl = wp.template( 'builder_lightbox' ),
+				markup = lightbox_tmpl( { is_themify_theme: isThemifyTheme } );
+			$(markup).hide().find('#themify_builder_lightbox_parent').hide().end().appendTo('body');
 		},
 
 		toggleRow: function(e) {
@@ -763,7 +372,7 @@
 			var self = ThemifyPageBuilder,
 					wrapper = $(this).parents('.themify_builder_row_js_wrapper'),
 					oriElems = $(this).closest('.themify_builder_row'),
-					newElems = $(this).closest('.themify_builder_row').clone(),
+					newElems = $(this).closest('.themify_builder_row').clone(true),
 					row_count = $('#tfb_module_settings .themify_builder_row_js_wrapper').find('.themify_builder_row:visible').length + 1,
 					number = row_count + Math.floor(Math.random() * 9);
 
@@ -825,13 +434,36 @@
 			self.moduleEvents();
 		},
 
+		menuTouched: [],
+
 		MenuHover: function(e) {
-			if(e.type=='mouseenter')
-			{
+			if ( 'touchend' == e.type ) {
+				var $row = $(this).closest('.themify_builder_row'),
+					$col = $(this).closest('.themify_builder_col'),
+					$mod = $(this).closest('.themify_builder_module'),
+					index = 'row_' + $row.index();
+				if ( $col.length > 0 ) {
+					index += '_col_' + $col.index();
+				}
+				if ( $mod.length > 0 ) {
+					index += '_mod_' + $mod.index();
+				}
+				if ( ThemifyPageBuilder.menuTouched[index] ) {
+					$(this).find('.themify_builder_dropdown').stop(false,true).hide();
+					$row.css('z-index', '');
+					ThemifyPageBuilder.menuTouched = [];
+				} else {
+					var $builderCont = $('#themify_builder_row_wrapper');
+					$builderCont.find('.themify_builder_dropdown').stop(false,true).hide();
+					$builderCont.find('.themify_builder_row').css('z-index', '');
+					$(this).find('.themify_builder_dropdown').stop(false,true).show();
+					$row.css('z-index', '998');
+					ThemifyPageBuilder.menuTouched = [];
+					ThemifyPageBuilder.menuTouched[index] = true;
+				}
+			} else if(e.type=='mouseenter') {
 				$(this).find('.themify_builder_dropdown').stop(false,true).show();
-			}
-			else if(e.type=='mouseleave')
-			{
+			} else if(e.type=='mouseleave') {
 				$(this).find('.themify_builder_dropdown').stop(false,true).hide();
 			}
 		},
@@ -840,19 +472,20 @@
 			e.preventDefault();
 			var self = ThemifyPageBuilder,
 					module_name = $(this).data('module-name'),
-					set_elems = $(this).closest('.themify_builder_module').find('.themify_module_settings'),
+					set_elems = $(this).closest('.themify_builder_module').find('.themify_module_settings').find('script[type="text/json"]'),
 					is_settings_exist = (set_elems.text().trim().length > 2 && set_elems.text().trim() != 'null') ? true : false,
 					el_settings = (is_settings_exist) ? JSON.parse(set_elems.text().trim()) : '';
 
 			$('.module_menu .themify_builder_dropdown').hide();
 			$('#themify_builder_lightbox_container').empty();
-			$('#themify_builder_overlay').show();
+			$('#themify_builder_overlay').addClass( 'tfb-lightbox-open' ).show();
 			self.preLoader.appendTo('body');
 
 			// assigned selected module class
 			$('#themify_builder_row_wrapper .themify_builder_module').removeClass('current_selected_module');
 			var $tfb_active_module = $(this).parents('.themify_builder_module');
 			$tfb_active_module.addClass('current_selected_module');
+			$('body').addClass('noScroll');
 
 			$.ajax({
 				type: "POST",
@@ -864,14 +497,15 @@
 					tfb_module_name : module_name
 				},
 				success: function( data ){
+					$( document ).on( 'keyup', ThemifyPageBuilder.lightboxCloseKeyListener );
 					var top = $(document).scrollTop() + 80,
-							$newElems = $(data);
+						$newElems = $(data);
 
 					$("#themify_builder_lightbox_parent")
 					.show()
 					.css('top', self.getDocHeight())
 					.animate({
-						top: top
+						top: 100
 					}, 800 );
 
 					$('#themify_builder_loader').remove();
@@ -891,7 +525,7 @@
 									$this_option.find("option[value='" + $found_element + "']").attr('selected','selected');
 								}
 							} else if ( $this_option.is('select') ){
-								$this_option.find("option[value='" + $found_element + "']").attr('selected','selected').siblings().removeAttr('selected');
+								$this_option.val( $found_element );
 							} else if( $this_option.hasClass('themify-builder-uploader-input') ) {
 								var img_field = $found_element,
 										img_thumb = $('<img/>', {src: img_field, width: 50, height: 50});
@@ -938,7 +572,7 @@
 											var img_field = $found_element_child,
 													img_thumb = $('<img/>', {src: img_field, width: 50, height: 50});
 
-											if( img_field != '' ){
+											if( img_field != '' && img_field != undefined ){
 												$this_option_child.val(img_field);
 												$this_option_child.parent().find('.img-placeholder').empty().html(img_thumb).parent().show();
 											}
@@ -948,9 +582,11 @@
 
 										}
 										else if( $this_option_child.hasClass('tf-radio-choice') ){
-											$this_option_child.find("input[value='" + $found_element_child + "']").attr('checked','checked');  
+											$this_option_child.find("input[value='" + $found_element_child + "']").attr('checked','checked');
+										} else if( $this_option_child.hasClass( 'themify-layout-icon' ) ) {
+											$this_option_child.find( '#' + $found_element_child ).addClass( 'selected' );
 										}
-										else if( $this_option_child.is('input, textarea') ){
+										else if( $this_option_child.is('input, textarea, select') ){
 											$this_option_child.val($found_element_child);
 										}
 
@@ -1062,17 +698,53 @@
 					// plupload init
 					self.builderPlupload('normal');
 
+					// option binding setup
+					self.moduleOptionsBinding();
+
 					// builder drag n drop init
 					self.moduleOptionBuilder();
 
+					// tabular options
+					$('.themify_builder_tabs').tabs();
+
 					$('#themify_builder_lightbox_parent').show();
 
-					$('#themify_builder_lightbox_container').find('select').wrap('<div class="selectwrapper"></div>');
+					$('#themify_builder_lightbox_parent').find('select').wrap('<div class="selectwrapper"></div>');
 					$('.selectwrapper').click(function(){
 						$(this).toggleClass('clicked');
 					});
+
 				}
 			});
+		},
+
+		moduleOptionsBinding: function(){
+			var form = $( '#tfb_module_settings' );
+			$( 'input[data-binding], textarea[data-binding], select[data-binding]', form ).change(function(){
+				var logic = false,
+					binding = $( this ).data( 'binding' ),
+					val = $( this ).val();
+				if( val == '' && binding['empty'] != undefined ) {
+					logic = binding['empty'];
+				} else if( val != '' && binding[val] != undefined ) {
+					logic = binding[val];
+				} else if( val != '' && binding['not_empty'] != undefined ) {
+					logic = binding['not_empty'];
+				}
+
+				if( logic ) {
+					if( logic['show'] != undefined ) {
+						$.each( logic['show'], function( i, v ){
+							$( '.' + v ).show();
+						} );
+					}
+					if( logic['hide'] != undefined ) {
+						$.each( logic['hide'], function( i, v ){
+							$( '.' + v ).hide();
+						} );
+					}
+				}
+			}).change();
 		},
 
 		dblOptionModule: function(e) {
@@ -1101,34 +773,30 @@
 
 		addModule: function(e) {
 			e.preventDefault();
-			var self = ThemifyPageBuilder;
-			var module_name = $(this).data('module-name');
-
-			$.ajax({
-				type: "POST",
-				url: themifyBuilder.ajaxurl,
-				data:
-				{
-					action : 'tfb_add_element',
-					tfb_load_nonce : themifyBuilder.tfb_load_nonce,
-					tfb_template_name : 'module',
-					tfb_module_name : module_name
-				},
-				success: function( data ){
-					var dest = $('.themify_builder_row_panel').find('.themify_builder_row:visible').first().find('.themify_module_holder').first(),
-							$newElems = $(data),
-							position = $newElems.appendTo(dest);
+			var self = ThemifyPageBuilder,
+				tmpl_params = {slug: $(this).closest('.themify_builder_module').data('module-slug'), name: $(this).closest('.themify_builder_module').data('module-name') },
+				module_item_tmpl = wp.template( 'builder_module_item' ),
+				module_item = module_item_tmpl( tmpl_params ),
+				dest = $('.themify_builder_row_panel').find('.themify_builder_row:visible').first().find('.themify_module_holder').first(),
+				$newElems = $(module_item),
+				position = $newElems.appendTo(dest);
 					
-					$('html,body').animate({ scrollTop: position.offset().top - 300 }, 500);
-					self.moduleEvents();
-					self.equalHeight();
-					$newElems.find('.themify_module_options').trigger('click');
-				}
-			});
+			$('html,body').animate({ scrollTop: position.offset().top - 300 }, 500);
+			self.moduleEvents();
+			self.equalHeight();
+			$newElems.find('.themify_module_options').trigger('click');
+		},
+
+		lightboxCloseKeyListener : function(e){
+			if( e.keyCode == 27 ) {
+				e.preventDefault();
+				ThemifyPageBuilder.closeLightBox(e);
+			}
 		},
 
 		closeLightBox: function(e) {
 			e.preventDefault();
+			$( document ).off( 'keyup', ThemifyPageBuilder.lightboxCloseKeyListener );
 			var self = ThemifyPageBuilder;
 
 			var $tfb_dialog_form = $('form#tfb_module_settings');
@@ -1146,8 +814,10 @@
 				// Animation complete.
 				$('#themify_builder_lightbox_container').empty();
 				$('.themify_builder_lightbox_title').text('');
-				$('#themify_builder_overlay, #themify_builder_lightbox_parent').hide();  
+				$('#themify_builder_overlay, #themify_builder_lightbox_parent').hide();
+				$('#themify_builder_overlay').removeClass( 'tfb-lightbox-open' );
 				self.deleteEmptyModule();
+				$('body').removeClass('noScroll');
 			});
 		},
 
@@ -1160,6 +830,7 @@
 			var tfb_new_editor_object = self.tfb_hidden_editor_object;
 			
 			tfb_new_editor_object['elements'] = editor_id;
+			tfb_new_editor_object['selector'] = '#' + editor_id;
 			tinyMCEPreInit.mceInit[editor_id] = tfb_new_editor_object;
 
 			// v4 compatibility
@@ -1198,148 +869,25 @@
 			});
 		},
 
-		addCols: function(ui, cols_class){
-			var self = ThemifyPageBuilder;
-			var dest = ui.element.parent();
-			var newElems = '<div class="themify_builder_col">' +
-					'<div class="themify_module_holder">' +
-						'<div class="empty_holder_text">' + themifyBuilder.dropPlaceHolder +'</div>' +
-					'</div>' +
-					'<div class="col_dragger ui-resizable-handle ui-resizable-e" title="'+ themifyBuilder.draggerTitleMiddle +'"></div>' +
-				'</div>';
-
-			var $elems = $(newElems).wrap('<div />');
-			$elems.parent().find('.themify_builder_col').addClass(cols_class);
-			$elems.unwrap().insertAfter(ui.element);
-
-			// remove last element when more than 4 element
-			if(dest.children().length > 4){
-				dest.children().last().remove();
-			}
-
-			self.moduleEvents();
-		},
-
-		gridRefresh: function( ui ){
-			var self = ThemifyPageBuilder,
-				parent = ui.element.parents('.themify_builder_row_content');
-			parent.children().removeClass('first last');
-			parent.children().first().addClass('first');
-			parent.children().last().addClass('last');
-			self.colDraggerUpdate();
-		},
-
-		returnGridWidth: function( width, ui, col ){
-			var temp_class,
-			parent = ui.element.parent(),
-			elem_w = parseInt(width / parent.width() * 100);
-
-			if(col == 'col4'){
-				if(elem_w <= 25 + 5) {
-					temp_class = 'col4-1';
-				}
-				else if(elem_w <= 50 + 5) {
-					temp_class = 'col4-2';
-				}
-				else if(elem_w <= 75 + 5){
-					temp_class = 'col4-3';
-				}
-				else if(elem_w >= 80 + 5){
-					temp_class = 'col-full';
-				}
-			}
-			else if( col == 'col3'){
-				if(elem_w <=33 + 5){
-					temp_class = 'col3-1';
-				}
-				else if(elem_w <= 66 + 5){
-					temp_class = 'col3-2';
-				}
-				else if(elem_w <= 100 + 5){
-					temp_class = 'col-full';
-				}
-			}
-
-			return temp_class;
-		},
-
-		moveActiveModule: function( ui, to , dir){
-
-			if( dir == 'prev'){
-				var modules = ui.element.find('.themify_module_holder').clone();
-				modules.find('.empty_holder_text').remove();
-
-				modules.children().appendTo(to.find('.themify_module_holder'));
-			}
-
-			if( dir == 'next'){
-				var modules = ui.find('.themify_module_holder').clone();
-				modules.find('.empty_holder_text').remove();
-
-				modules.children().appendTo(to.find('.themify_module_holder'));
-			}
-
+		makeEqual: function( $obj, target ) {
+			$obj.each(function(){
+				var t = 0;
+				$(this).find(target).children().each(function(){
+					var $holder = $(this).find('.themify_module_holder').first();
+					$holder.css('min-height', '');
+					if ( $holder.height() > t ) {
+						t=$holder.height();
+					}
+				});
+				$(this).find(target).children().each(function(){
+					$(this).find('.themify_module_holder').first().css('min-height', t + 'px');
+				});
+			});
 		},
 
 		equalHeight: function(){
-			
-			$('.themify_builder_row_content:visible').each(function(){
-				var t=0; // the height of the highest element (after the function runs)
-				$(this).find('.themify_module_holder').each(function () {
-					$this = $(this);
-					$this.css('min-height', '');
-					if ( $this.height() > t ) {
-						t=$this.height();
-					}
-				});
-
-				$(this).find('.themify_module_holder').each(function() {
-					$(this).css('min-height', t + 'px');
-				});
-			});
-
-		},
-
-		getDirection: function(ui) {
-			var elem_w = ui.size.width - ui.originalSize.width,
-					dir = '';
-			if(elem_w > 0){
-				dir += 'right';
-			}
-			else{
-				dir += 'left';
-			}
-			return dir;
-		},
-
-		detectGridFormat: function(parent){
-			var cols = [];
-
-			parent.children().each(function(){
-				if($(this).hasClass('col4-1')){
-					cols.push('[4-1]');
-				}
-				else if($(this).hasClass('col4-2')){
-					cols.push('[4-2]');
-				}
-				else if($(this).hasClass('col4-3')){
-					cols.push('[4-3]');
-				}
-				else if($(this).hasClass('col3-1')){
-					cols.push('[3-1]');
-				}
-				else if($(this).hasClass('col3-2')){
-					cols.push('[3-2]');
-				}
-				else if($(this).hasClass('col3-3')){
-					cols.push('[3-3]');
-				}
-				else if($(this).hasClass('col-full')){
-					cols.push('[col-full]');
-				}
-			});
-
-			return cols;
+			ThemifyPageBuilder.makeEqual( $('.themify_builder_row:visible'), '.themify_builder_row_content:visible');
+			ThemifyPageBuilder.makeEqual( $('.themify_builder_sub_row:visible'), '.themify_builder_sub_row_content');
 		},
 
 		saveData: function(loader, callback, saveto){
@@ -1355,7 +903,7 @@
 				{
 					action : 'tfb_save_data',
 					tfb_load_nonce : themifyBuilder.tfb_load_nonce,
-					ids : ids,
+					ids : JSON.stringify( ids ),
 					tfb_saveto : saveto
 				},
 				cache: false,
@@ -1446,6 +994,13 @@
 
 							if( $(this).hasClass('tf-radio-choice') ){
 								option_value_child = ($(this).find(':checked').length > 0) ? $(this).find(':checked').val() : '';
+							} else if( $( this ).hasClass( 'themify-layout-icon' ) ){
+								if( $(this).find('.selected').length > 0 ){
+									option_value_child = $(this).find('.selected').attr('id');
+								}
+								else{
+									option_value_child = $(this).children().first().attr('id');
+								}
 							}
 							else if ($(this).hasClass('tfb_lb_wp_editor')){
 								var text_id = $(this).attr('id');
@@ -1482,8 +1037,8 @@
 					temp_appended_data[this_option_id] = option_value;
 				}
 			});
-			
-			$active_module_settings.text( JSON.stringify(temp_appended_data) );
+
+			$active_module_settings.find('script[type="text/json"]').text( JSON.stringify( temp_appended_data ) );
 			
 			$('#themify_builder_lightbox_parent').hide();
 			$('.close_lightbox').trigger('click');
@@ -1550,22 +1105,43 @@
 
 				if($(this).find('.themify_builder_module').length > 0){
 					// cols
-					$(this).find('.themify_builder_col').each(function(c){
+					$(this).find('.themify_builder_row_content').children('.themify_builder_col').each(function(c){
 						var grid_class = self.filterClass($(this).attr('class')),
 								modules = {};
 						// mods
-						$(this).find('.themify_builder_module').each(function(m){
-							var mod_name = $(this).data('mod-name'),
-							mod_elems = $(this).find('.themify_module_settings'),
-							mod_settings = (mod_elems.text().length) ? JSON.parse(mod_elems.text()) : '';
-							modules[m] = {'mod_name': mod_name, 'mod_settings': mod_settings};
+						$(this).find('.themify_module_holder').first().children().each(function(m){
+							if ( $(this).hasClass('themify_builder_module') ) {
+								var mod_name = $(this).data('mod-name'),
+								mod_elems = $(this).find('.themify_module_settings'),
+								mod_settings = JSON.parse( mod_elems.find('script[type="text/json"]').text() );
+								modules[m] = {'mod_name': mod_name, 'mod_settings': mod_settings};
+							}
+
+							// Sub Rows
+							if ( $(this).hasClass('themify_builder_sub_row') ) {
+								var sub_cols = {};
+								$(this).find('.themify_builder_col').each(function(sub_col){
+									var sub_grid_class = self.filterClass($(this).attr('class')),
+										sub_modules = {};
+
+									$(this).find('.active_module').each(function(sub_m){
+										var sub_mod_name = $(this).data('mod-name'),
+										sub_mod_elems = $(this).find('.themify_module_settings'),
+										sub_mod_settings = JSON.parse( sub_mod_elems.find('script[type="text/json"]').text() );
+										sub_modules[sub_m] = {'mod_name': sub_mod_name, 'mod_settings': sub_mod_settings};
+									});
+									sub_cols[ sub_col ] = { grid_class: sub_grid_class, modules: sub_modules };
+								});
+
+								modules[m] = { row_order: m, gutter: $(this).data('gutter'), cols: sub_cols };
+							}
 						});
 
 						cols[c] = {'grid_class': grid_class, 'modules': modules};
 
 					});
 
-					option_data[r] = {'row_order': r, 'cols': cols };
+					option_data[r] = {row_order: r, gutter: $(this).data('gutter'), cols: cols };
 				} else {
 					option_data[r] = {};
 				}
@@ -1583,7 +1159,7 @@
 		},
 
 		filterClass: function(str){
-			var grid = ['col-full', 'col4-1', 'col4-2', 'col4-3', 'col3-1', 'col3-2', 'first', 'last'];
+			var grid = ThemifyPageBuilder.gridClass.concat(['first', 'last']),
 				n = str.split(' '),
 				new_arr = [];
 
@@ -1619,7 +1195,7 @@
 				var $el = $(this);
 
 				// Create the media frame.
-				file_frame = wp.media.frames.file_frame = wp.media({
+				var file_frame = wp.media.frames.file_frame = wp.media({
 					title: $(this).data('uploader-title'),
 					library: {
 						type: 'image'
@@ -1633,10 +1209,10 @@
 				// When an image is selected, run a callback.
 				file_frame.on( 'select', function() {
 					// We set multiple to false so only get one image from the uploader
-					attachment = file_frame.state().get('selection').first().toJSON();
+					var attachment = file_frame.state().get('selection').first().toJSON();
 		 
 					// Do something with attachment.id and/or attachment.url here
-					$el.closest('.themify_builder_input').find('.themify-builder-uploader-input').val(attachment.url)
+					$el.closest('.themify_builder_input').find('.themify-builder-uploader-input').val(attachment.url).trigger( 'change' )
 					.parent().find('.img-placeholder').empty()
 					.html($('<img/>', {src: attachment.url, width: 50, height:50}))
 					.parent().show();
@@ -1678,7 +1254,8 @@
 					pconfig["drop_element"] = imgId + pconfig["drop_element"];
 					pconfig["file_data_name"] = imgId + pconfig["file_data_name"];
 					pconfig["multipart_params"]["imgid"] = imgId;
-					pconfig["multipart_params"]["_ajax_nonce"] = $this.find(".ajaxnonceplu").attr("id").replace("ajaxnonceplu", "");
+					//pconfig["multipart_params"]["_ajax_nonce"] = $this.find(".ajaxnonceplu").attr("id").replace("ajaxnonceplu", "");
+					pconfig["multipart_params"]["_ajax_nonce"] = themifyBuilder.tfb_load_nonce;
 					pconfig["multipart_params"]['topost'] = $('input#post_ID').val();
 
 					var uploader = new plupload.Uploader(pconfig);
@@ -1727,7 +1304,7 @@
 							response_url = json.large_url,
 							thumb_url = json.thumb;
 
-						$this.parents('.themify_builder_input').find('.themify-builder-uploader-input').val(response_url)
+						$this.parents('.themify_builder_input').find('.themify-builder-uploader-input').val(response_url).trigger( 'change' )
 						.parent().find('.img-placeholder').empty()
 						.html($('<img/>', {src: thumb_url, width: 50, height:50}))
 						.parent().show();
@@ -1750,8 +1327,10 @@
 				start: function( event, ui ) {
 					if ( typeof tinyMCE !== 'undefined' ) {
 						$('#tfb_module_settings').find('.tfb_lb_wp_editor.tfb_lb_option_child').each(function(){
-							var id = $(this).attr('id');
-							tinyMCE.execCommand('mceRemoveControl', false, id);
+							var id = $(this).attr('id'),
+								content = tinymce.get(id).getContent();
+							$(this).data('content', content);
+							tinyMCE.execCommand('mceRemoveEditor', false, id);
 						});
 					}
 				},
@@ -1759,7 +1338,8 @@
 					if ( typeof tinyMCE !== 'undefined' ) {
 						$('#tfb_module_settings').find('.tfb_lb_wp_editor.tfb_lb_option_child').each(function(){
 							var id = $(this).attr('id');
-							tinyMCE.execCommand('mceAddControl', false, id);
+							tinyMCE.execCommand('mceAddEditor', false, id);
+							tinymce.get(id).setContent($(this).data('content'));
 						});
 					}
 				},
@@ -1767,7 +1347,7 @@
 					var placeholder_h = ui.item.height();
 					$('.themify_builder_module_opt_builder_wrap .themify_builder_ui_state_highlight').height(placeholder_h);
 				}
-			}).disableSelection();
+			});
 		},
 
 		moduleOptAddRow: function(e) {
@@ -1785,6 +1365,9 @@
 				$(this).attr('id', oriname + '_' + row_count + '_' + i);
 				$(this).next('label').attr('for', oriname + '_' + row_count + '_' + i);
 			});
+
+			template.find( '.themify-layout-icon a' ).removeClass( 'selected' );
+
 			template.find('.thumb_preview').each(function(){
 				$(this).find('.img-placeholder').html('').parent().hide();
 			});
@@ -1798,6 +1381,16 @@
 				$(this).attr('id', 'pluploader_' + row_count + number + i + 'themify-builder-plupload-upload-ui');
 				$(this).find('input[type=button]').attr('id', 'pluploader_' + row_count + number + i + 'themify-builder-plupload-browse-button');
 				$(this).addClass('plupload-clone');
+			});
+
+			// Fix color picker input
+			template.find('.builderColorSelectInput').each(function(){
+				var thiz = $(this),
+					input = thiz.clone().val(''),
+					parent = thiz.closest('.themify_builder_field');
+				thiz.prev().minicolors('destroy').removeAttr('maxlength');
+				parent.find( '.colordisplay' ).wrap( '<div class="themify_builder_input" />' ).before( '<span class="builderColorSelect"><span></span></span>' ).after( input );
+				self.setColorPicker(parent);
 			});
 
 			$(template).appendTo(parent).show();
@@ -1836,21 +1429,9 @@
 			});
 		},
 
-		colDraggerTitle: function() {
-			$('.themify_builder_row_js_wrapper').find('.themify_builder_row').each(function(){
-				$(this).find('.col_dragger').attr('title', themifyBuilder.draggerTitleMiddle);
-			});
-
-			$('.themify_builder_col').each(function(){
-				if($(this).hasClass('last')){
-					$(this).find('.col_dragger').attr('title', themifyBuilder.draggerTitleLast);
-				}
-			});
-		},
-
 		deleteEmptyModule: function() {
 			$('#themify_builder_row_wrapper').find('.themify_builder_module').each(function(){
-				if($.trim($(this).find('.themify_module_settings').text()).length <= 2){
+				if($.trim($(this).find('.themify_module_settings').find('script[type="text/json"]').text()).length <= 2){
 					$(this).remove();
 				}
 			});
@@ -1903,7 +1484,7 @@
 							delete attrs[ key ];
 					});
 
-					shortcode = new wp.shortcode({
+					var shortcode = new wp.shortcode({
 						tag:    'gallery',
 						attrs:  attrs,
 						type:   'single'
@@ -1980,27 +1561,6 @@
 			});
 		},
 
-		colDraggerUpdate: function(){
-			var self = ThemifyPageBuilder;
-
-			$('.themify_builder_row_js_wrapper .themify_builder_row').each(function(){
-				var $obj = $(this);
-				if ( $obj.is(':visible')){
-					var parent = $obj.find('.themify_builder_row_content'),
-						gridFormat = self.detectGridFormat(parent),
-						gridString = gridFormat.join('');
-						parent.children().each(function(){
-							$(this).find('.col_dragger').show();
-						});
-					if( gridString == '[4-1][4-1][4-1][4-1]' ) {
-						parent.find('.col4-1.last .col_dragger').hide();
-					} else {
-						parent.find('.col4-1.last .col_dragger').show();
-					}
-				}
-			});
-		},
-
 		moduleActions: function(){
 			var $body = $('body'),
 				$self = ThemifyPageBuilder;
@@ -2068,15 +1628,19 @@
 			$('.themify_builder_row_js_wrapper').each(function(){
 				var $container = $(this),
 					$parent = $container.find('.themify_builder_row:visible'),
-					$template = $container.find('.themify_builder_col_detection_4').clone().removeClass('themify_builder_col_detection_4').removeAttr('style');
+					tmpl = wp.template( 'builder_row' ),
+					$template = $( tmpl({}) );
+				
 				$parent.each(function(){
-					if( $(this).find('.themify_builder_module').length == 0 ){
+					var data_styling = $(this).find('.row-data-styling').data('styling');
+					
+					if( $(this).find('.themify_builder_module').length == 0 && ( typeof data_styling === 'string' || $.isEmptyObject( data_styling ) ) ){
 						$(this).remove();
 					}
 				});
 
 				if( $parent.find('.themify_builder_module').length > 0 || $container.find('.themify_builder_row:visible').length == 0){
-					$template.insertBefore($container.find('.themify_builder_col_detection_4'));
+					$template.appendTo($container);
 				}
 			});
 		},
@@ -2142,12 +1706,13 @@
 				$options = $this.closest('.themify_builder_row').find('.row-data-styling').data('styling');
 
 			$('#themify_builder_lightbox_container').empty();
-			$('#themify_builder_overlay').show();
+			$('#themify_builder_overlay').addClass( 'tfb-lightbox-open' ).show();
 			self.showLoader('show');
 
 			// highlight current selected row
 			$('.themify_builder_row').removeClass('current_selected_row');
 			$this.closest('.themify_builder_row').addClass('current_selected_row');
+			$('body').addClass('noScroll');
 
 			$.ajax({
 				type: "POST",
@@ -2158,13 +1723,11 @@
 					nonce : themifyBuilder.tfb_load_nonce
 				},
 				success: function( data ){
-					var top = $(document).scrollTop() + 80;
-
 					$("#themify_builder_lightbox_parent")
 					.show()
 					.css('top', self.getDocHeight())
 					.animate({
-						top: top
+						top: 100
 					}, 800 );
 
 					self.showLoader('spinhide');
@@ -2203,10 +1766,35 @@
 					// colorpicker
 					self.setColorPicker();
 
+					// @backward-compatibility
+					if( jQuery('#background_video').val() !== '' && $( '#background_type input:checked' ).length == 0 ) {
+						$('#background_type_video').trigger( 'click' );
+					} else if( $( '#background_type input:checked' ).length == 0 ) {
+						$('#background_type_image').trigger( 'click' );
+					}
+
+					$( '.tf-option-checkbox-enable input:checked' ).trigger( 'click' );
+
 					// plupload init
 					self.builderPlupload('normal');
 
 					$('#themify_builder_lightbox_parent').show();
+
+					$('#themify_builder_lightbox_parent').find('select').wrap('<div class="selectwrapper"></div>');
+					$('.selectwrapper').click(function(){
+						$(this).toggleClass('clicked');
+					});
+
+					/* checkbox field type */
+					$( '.themify-checkbox' ).each(function(){
+						var id = $( this ).attr( 'id' );
+						if( $options[id] ) {
+							$options[id] = typeof $options[id] == 'string' ? [$options[id]] : $options[id]; // cast the option value as array
+							$.each( $options[id], function( i, v ){
+								$( '.tf-checkbox[value="'+ v +'"]' ).prop( 'checked', true );
+							} );
+						}
+					});
 				}
 			});
 		},
@@ -2241,9 +1829,170 @@
 				} else if ( $this.hasClass('font-family-select') ) {
 					$this.val('default');
 				} else if( $this.hasClass('builderColorSelectInput') ) {
-					$this.parent().find('.builderColorSelect').minicolors('value', 'ffffff');
+					$this.parent().find('.colordisplay').val('').trigger('blur');
 				}
 			});
+		},
+
+		_gridMenuClicked: function( event ) {
+			event.preventDefault();
+			var set = $(this).data('grid'),
+				handle = $(this).data('handle'), $base, is_sub_row = false;
+
+			$(this).closest('.themify_builder_grid_list').find('.selected').removeClass('selected');
+			$(this).closest('li').addClass('selected');
+
+			switch( handle ) {
+				case 'module':
+					var sub_row_tmpl = wp.template( 'builder_sub_row' ),
+						tmpl_sub_row = sub_row_tmpl( {placeholder: themifyBuilder.dropPlaceHolder, newclass: 'col-full' } ),
+						$mod_clone = $(this).closest('.active_module').clone();
+					$mod_clone.find('.grid_menu').remove();
+					
+					$base = $(tmpl_sub_row).find('.themify_module_holder').append($mod_clone).end()
+					.insertAfter( $(this).closest('.active_module')).find('.themify_builder_sub_row_content');
+
+					$(this).closest('.active_module').remove();
+				break;
+
+				case 'sub_row':
+					is_sub_row = true;
+					$base = $(this).closest('.themify_builder_sub_row').find('.themify_builder_sub_row_content');
+				break;
+
+				default:
+					$base = $(this).closest('.themify_builder_row').find('.themify_builder_row_content');
+			}
+
+			// Hide the dropdown
+			$(this).closest('.themify_builder_grid_list_wrapper').hide();
+
+			$.each(set, function(i, v){
+				if ( $base.children('.themify_builder_col').eq(i).length > 0 ) {
+					$base.children('.themify_builder_col').eq(i).removeClass(ThemifyPageBuilder.clearClass).addClass( 'col' + v );
+				} else {
+					// Add column
+					ThemifyPageBuilder._addNewColumn( { placeholder: themifyBuilder.dropPlaceHolder, newclass: 'col' + v }, $base);
+				}
+			});
+
+			// remove unused column
+			if ( set.length < $base.children().length ) {
+				$base.children('.themify_builder_col').eq( set.length - 1 ).nextAll().each( function(){
+					// relocate active_module
+					var modules = $(this).find('.themify_module_holder').first().clone();
+					modules.find('.empty_holder_text').remove();
+					modules.children().appendTo($(this).prev().find('.themify_module_holder').first());
+					$(this).remove(); // finally remove it
+				});
+			}
+
+			$base.children().removeClass('first last');
+			$base.children().first().addClass('first');
+			$base.children().last().addClass('last');
+
+			// remove sub_row when fullwidth column
+			if ( is_sub_row && set[0] == '-full' ) {
+				var $move_modules = $base.find('.active_module').clone();
+				$move_modules.insertAfter( $(this).closest('.themify_builder_sub_row') );
+				$(this).closest('.themify_builder_sub_row').remove();
+			}
+
+			ThemifyPageBuilder.equalHeight();
+			ThemifyPageBuilder.moduleEvents();
+		},
+
+		_addNewColumn: function( params, $context ) {
+			var template_func = wp.template( 'builder_column'),
+				template = template_func( params );
+			$context.append($(template));
+		},
+
+		_gridHover: function(event) {
+			event.stopPropagation();
+			if ( event.type == 'touchend' ) {
+				$column_menu = $(this).find('.themify_builder_grid_list_wrapper');
+				if ( $column_menu.is(':hidden') ) {
+					$column_menu.show();
+				} else {
+					$column_menu.hide();
+				}
+			} else if(event.type=='mouseenter') {
+				$(this).find('.themify_builder_grid_list_wrapper').stop(true,true).show();
+			} else if(event.type=='mouseleave' && ( event.toElement || event.relatedTarget ) ) {
+				$(this).find('.themify_builder_grid_list_wrapper').stop(true,true).hide();
+			}
+		},
+
+		_gutterChange: function( event ) {
+			var handle = $(this).data('handle');
+			
+			switch( handle ) {
+				case 'sub_row':
+					$(this).closest('.themify_builder_sub_row').data('gutter', this.value);
+				break;
+
+				case 'row':
+					$(this).closest('.themify_builder_row').data('gutter', this.value);
+				break;
+			}
+
+			// Hide the dropdown
+			$(this).closest('.themify_builder_grid_list_wrapper').hide();
+		},
+
+		_selectedGridMenu: function() {
+			$('.grid_menu').each(function(){
+				var handle = $(this).data('handle'),
+					grid_base = [], $base;
+				if ( handle == 'module' ) return;
+				switch( handle ) {
+					case 'sub_row':
+						$base = $(this).closest('.themify_builder_sub_row').find('.themify_builder_sub_row_content');
+					break;
+
+					default:
+						$base = $(this).closest('.themify_builder_row').find('.themify_builder_row_content');
+				}
+
+				$base.children().each(function(){
+					grid_base.push( ThemifyPageBuilder._getColClass( $(this).prop('class').split(' ') ) );
+				});
+
+				$(this).find('.grid-layout-' + grid_base.join('-')).closest('li').addClass('selected');
+
+			});
+		},
+
+		_getColClass: function(classes) {
+			var matches = ThemifyPageBuilder.clearClass.split(' '),
+				spanClass = null;
+			
+			for(var i = 0; i < classes.length; i++) {
+				if($.inArray(classes[i], matches) > -1){
+					spanClass = classes[i].replace('col', '');
+				}
+			}
+			return spanClass;
+		},
+
+		_subRowDelete: function( event ) {
+			event.preventDefault();
+			if (confirm(themifyBuilder.subRowDeleteConfirm)) {
+				$(this).closest('.themify_builder_sub_row').remove();
+				ThemifyPageBuilder.newRowAvailable();
+				ThemifyPageBuilder.equalHeight();
+				ThemifyPageBuilder.moduleEvents();
+				ThemifyPageBuilder.editing = true;
+			}
+		},
+
+		_subRowDuplicate: function( event ) {
+			event.preventDefault();
+			$(this).closest('.themify_builder_sub_row').clone().insertAfter($(this).closest('.themify_builder_sub_row'));
+			ThemifyPageBuilder.equalHeight();
+			ThemifyPageBuilder.moduleEvents();
+			ThemifyPageBuilder.editing = true;
 		}
 	};
 

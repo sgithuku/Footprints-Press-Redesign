@@ -1,4 +1,7 @@
 ;(function($){
+
+	'use strict';
+
 	var pluginName = "animatedBG",
 		defaults = {
 			colorSet: ['#ef008c', '#00be59', '#654b9e', '#ff5432', '#00d8e6'],

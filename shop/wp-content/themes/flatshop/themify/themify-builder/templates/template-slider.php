@@ -1,5 +1,9 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+// Load styles and scripts registered in Themify_Builder::register_frontend_js_css()
+$GLOBALS['ThemifyBuilder']->load_templates_js_css( array( 'carousel' => true ) );
+
 ///////////////////////////////////////
 // Switch Template Layout Types
 ///////////////////////////////////////

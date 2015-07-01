@@ -52,6 +52,10 @@ class Themify {
 	public $is_related_loop = false;
 	public $is_single_product_main = false;
 	public $product_archive_show_short = '';
+	public $hide_product_title = 'no';
+	public $unlink_product_title = 'no';
+	public $hide_product_image = 'no';
+	public $unlink_product_image = 'no';
 
 	/////////////////////////////////////////////
 	// Set Default Image Sizes 					
@@ -89,8 +93,7 @@ class Themify {
 	public $order = 'DESC';
 	public $orderby = 'date';
 
-	// Detect mobile device, phone or tablet
-	public $detect;
+	public $is_builder_loop = false;
 
 	function __construct() {
 		
@@ -127,8 +130,6 @@ class Themify {
 		$this->avatar_size = apply_filters('themify_author_box_avatar_size', 96);
 		
 		add_action('template_redirect', array(&$this, 'template_redirect'));
-
-		$this->detect = new Themify_Mobile_Detect;
 	}
 
 	function template_redirect() {
@@ -193,6 +194,8 @@ class Themify {
 			else:
 				$this->paged = 1;
 			endif;
+			global $paged;
+			$paged = $this->paged;
 			$this->query_category = themify_get('query_category');
 			
 			$this->layout = (themify_get('page_layout') != 'default' && themify_check('page_layout')) ? themify_get('page_layout') : themify_get('setting-default_page_layout');
@@ -223,7 +226,6 @@ class Themify {
 				$this->{'hide_meta'.$k} = themify_check('hide_meta'.$k)? themify_get('hide_meta'.$k) : themify_get($post_meta_key . $v);
 			}
 
-			$this->hide_date = themify_get('hide_date'); 
 			$this->display_content = themify_get('display_content');
 			$this->post_image_width = themify_get('image_width'); 
 			$this->post_image_height = themify_get('image_height'); 
@@ -231,6 +233,12 @@ class Themify {
 			$this->posts_per_page = themify_get('posts_per_page');
 			$this->order = (themify_get('order') && '' != themify_get('order')) ? themify_get('order') : (themify_check('setting-index_order') ? themify_get('setting-index_order') : 'DESC');
 			$this->orderby = (themify_get('orderby') && '' != themify_get('orderby')) ? themify_get('orderby') : (themify_check('setting-index_orderby') ? themify_get('setting-index_orderby') : 'date');
+			if ( 'default' != themify_get( 'hide_date' ) ) {
+					$this->hide_date = themify_get( 'hide_date' );
+				} else {
+					$this->hide_date = themify_check( 'setting-default_post_date' ) ?
+						themify_get( 'setting-default_post_date' ) : 'no';
+				}
 
 			if( '' != $post_image_height && '' != $post_image_width) {
 				$this->width = $post_image_width;

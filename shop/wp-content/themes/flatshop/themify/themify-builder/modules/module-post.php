@@ -11,15 +11,40 @@ class TB_Post_Module extends Themify_Builder_Module {
 			'slug' => 'post'
 		));
 	}
-}
 
-///////////////////////////////////////
-// Module Options
-///////////////////////////////////////
-$image_sizes = themify_get_image_sizes_list( false );
-Themify_Builder_Model::register_module( 'TB_Post_Module',
-	apply_filters( 'themify_builder_module_post', array(
-		'options' => array(
+	public function get_title( $module ) {
+		$type = isset( $module['mod_settings']['type_query_post'] ) ? $module['mod_settings']['type_query_post'] : 'category';
+		$category = isset( $module['mod_settings']['category_post'] ) ? $module['mod_settings']['category_post'] : '';
+		$slug_query = isset( $module['mod_settings']['query_slug_post'] ) ? $module['mod_settings']['query_slug_post'] : '';
+
+		if ( 'category' == $type ) {
+			return sprintf( '%s : %s', __('Category', 'themify'), $category );
+		} else {
+			return sprintf( '%s : %s', __('Slugs', 'themify'), $slug_query );
+		}
+	}
+
+	public function get_options() {
+		global $ThemifyBuilder;
+		$image_sizes = themify_get_image_sizes_list( false );
+
+		$taxonomies = $ThemifyBuilder->get_public_taxonomies();
+		$term_options = array();
+		
+		foreach( $taxonomies as $key => $label ) {
+			$term_options[] = array(
+				'id' => "{$key}_post",
+				'label' => $label,
+				'type' => 'query_category',
+				'options' => array( 'taxonomy' => $key ),
+				'wrap_with_class' => "tf-group-element tf-group-element-{$key}"
+			);
+		}
+
+		/* allow query posts by slug */
+		$taxonomies['post_slug'] = __('Slug', 'themify');
+
+		$options = array(
 			array(
 				'id' => 'mod_title_post',
 				'type' => 'text',
@@ -40,11 +65,30 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				)
 			),
 			array(
-				'id' => 'category_post',
-				'type' => 'query_category',
-				'label' => __('Category', 'themify'),
-				'options' => array(),
-				'help' => sprintf(__('Add more <a href="%s" target="_blank">blog posts</a>', 'themify'), admin_url('post-new.php'))
+				'id' => 'post_type_post',
+				'type' => 'select',
+				'label' => __('Post Type', 'themify'),
+				'options' => $ThemifyBuilder->get_public_post_types(),
+			),
+			array(
+				'id' => 'type_query_post',
+				'type' => 'radio',
+				'label' => __('Query by', 'themify'),
+				'options' => $taxonomies,
+				'default' => 'category',
+				'option_js' => true,
+			),
+			array(
+				'type' => 'group',
+				'fields' => $term_options
+			),
+			array(
+				'id' => 'query_slug_post',
+				'type' => 'text',
+				'label' => __('Post Slugs', 'themify'),
+				'class' => 'large',
+				'wrap_with_class' => 'tf-group-element tf-group-element-post_slug',
+				'help' => '<br/>' . __( 'Insert post slug. Multiple slug should be separated by comma (,)', 'themify')
 			),
 			array(
 				'id' => 'post_per_page_post',
@@ -111,12 +155,12 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 			array(
 				'id' => 'image_size_post',
 				'type' => 'select',
-				'label' => $this->is_img_php_disabled() ? __('Image Size', 'themify') : false,
+				'label' => Themify_Builder_Model::is_img_php_disabled() ? __('Image Size', 'themify') : false,
 				'empty' => array(
 					'val' => '',
 					'label' => ''
 				),
-				'hide' => $this->is_img_php_disabled() ? false : true,
+				'hide' => Themify_Builder_Model::is_img_php_disabled() ? false : true,
 				'options' => $image_sizes
 			),
 			array(
@@ -210,9 +254,12 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				),
 				'default' => 'Yes'
 			)
-		),
-		// Styling
-		'styling' => array(
+		);
+		return $options;
+	}
+
+	public function get_styling() {
+		$styling = array(
 			// Animation
 			array(
 				'id' => 'separator_animation',
@@ -242,7 +289,9 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				'id' => 'background_color',
 				'type' => 'color',
 				'label' => __('Background Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'background-color',
+				'selector' => array( '.module-post .post' )
 			),
 			// Font
 			array(
@@ -258,13 +307,17 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				'id' => 'font_family',
 				'type' => 'font_select',
 				'label' => __('Font Family', 'themify'),
-				'class' => 'font-family-select'
+				'class' => 'font-family-select',
+				'prop' => 'font-family',
+				'selector' => array( '.module-post .post-title', '.module-post .post-title a' ),
 			),
 			array(
 				'id' => 'font_color',
 				'type' => 'color',
 				'label' => __('Font Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => array( '.module-post .post', '.module-post h1', '.module-post h2', '.module-post h3:not(.module-title)', '.module-post h4', '.module-post h5', '.module-post h6', '.module-post .post-title', '.module-post .post-title a' ),
 			),
 			array(
 				'id' => 'multi_font_size',
@@ -319,7 +372,9 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					array( 'value' => 'center', 'name' => __( 'Center', 'themify' ) ),
 					array( 'value' => 'right', 'name' => __( 'Right', 'themify' ) ),
 					array( 'value' => 'justify', 'name' => __( 'Justify', 'themify' ) )
-				)
+				),
+				'prop' => 'text-align',
+				'selector' => '.module-post .post',
 			),
 			// Link
 			array(
@@ -335,7 +390,9 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				'id' => 'link_color',
 				'type' => 'color',
 				'label' => __('Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'color',
+				'selector' => '.module-post a'
 			),
 			array(
 				'id' => 'text_decoration',
@@ -347,7 +404,9 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					array('value' => 'overline', 'name' => __('Overline', 'themify')),
 					array('value' => 'line-through',  'name' => __('Line through', 'themify')),
 					array('value' => 'none',  'name' => __('None', 'themify'))
-				)
+				),
+				'prop' => 'text-decoration',
+				'selector' => '.module-post a'
 			),
 			// Padding
 			array(
@@ -360,34 +419,95 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				'meta' => array('html'=>'<h4>'.__('Padding', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'multi_padding',
+				'id' => 'multi_padding_top',
 				'type' => 'multi',
 				'label' => __('Padding', 'themify'),
 				'fields' => array(
 					array(
 						'id' => 'padding_top',
 						'type' => 'text',
-						'description' => __('top', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'padding-top',
+						'selector' => '.module-post .post',
 					),
+					array(
+						'id' => 'padding_top_unit',
+						'type' => 'select',
+						'description' => __('top', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_right',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_right',
 						'type' => 'text',
-						'description' => __('right', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'padding-right',
+						'selector' => '.module-post .post',
 					),
+					array(
+						'id' => 'padding_right_unit',
+						'type' => 'select',
+						'description' => __('right', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_bottom',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_bottom',
 						'type' => 'text',
-						'description' => __('bottom', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'padding-bottom',
+						'selector' => '.module-post .post',
 					),
+					array(
+						'id' => 'padding_bottom_unit',
+						'type' => 'select',
+						'description' => __('bottom', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_left',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_left',
 						'type' => 'text',
-						'description' => __('left (px)', 'themify'),
-						'class' => 'xsmall'
-					)
+						'class' => 'xsmall',
+						'prop' => 'padding-left',
+						'selector' => '.module-post .post',
+					),
+					array(
+						'id' => 'padding_left_unit',
+						'type' => 'select',
+						'description' => __('left', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
 				)
 			),
 			// Margin
@@ -401,34 +521,95 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				'meta' => array('html'=>'<h4>'.__('Margin', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'multi_margin',
+				'id' => 'multi_margin_top',
 				'type' => 'multi',
 				'label' => __('Margin', 'themify'),
 				'fields' => array(
 					array(
 						'id' => 'margin_top',
 						'type' => 'text',
-						'description' => __('top', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'margin-top',
+						'selector' => '.module-post .post',
 					),
+					array(
+						'id' => 'margin_top_unit',
+						'type' => 'select',
+						'description' => __('top', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_right',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_right',
 						'type' => 'text',
-						'description' => __('right', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'margin-right',
+						'selector' => '.module-post .post',
 					),
+					array(
+						'id' => 'margin_right_unit',
+						'type' => 'select',
+						'description' => __('right', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_bottom',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_bottom',
 						'type' => 'text',
-						'description' => __('bottom', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'margin-bottom',
+						'selector' => '.module-post .post',
 					),
+					array(
+						'id' => 'margin_bottom_unit',
+						'type' => 'select',
+						'description' => __('bottom', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_left',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_left',
 						'type' => 'text',
-						'description' => __('left (px)', 'themify'),
-						'class' => 'xsmall'
-					)
+						'class' => 'xsmall',
+						'prop' => 'margin-left',
+						'selector' => '.module-post .post',
+					),
+					array(
+						'id' => 'margin_left_unit',
+						'type' => 'select',
+						'description' => __('left', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
 				)
 			),
 			// Border
@@ -449,26 +630,26 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					array(
 						'id' => 'border_top_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-top-color',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_top_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'border-top-width',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_top_style',
 						'type' => 'select',
 						'description' => __('top', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
-					)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-top-style',
+						'selector' => '.module-post .post',
+					),
 				)
 			),
 			array(
@@ -479,25 +660,25 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					array(
 						'id' => 'border_right_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-right-color',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_right_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'border-right-width',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_right_style',
 						'type' => 'select',
 						'description' => __('right', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-right-style',
+						'selector' => '.module-post .post',
 					)
 				)
 			),
@@ -509,25 +690,25 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					array(
 						'id' => 'border_bottom_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-bottom-color',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_bottom_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'border-bottom-width',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_bottom_style',
 						'type' => 'select',
 						'description' => __('bottom', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-bottom-style',
+						'selector' => '.module-post .post',
 					)
 				)
 			),
@@ -539,25 +720,25 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 					array(
 						'id' => 'border_left_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-left-color',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_left_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'border-left-width',
+						'selector' => '.module-post .post',
 					),
 					array(
 						'id' => 'border_left_style',
 						'type' => 'select',
 						'description' => __('left', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-left-style',
+						'selector' => '.module-post .post',
 					)
 				)
 			),
@@ -573,18 +754,12 @@ Themify_Builder_Model::register_module( 'TB_Post_Module',
 				'class' => 'large exclude-from-reset-field',
 				'description' => sprintf( '<br/><small>%s</small>', __('Add additional CSS class(es) for custom styling', 'themify') )
 			)
-		),
-		'styling_selector' => array(
-			'.module-post .post' => array(
-				'background_color', 'font_family', 'font_size', 'line_height', 'text_align', 'color', 'padding', 'margin', 'border_top', 'border_right', 'border_bottom', 'border_left'
-			),
-			'.module-post a' => array( 'link_color', 'text_decoration' ),
-			'.module-post .post-title' => array(
-				'font_family', 'color'
-			),
-			'.module-post .post-title a' => array(
-				'font_family', 'color'
-			)
-		)
-	) )
-);
+		);
+		return $styling;
+	}
+}
+
+///////////////////////////////////////
+// Module Options
+///////////////////////////////////////
+Themify_Builder_Model::register_module( 'TB_Post_Module' );

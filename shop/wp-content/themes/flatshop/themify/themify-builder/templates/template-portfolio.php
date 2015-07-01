@@ -7,10 +7,15 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * @author Themify
  */
 
+// Load styles and scripts registered in Themify_Builder::register_frontend_js_css()
+$GLOBALS['ThemifyBuilder']->load_templates_js_css();
+
 $fields_default = array(
 	'mod_title_portfolio' => '',
 	'layout_portfolio' => '',
+	'type_query_portfolio' => 'category',
 	'category_portfolio' => '',
+	'query_slug_portfolio' => '',
 	'post_per_page_portfolio' => '',
 	'offset_portfolio' => '',
 	'order_portfolio' => 'desc',
@@ -38,19 +43,22 @@ extract( $fields_args, EXTR_SKIP );
 $animation_effect = $this->parse_animation_effect( $animation_effect );
 
 $container_class = implode(' ', 
-	apply_filters('themify_builder_module_classes', array(
-		'module', 'module-' . $mod_name, $module_ID, 'loops-wrapper', 'clearfix', $css_portfolio, $layout_portfolio, $animation_effect
-	) )
+	apply_filters( 'themify_builder_module_classes', array(
+		'module', 'module-' . $mod_name, $module_ID, $css_portfolio
+	), $mod_name, $module_ID, $fields_args )
 );
+
+$this->add_post_class( $animation_effect );
 ?>
 <!-- module portfolio -->
-<div id="<?php echo $module_ID; ?>" class="<?php echo esc_attr( $container_class ); ?>">
+<div id="<?php echo esc_attr( $module_ID ); ?>" class="<?php echo esc_attr( $container_class ); ?>">
 	<?php if ( $mod_title_portfolio != '' ): ?>
-	<h3 class="module-title"><?php echo $mod_title_portfolio; ?></h3>
+	<h3 class="module-title"><?php echo wp_kses_post( $mod_title_portfolio ); ?></h3>
 	<?php endif; ?>
 
 	<?php
 	do_action( 'themify_builder_before_template_content_render' );
+	$this->in_the_loop = true;
 	
 	// The Query
 	global $paged;
@@ -81,7 +89,7 @@ $container_class = implode(' ',
 		'paged' => $paged
 	);
 
-	if ( count($new_terms) > 0 && ! in_array('0', $new_terms) ) {
+	if ( count($new_terms) > 0 && ! in_array('0', $new_terms) && 'category' == $type_query_portfolio ) {
 		$args['tax_query'] = array(
 			array(
 				'taxonomy' => 'portfolio-category',
@@ -89,6 +97,10 @@ $container_class = implode(' ',
 				'terms' => $new_terms
 			)
 		);
+	}
+
+	if ( ! empty( $query_slug_portfolio ) && 'post_slug' == $type_query_portfolio ) {
+		$args['post__in'] = $this->parse_slug_to_ids( $query_slug_portfolio, 'portfolio' );
 	}
 
 	// add offset posts
@@ -101,6 +113,8 @@ $container_class = implode(' ',
 	
 	$the_query = new WP_Query();
 	$posts = $the_query->query( $args );
+
+	echo '<div class="builder-posts-wrap portfolio clearfix loops-wrapper '. $layout_portfolio .'">';
 
 	// check if theme loop template exists
 	$is_theme_template = $this->is_loop_template_exist('loop-portfolio.php', 'includes');
@@ -136,10 +150,10 @@ $container_class = implode(' ',
 		
 		// revert to original $themify state
 		$themify = clone $themify_save;
-		echo $out;
+		echo !empty( $out ) ? $out : '';
 	} else {
 		// use builder template
-		global $post;
+		global $post; $temp_post = $post;
 		foreach($posts as $post): setup_postdata( $post ); ?>
 
 		<?php themify_post_before(); // hook ?>
@@ -162,7 +176,7 @@ $container_class = implode(' ',
 					
 					themify_before_post_image(); // Hook
 					
-					echo $wp_embed->run_shortcode('[embed]' . themify_get('video_url') . '[/embed]');
+					echo $wp_embed->run_shortcode('[embed]' . esc_url( themify_get( 'video_url' ) ) . '[/embed]');
 					
 					themify_after_post_image(); // Hook
 					
@@ -170,9 +184,9 @@ $container_class = implode(' ',
 						themify_before_post_image(); // Hook ?>
 						<figure class="post-image">
 							<?php if ( $unlink_feat_img_portfolio == 'yes' ): ?>
-								<?php echo $post_image; ?>
+								<?php echo wp_kses_post( $post_image ); ?>
 							<?php else: ?>
-								<a href="<?php echo themify_get_featured_image_link(); ?>"><?php echo $post_image; ?></a>
+								<a href="<?php echo themify_get_featured_image_link(); ?>"><?php echo wp_kses_post( $post_image ); ?></a>
 							<?php endif; ?>
 						</figure>
 						<?php themify_after_post_image(); // Hook
@@ -183,7 +197,7 @@ $container_class = implode(' ',
 			<div class="post-content">
 			
 				<?php if ( $hide_post_date_portfolio == 'no' ): ?>
-					<time datetime="<?php the_time('o-m-d') ?>" class="post-date" pubdate><?php the_time(apply_filters('themify_loop_date', 'M j, Y')) ?></time>
+					<time datetime="<?php the_time('o-m-d') ?>" class="post-date" pubdate><?php the_date( apply_filters( 'themify_loop_date', '' ) ) ?></time>
 				<?php endif; //post date ?>
 
 				<?php if ( $hide_post_title_portfolio != 'yes' ): ?>
@@ -233,16 +247,16 @@ $container_class = implode(' ',
 			
 		</article>
 		<?php themify_post_after(); // hook ?>
-		<?php endforeach; wp_reset_postdata(); ?>
+		<?php endforeach; wp_reset_postdata(); $post = $temp_post; ?>
 
 	<?php
 	} // end $is_theme_template
 
-	if( $hide_page_nav_portfolio != 'yes' ) {
-		echo $this->get_pagenav('', '', $the_query);
-	}
+	echo '</div><!-- .builder-posts-wrap -->';
+
+	echo 'yes' != $hide_page_nav_portfolio ? $this->get_pagenav( '', '', $the_query ) : '';
 	?>
 
-	<?php do_action( 'themify_builder_after_template_content_render' ); ?>
+	<?php do_action( 'themify_builder_after_template_content_render' ); $this->remove_post_class( $animation_effect ); $this->in_the_loop = false; ?>
 </div>
 <!-- /module portfolio -->

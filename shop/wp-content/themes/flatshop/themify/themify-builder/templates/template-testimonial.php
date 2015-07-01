@@ -7,12 +7,17 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * @author Themify
  */
 
+// Load styles and scripts registered in Themify_Builder::register_frontend_js_css()
+$GLOBALS['ThemifyBuilder']->load_templates_js_css();
+
 $BuilderTestimonial = new Builder_Testimonial;
 
 $fields_default = array(
 	'mod_title_testimonial' => '',
 	'layout_testimonial' => '',
+	'type_query_testimonial' => 'category',
 	'category_testimonial' => '',
+	'query_slug_testimonial' => '',
 	'post_per_page_testimonial' => '',
 	'offset_testimonial' => '',
 	'order_testimonial' => 'desc',
@@ -40,19 +45,20 @@ extract( $fields_args, EXTR_SKIP );
 $animation_effect = $this->parse_animation_effect( $animation_effect );
 
 $container_class = implode(' ', 
-	apply_filters('themify_builder_module_classes', array(
-		'module', 'module-' . $mod_name, $module_ID, 'loops-wrapper', 'clearfix', $css_testimonial, $layout_testimonial, $animation_effect
-	) )
+	apply_filters( 'themify_builder_module_classes', array(
+		'module', 'module-' . $mod_name, $module_ID, $css_testimonial, $animation_effect
+	), $mod_name, $module_ID, $fields_args )
 );
 ?>
 <!-- module testimonial -->
-<div id="<?php echo $module_ID; ?>" class="<?php echo esc_attr( $container_class ); ?>">
+<div id="<?php echo esc_attr( $module_ID ); ?>" class="<?php echo esc_attr( $container_class ); ?>">
 	<?php if ( $mod_title_testimonial != '' ): ?>
-	<h3 class="module-title"><?php echo $mod_title_testimonial; ?></h3>
+	<h3 class="module-title"><?php echo wp_kses_post( $mod_title_testimonial ); ?></h3>
 	<?php endif; ?>
 	
 	<?php
 	do_action( 'themify_builder_before_template_content_render' );
+	$this->in_the_loop = true;
 	
 	// The Query
 	global $paged;
@@ -83,7 +89,7 @@ $container_class = implode(' ',
 		'paged' => $paged
 	);
 
-	if ( count($new_terms) > 0 && ! in_array('0', $new_terms) ) {
+	if ( count($new_terms) > 0 && ! in_array('0', $new_terms) && 'category' == $type_query_testimonial ) {
 		$args['tax_query'] = array(
 			array(
 				'taxonomy' => 'testimonial-category',
@@ -91,6 +97,10 @@ $container_class = implode(' ',
 				'terms' => $new_terms
 			)
 		);
+	}
+
+	if ( ! empty( $query_slug_testimonial ) && 'post_slug' == $type_query_testimonial ) {
+		$args['post__in'] = $this->parse_slug_to_ids( $query_slug_testimonial, 'testimonial' );
 	}
 
 	// add offset posts
@@ -103,6 +113,8 @@ $container_class = implode(' ',
 	
 	$the_query = new WP_Query(); 
 	$posts = $the_query->query( $args );
+
+	echo '<div class="builder-posts-wrap testimonial clearfix loops-wrapper '. $layout_testimonial .'">';
 
 	// check if theme loop template exists
 	$is_theme_template = $this->is_loop_template_exist('loop-testimonial.php', 'includes');
@@ -141,7 +153,7 @@ $container_class = implode(' ',
 		echo $out;
 	} else {
 		// use builder template
-		global $post;
+		global $post; $temp_post = $post;
 		foreach($posts as $post): setup_postdata( $post ); ?>
 
 		<?php themify_post_before(); // hook ?>
@@ -161,7 +173,7 @@ $container_class = implode(' ',
 				if ( $post_image = themify_get_image($param_image) ) {
 					themify_before_post_image(); // Hook ?>
 					<figure class="post-image">
-						<?php echo $post_image; ?>
+						<?php echo wp_kses_post( $post_image ); ?>
 					</figure>
 					<?php themify_after_post_image(); // Hook
 				} 
@@ -209,15 +221,17 @@ $container_class = implode(' ',
 		</article>
 		<?php themify_post_after(); // hook ?>
 
-		<?php endforeach; wp_reset_postdata(); ?>
+		<?php endforeach; wp_reset_postdata(); $post = $temp_post; ?>
 	<?php
 	} // endif $is_theme_template
 	
+	echo '</div><!-- .builder-posts-wrap -->';
+
 	if ( $hide_page_nav_testimonial != 'yes' ) {
 		echo $this->get_pagenav('', '', $the_query);
 	}
 	?>
 
-	<?php do_action( 'themify_builder_after_template_content_render' ); ?>
+	<?php do_action( 'themify_builder_after_template_content_render' ); $this->in_the_loop = false; ?>
 </div>
 <!-- /module testimonial -->

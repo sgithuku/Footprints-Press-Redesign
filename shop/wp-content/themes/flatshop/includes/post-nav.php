@@ -5,21 +5,23 @@
  * @since 1.0.0
  */
 
-if ( ! themify_check( 'setting-post_nav_disable' ) ) :
+$post_type = 'post';
 
-	$in_same_cat = themify_check( 'setting-post_nav_same_cat' ) ? true : false;
-	$this_post_type = get_post_type();
-	$this_taxonomy = ( 'post' == $this_post_type ) ? 'category' : $this_post_type . '-category';
-	?>
+if ( ! themify_check( "setting-{$post_type}_nav_disable" ) ) :
 
-	<!-- post-nav -->
-	<div class="post-nav clearfix">
+	$in_same_cat = themify_check( "setting-{$post_type}_nav_same_cat" )? true: false;
+	$this_taxonomy = 'post' == get_post_type() ? 'category' : get_post_type() . '-category';
+	$previous = get_previous_post_link( '<span class="prev">%link</span>', '<span class="arrow icon-flatshop-left-small"></span> %title', $in_same_cat, '', $this_taxonomy );
+	$next = get_next_post_link( '<span class="next">%link</span>', '<span class="arrow icon-flatshop-right-small"></span> %title', $in_same_cat, '', $this_taxonomy );
 
-		<?php previous_post_link('<span class="prev">%link</span>', '<span class="arrow icon-flatshop-left-small"></span> %title', $in_same_cat, '', $this_taxonomy) ?>
+	if ( ! empty( $previous ) || ! empty( $next ) ) : ?>
 
-		<?php next_post_link('<span class="next">%link</span>', '<span class="arrow icon-flatshop-right-small"></span> %title', $in_same_cat, '', $this_taxonomy) ?>
+		<div class="post-nav clearfix">
+			<?php echo $previous; ?>
+			<?php echo $next; ?>
+		</div>
+		<!-- /.post-nav -->
 
-	</div>
-	<!-- /post-nav -->
+	<?php endif; // empty previous or next
 
-<?php endif; ?>
+endif; // check setting nav disable

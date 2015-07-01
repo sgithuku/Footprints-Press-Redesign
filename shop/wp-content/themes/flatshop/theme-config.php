@@ -77,11 +77,15 @@ $themify_theme_config['panel']['settings']['tab']['theme_settings'] = array(
 	'id' => 'theme_settings',
 	'custom-module' => array(
 		array(
+			'title' => __('Disable Responsive Design', 'themify'),
+			'function' => 'disable_responsive_design_option'
+		),
+		array(
 			'title' => __('WordPress Gallery Lightbox', 'themify'),
 			'function' => 'gallery_plugins'
 		),
 		array(
-			'title' => __('Standard Navigation', 'themify'),
+			'title' => __('Page Navigation', 'themify'),
 			'function' => 'entries_navigation'
 			),
 		array(
@@ -142,6 +146,10 @@ $themify_theme_config['panel']['settings']['tab']['shop_settings'] = array(
 		array(
 			'title' => __('Single Product Page', 'themify'),
 			'function' => 'single_product'
+		),
+		array(
+			'title' => __( 'Product Grid Layout', 'themify' ),
+			'function' => 'shop_disable_masonry_module'
 		),
 	)
 );

@@ -17,16 +17,13 @@ class Themify_Builder_Plugin_Compat {
 		// WooCommerce
 		if ( $this->is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
 			add_action( 'woocommerce_after_single_product_summary', array( $this, 'show_builder_below_tabs'), 12 );
+			add_action( 'woocommerce_archive_description', array( $this, 'wc_builder_shop_page' ), 11 );
 		}
 
 		// WPSEO live preview
-		add_action( 'wp_ajax_wpseo_get_html_builder', array( &$this, 'wpseo_get_html_builder_ajaxify' ), 10 );
-		add_filter( 'wpseo_pre_analysis_post_content', array( $this, 'wpseo_pre_analysis_post_content' ), 10, 2 );
-
-		// Members
-		if( class_exists( 'Members_Load' ) ) {
-			remove_filter( 'the_content', array( $ThemifyBuilder, 'builder_show_on_front' ), 11 );
-			add_filter( 'the_content', array( &$this, 'members_builder_show_on_front' ), 11 );
+		if ( $this->is_plugin_active( 'wordpress-seo/wp-seo.php' ) ) {
+			add_action( 'wp_ajax_wpseo_get_html_builder', array( &$this, 'wpseo_get_html_builder_ajaxify' ), 10 );
+			add_filter( 'wpseo_pre_analysis_post_content', array( $this, 'wpseo_pre_analysis_post_content' ), 10, 2 );
 		}
 	}
 
@@ -85,40 +82,15 @@ class Themify_Builder_Plugin_Compat {
 
 		$builder_data = get_post_meta( $post_id, $meta_key, true );
 		$builder_data = stripslashes_deep( maybe_unserialize( $builder_data ) );
-		$html = '';
-
-		if ( is_array( $builder_data ) && count( $builder_data ) > 0 ) {
-			$html = $ThemifyBuilder->retrieve_template( 'builder-output.php', array( 'builder_output' => $builder_data, 'builder_id' => $post_id ), '', '', false );
-			$html = preg_replace('~>\s+<~', '><', $html);
-			$html = preg_replace('/\s\s+/', ' ', $html);
-			$html = trim( wp_strip_all_tags( $html ) );
-			$html = str_replace( '[Edit]', '', $html );
-		}
+		$string = $this->_get_all_builder_text_content( $builder_data );
 
 		$response = array(
-			'text_str' => $html
+			'text_str' => ' ' . $string // prefix with a space
 		);
 
 		echo json_encode( $response );
 
 		die();
-	}
-
-	/**
-	 * Builder integration with Members plugin
-	 * Display the Builder contents only if user has permission to view the post contents
-	 *
-	 * @since 1.1.8
-	 * @return string $content
-	 */
-	function members_builder_show_on_front( $content ) {
-		global $ThemifyBuilder;
-
-		if( members_can_current_user_view_post( get_the_ID() ) ) {
-			$content = $ThemifyBuilder->builder_show_on_front( $content );
-		}
-
-		return $content;
 	}
 
 	/**
@@ -128,22 +100,84 @@ class Themify_Builder_Plugin_Compat {
 	 * @return string
 	 */
 	function wpseo_pre_analysis_post_content( $post_content, $post ) {
-		global $ThemifyBuilder;
+		global $post;
+		$temp_post = $post;
 		$meta_key = apply_filters( 'themify_builder_meta_key', '_themify_builder_settings' );
-
+		
 		$builder_data = get_post_meta( $post->ID, $meta_key, true );
 		$builder_data = stripslashes_deep( maybe_unserialize( $builder_data ) );
-		$html = '';
-
-		if ( is_array( $builder_data ) && count( $builder_data ) > 0 ) {
-			$html = $ThemifyBuilder->retrieve_template( 'builder-output.php', array( 'builder_output' => $builder_data, 'builder_id' => $post->ID ), '', '', false );
-			$html = preg_replace('~>\s+<~', '><', $html);
-			$html = preg_replace('/\s\s+/', ' ', $html);
-			$html = trim( $html );
-			$html = str_replace( '[Edit]', '', $html );
-		}
-		$post_content .= $html;
+		$extends = array( 
+			'image' => 'url_image', 'post' => 'mod_title_post', 
+			'portfolio' => 'mod_title_portfolio', 'gallery' => 'mod_title_gallery',
+			'slider' => 'mod_title_slider', 'testimonial' => 'mod_title_testimonial', 'highlight' => 'mod_title_highlight'
+		);
+		$string = $this->_get_all_builder_text_content( $builder_data, false, $extends, $post->ID );
+		$post_content .= ' ' . $string; // add prefix with a space
+		$post = $temp_post;
 
 		return $post_content;
+	}
+
+	/**
+	 * Get all builder text content from module which contain text
+	 * @param array $data 
+	 * @return string
+	 */
+	function _get_all_builder_text_content( $data, $return_text = true, $args = array(), $builder_id = 0 ) {
+		global $ThemifyBuilder;
+
+		$defaults = array(
+			'box' => 'content_box',
+			'text' => 'content_text',
+			'callout' => 'text_callout'
+		);
+		$string_modules = wp_parse_args( $args, $defaults );
+		$text_arr = array();
+		if ( is_array( $data ) && count( $data ) > 0 ) {
+			foreach( $data as $row ) {
+				if ( isset( $row['cols'] ) && count( $row['cols'] ) > 0 ) {
+					foreach( $row['cols'] as $col ) {
+						if ( isset( $col['modules'] ) && count( $col['modules'] ) > 0 ) {
+							foreach( $col['modules'] as $module ) {
+								if ( isset( $module['mod_name'] ) && in_array( $module['mod_name'], array_keys( $string_modules ) ) ) {
+									
+									if ( $return_text ) {
+										$text = $module['mod_settings'][ $string_modules[ $module['mod_name'] ] ];
+									} else {
+										$text = $ThemifyBuilder->get_template_module( $module, $builder_id, false );	
+									}
+									array_push( $text_arr, $text );
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		$return_text = implode( ' ', $text_arr );
+		$return_text = strip_tags( $return_text, '<img>' );
+
+		return $return_text;
+	}
+
+	/**
+	 * Show builder on Shop page
+	 */
+	function wc_builder_shop_page() {
+		global $ThemifyBuilder;
+
+		if ( is_post_type_archive( 'product' ) ) {
+			$shop_page   = get_post( wc_get_page_id( 'shop' ) );
+			if ( $shop_page ) {
+				$builder_data = get_post_meta( $shop_page->ID, $ThemifyBuilder->get_meta_key(), true );
+				$builder_data = stripslashes_deep( maybe_unserialize( $builder_data ) );
+
+				if ( ! is_array( $builder_data ) ) {
+					$builder_data = array();
+				}
+
+				$ThemifyBuilder->retrieve_template( 'builder-output.php', array( 'builder_output' => $builder_data, 'builder_id' => $shop_page->ID ), '', '', true );
+			}
+		}
 	}
 }

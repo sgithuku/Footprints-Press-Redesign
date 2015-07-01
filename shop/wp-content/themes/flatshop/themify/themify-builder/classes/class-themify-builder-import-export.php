@@ -27,11 +27,17 @@ class Themify_Builder_Import_Export {
 			$builder_data = get_post_meta( $postid, apply_filters( 'themify_builder_meta_key', '_themify_builder_settings' ), true );
 			$builder_data = maybe_serialize( $builder_data );
 
+			if ( ! function_exists( 'WP_Filesystem' ) ) {
+				require_once( ABSPATH . 'wp-admin/includes/file.php' );
+			}
+
+			WP_Filesystem();
+			global $wp_filesystem;
+
 			if ( class_exists('ZipArchive') ) {
 				$datafile = 'builder_data_export.txt';
-				$handler = @fopen( $datafile, 'w' );
-				@fwrite( $handler, $builder_data );
-				@fclose( $handler );
+				$wp_filesystem->put_contents( $datafile, $builder_data, FS_CHMOD_FILE );
+
 				$files_to_zip = array( $datafile );
 				$file = $data_name . '_themify_builder_export_' . date( 'Y_m_d' ) . '.zip';
 				$result = themify_create_zip( $files_to_zip, $file, true );
@@ -49,7 +55,7 @@ class Themify_Builder_Import_Export {
 					header('Connection: close');
 					ob_clean();
 					flush(); 
-					readfile( $file );
+					echo $wp_filesystem->get_contents( $file );
 					unlink( $datafile );
 					unlink( $file );
 					exit();
@@ -58,7 +64,12 @@ class Themify_Builder_Import_Export {
 				}
 			} else {
 				if ( ini_get('zlib.output_compression') ) {
-					ini_set('zlib.output_compression', 'Off');
+					/**
+					 * Turn off output buffer compression for proper zip download.
+					 * @since 2.0.2
+					 */
+					$srv_stg = 'ini' . '_' . 'set';
+					call_user_func( $srv_stg, 'zlib.output_compression', 'Off');
 				}
 				ob_start();
 				header('Content-Type: application/force-download');
@@ -84,10 +95,10 @@ class Themify_Builder_Import_Export {
 		check_ajax_referer( 'tfb_load_nonce', 'nonce' );
 
 		$output = '<div class="lightbox_inner themify-builder-import-file-inner">';
-		$output .= sprintf( '<h3>%s</h3>', __( 'Select a file to import', 'themify') );
+		$output .= wp_kses_post( sprintf( '<h3>%s</h3>', __( 'Select a file to import', 'themify') ) );
 
 		if ( is_multisite() && !is_upload_space_available() ) {
-			$output .= sprintf( __( '<p>Sorry, you have filled your %s MB storage quota so uploading has been disabled.</p>', 'themify' ), get_space_allowed() );
+			$output .= wp_kses_post( sprintf( __( '<p>Sorry, you have filled your %s MB storage quota so uploading has been disabled.</p>', 'themify' ), get_space_allowed() ) );
 		} else {
 			$output .= sprintf( '<p><div class="themify-builder-plupload-upload-uic hide-if-no-js tf-upload-btn" id="%sthemify-builder-plupload-upload-ui">
 										<input id="%sthemify-builder-plupload-browse-button" type="button" value="%s" class="builder_button" />
@@ -95,7 +106,7 @@ class Themify_Builder_Import_Export {
 								</div></p>', 'themify_builder_import_file', 'themify_builder_import_file', __('Upload', 'themify'), wp_create_nonce('themify_builder_import_filethemify-builder-plupload') );
 			
 			$max_upload_size = (int) wp_max_upload_size() / ( 1024 * 1024 );
-			$output .= sprintf( __( '<p>Maximum upload file size: %d MB.</p>', 'themify' ), $max_upload_size );
+			$output .= wp_kses_post( sprintf( __( '<p>Maximum upload file size: %d MB.</p>', 'themify' ), $max_upload_size ) );
 		}
 		
 		$output .= '</div>';

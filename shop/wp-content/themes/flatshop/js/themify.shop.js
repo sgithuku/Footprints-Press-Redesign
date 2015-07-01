@@ -64,10 +64,10 @@ $(window).load(function() {
 				pauseDuration : themifyShop.autoplay * 1000,
 				duration : themifyShop.speed
 			},
+			swipe: true,
 			scroll : {
 				items : themifyShop.scroll,
-				duration : themifyShop.speed,
-				wipe : true
+				duration : themifyShop.speed
 			},
 			items : {
 				visible : {
@@ -108,7 +108,7 @@ $(document).ready(function() {
 		e.preventDefault();
 	});
 
-	$("body").on("hover", '.orderby-wrap', function(e){
+	$("body").on("mouseenter mouseleave", '.orderby-wrap', function(e){
 		if(e.type == 'mouseenter') {
 			if(!$(this).find('.orderby').is(':visible')) {
 				$(this).find('.orderby').slideDown();
@@ -157,15 +157,6 @@ $(document).ready(function() {
 						$(this).removeClass('loading-done');
 				});
 			}
-
-			// Apply Hack Dynamic Pricing issue
-			$( '<div/>' ).load( themifyShop.cartUrl + ' #order_review .shop_table', function(response){
-				if ( $('.cart-subtotal .amount', response).length > 0 ) {
-					$('#cart-icon .amount, #cart-wrap .amount').html( $('.cart-subtotal .amount', response) );
-				} else if ( $('.order-total .amount', response).length > 0 ) {
-					$('#cart-icon .amount, #cart-wrap .amount').html( $('.order-total .amount', response) );
-				}
-			});
 
 			// close lightbox
 			if( $('.pp_inline').is(':visible') ) {
@@ -270,74 +261,85 @@ $(document).ready(function() {
 
 	/*function ajax add to cart in single page */
 	function ajax_add_to_cart_single_page() {
-		$(document).on('submit', 'form.cart', function() {
-			var quantity = $(this).find('.quantity input.qty').val(),
-				shopdock = $('#shopdock');
-			
-			// This loading icon
-			var $loadingIcon = $(this).closest('.product').find('.loading-product').first();
-			$loadingIcon.show();
+		var submitClicked = false;
+		$(document).on('click', '.single_add_to_cart_button', function( event ){
+			if ( ! $(this).closest('.product').hasClass( 'product-type-external' ) ) {
+				event.preventDefault();
+				submitClicked = true;
+				$('form.cart').submit();
+			}
+		}).on('submit', 'form.cart', function( event ) {
+			if ( submitClicked ) {
+				var quantity = $(this).find('.quantity input.qty').val(),
+					shopdock = $('#shopdock');
+				
+				// This loading icon
+				var $loadingIcon = $(this).closest('.product').find('.loading-product').first();
+				$loadingIcon.show();
 
-			var data = $(this).serializeObject(),
-				data2 = {
-					action: 'woocommerce_get_refreshed_fragments'
-				};
-			$.extend(true, data, data2);
+				var data = $(this).serializeObject(),
+					data2 = {
+						action: 'theme_add_to_cart'
+					};
+				$.extend(true, data, data2);
 
-			// Trigger event
-			$( 'body' ).trigger( 'adding_to_cart', [ $(this), data ] );
+				// Trigger event
+				$( 'body' ).trigger( 'adding_to_cart', [ $(this), data ] );
 
-			// Ajax action
-			$.post( woocommerce_params.ajax_url, data, function( response ) {
+				// Ajax action
+				$.post( woocommerce_params.ajax_url, data, function( response ) {
 
-				if ( ! response )
-					return;
+					submitClicked = false;
 
-				var this_page = window.location.toString();
-				this_page = this_page.replace( 'add-to-cart', 'added-to-cart' );
+					if ( ! response )
+						return;
 
-				fragments = response.fragments;
-				cart_hash = response.cart_hash;
+					var this_page = window.location.toString();
+					this_page = this_page.replace( 'add-to-cart', 'added-to-cart' );
 
-				// Block fragments class
-				if ( fragments ) {
-					$.each(fragments, function(key, value) {
-						$(key).addClass('updating');
+					fragments = response.fragments;
+					cart_hash = response.cart_hash;
+
+					// Block fragments class
+					if ( fragments ) {
+						$.each(fragments, function(key, value) {
+							$(key).addClass('updating');
+						});
+					}
+
+					// Block widgets and fragments
+					$('.shop_table.cart, .updating, .cart_totals, .widget_shopping_cart').fadeTo('400', '0.6').block({message: null, overlayCSS: {background: 'transparent url(' + woocommerce_params.ajax_loader_url + ') no-repeat center', backgroundSize: '16px 16px', opacity: 0.6 } } );
+
+					// Replace fragments
+					if ( fragments ) {
+						$.each(fragments, function(key, value) {
+							$(key).replaceWith(value);
+						});
+					}
+
+					// Unblock
+					$('.widget_shopping_cart, .updating').stop(true).css('opacity', '1').unblock();
+
+					// Cart page elements
+					$('.shop_table.cart').load( this_page + ' .shop_table.cart:eq(0) > *', function() {
+
+						$("div.quantity:not(.buttons_added), td.quantity:not(.buttons_added)").addClass('buttons_added').append('<input type="button" value="+" id="add1" class="plus" />').prepend('<input type="button" value="-" id="minus1" class="minus" />');
+
+						$('.shop_table.cart').stop(true).css('opacity', '1').unblock();
+
+						$('body').trigger('cart_page_refreshed');
 					});
-				}
 
-				// Block widgets and fragments
-				$('.shop_table.cart, .updating, .cart_totals, .widget_shopping_cart').fadeTo('400', '0.6').block({message: null, overlayCSS: {background: 'transparent url(' + woocommerce_params.ajax_loader_url + ') no-repeat center', backgroundSize: '16px 16px', opacity: 0.6 } } );
-
-				// Replace fragments
-				if ( fragments ) {
-					$.each(fragments, function(key, value) {
-						$(key).replaceWith(value);
+					$('.cart_totals').load( this_page + ' .cart_totals:eq(0) > *', function() {
+						$('.cart_totals').stop(true).css('opacity', '1').unblock();
 					});
-				}
 
-				// Unblock
-				$('.widget_shopping_cart, .updating').stop(true).css('opacity', '1').unblock();
+					// Trigger event so themes can refresh other areas
+					$( 'body' ).trigger( 'added_to_cart', [ fragments, cart_hash ] );
 
-				// Cart page elements
-				$('.shop_table.cart').load( this_page + ' .shop_table.cart:eq(0) > *', function() {
-
-					$("div.quantity:not(.buttons_added), td.quantity:not(.buttons_added)").addClass('buttons_added').append('<input type="button" value="+" id="add1" class="plus" />').prepend('<input type="button" value="-" id="minus1" class="minus" />');
-
-					$('.shop_table.cart').stop(true).css('opacity', '1').unblock();
-
-					$('body').trigger('cart_page_refreshed');
 				});
-
-				$('.cart_totals').load( this_page + ' .cart_totals:eq(0) > *', function() {
-					$('.cart_totals').stop(true).css('opacity', '1').unblock();
-				});
-
-				// Trigger event so themes can refresh other areas
-				$( 'body' ).trigger( 'added_to_cart', [ fragments, cart_hash ] );
-
-			});
-			return false;
+				return false;
+			}
 		});
 	}
 
@@ -414,12 +416,54 @@ $(document).ready(function() {
 		$('.added_to_cart:not(.button)').addClass('button');
 	});
 
-	// Limit number entered manually in quantity field in single view
+	// Routines for single product
 	if ( $body.hasClass('single-product') ) {
+		// Limit number entered manually in quantity field in single view
 		$('.entry-summary').on('keyup', 'input[name=quantity][max]', function() {
 			limitQuantityByInventory($('input[name=quantity]'), parseInt( $(this).attr('max'), 10 ));
 		});
+
+		// Add +/- plus/minus buttons to quantity input in single view
+		$("div.quantity:not(.buttons_added), td.quantity:not(.buttons_added)").addClass('buttons_added').append('<input type="button" value="+" id="add1" class="plus" />').prepend('<input type="button" value="-" id="minus1" class="minus" />');
 	}
+
+	$( document ).on( 'click', '.plus, .minus', function() {
+
+		// Get values
+		var $qty		= $( this ).closest( '.quantity' ).find( '.qty' ),
+			currentVal	= parseFloat( $qty.val() ),
+			max			= parseFloat( $qty.attr( 'max' ) ),
+			min			= parseFloat( $qty.attr( 'min' ) ),
+			step		= $qty.attr( 'step' );
+
+		// Format values
+		if ( ! currentVal || currentVal === '' || currentVal === 'NaN' ) currentVal = 0;
+		if ( max === '' || max === 'NaN' ) max = '';
+		if ( min === '' || min === 'NaN' ) min = 0;
+		if ( step === 'any' || step === '' || step === undefined || parseFloat( step ) === 'NaN' ) step = 1;
+
+		// Change the value
+		if ( $( this ).is( '.plus' ) ) {
+
+			if ( max && ( max == currentVal || currentVal > max ) ) {
+				$qty.val( max );
+			} else {
+				$qty.val( currentVal + parseFloat( step ) );
+			}
+
+		} else {
+
+			if ( min && ( min == currentVal || currentVal < min ) ) {
+				$qty.val( min );
+			} else if ( currentVal > 0 ) {
+				$qty.val( currentVal - parseFloat( step ) );
+			}
+
+		}
+
+		// Trigger change event
+		$qty.trigger( 'change' );
+	});
 
 	/* function ajax variation callback */
 	function ajax_variation_callback() {

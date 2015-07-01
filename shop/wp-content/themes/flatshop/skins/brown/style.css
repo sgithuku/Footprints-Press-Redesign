@@ -1,4 +1,4 @@
-/*
+/*  
 Skin Name: Brown
 Version: 1.0
 Description: Skin for Flatshop
@@ -7,20 +7,26 @@ Description: Skin for Flatshop
 
 /* color reset */
 h1, h2, h3, h4, h5, h6,
-a,
+#site-logo a,
 #site-description,
 #menu-icon,
 .post-title,
 .post-title a,
 .widgettitle,
 #footer .social-widget a,
-#body h2, {
-	color: #3E2D22;
+#body h2,
+.horizontal-menu a {
+	color: #b55a00;
 }
 #menu-icon:hover,
 #site-logo a:hover,
-#footer .social-widget a:hover {
-	color: #F5A623;
+#footer .social-widget a:hover,
+#menu-icon-close:hover,
+.horizontal-menu a:hover,
+#slide-cart a:hover,
+#slide-cart .cart-total #view-cart,
+.sidemenu ::-webkit-input-placeholder {
+	color: #d86c00;
 }
 #main-nav a:hover,
 #main-nav .current_page_item a,
@@ -32,62 +38,22 @@ a,
 
 /* searchform */
 #header #searchform #s {
-	color: #F5A623;
-	border-color: #F5A623;
+	color: #d86c00;
+	border-color: #d86c00;
 	border-width: 0 0 1px 0;
+}
+
+#slide-cart .product:last-child {
+	border-color: #d86c00;
 }
 
 /* menu slide */
 #cart-icon,
-#slide-nav,
-#slide-cart {
+.sidemenu,
+#slide-nav > div {
 	color: #fff;
-	background: #3E2D22;
+	background: #b55a00;
 }
 #cart-icon:hover {
-	background: #F5A623;
+	background: #d86c00;
 }
-
-a.button, .single_add_to_cart_button{
-	background: #3e2d22 !important;
-}
-a.button:hover{
-	color: #f5a623 !important;
-	border-color: #f5a623;
-}
-
-h3{
-	color: #3E2D22  !important;
-}
-
-.list-post .products .product{
-	padding-top: 2.5% !important;
-}
-/* landing page */
-
-/* .full{
-	width: 100% !important;
-	background-size: cover;
-	height: 800px;
-}
-.text{
-	margin: 300px auto;
-}
-
-.pagewidth{
-	width: 100% !important;
-	max-width: 100% !important;
-}
-
-.content{
-	padding: 0 3% !important;
-}
-#headerwrap{
-	padding-left: 5px;
-	padding-right: 5px;
-}
-
-#layout-wrap{
-	padding-top: 85px !important;
-}
- */

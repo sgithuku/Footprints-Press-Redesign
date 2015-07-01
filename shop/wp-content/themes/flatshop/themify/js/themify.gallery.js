@@ -3,6 +3,8 @@ var ThemifyGallery = {};
 
 (function($){
 
+	'use strict';
+
 ThemifyGallery = {
 	
 	config: {
@@ -25,11 +27,10 @@ ThemifyGallery = {
 		this.general();
 		this.parseArgs();
 		this.doLightbox();
-		this.doFullscreen();
 	},
 	
 	general: function(){
-		context = this.config.context;
+		var context = this.config.context;
 	},
 	
 	parseArgs: function(){
@@ -45,7 +46,7 @@ ThemifyGallery = {
 	},
 	
 	doLightbox: function(){
-		context = this.config.context;
+		var context = this.config.context;
 		
 		if(typeof $.fn.magnificPopup !== 'undefined' && typeof themifyScript.lightbox.lightboxOn !== 'undefined') {
 			
@@ -60,6 +61,11 @@ ThemifyGallery = {
 					$iframe_height = (ThemifyGallery.isVideo($link)) ? '100%' : (ThemifyGallery.getParam('height', $link)) ? ThemifyGallery.getParam('height', $link) : '100%';
 					if($iframe_width.indexOf("%") == -1) $iframe_width += 'px';
 					if($iframe_height.indexOf("%") == -1) $iframe_height += 'px';
+
+				if( ThemifyGallery.isYoutube( $link ) ) {
+					// for youtube videos, sanitize the URL properly
+					$link = ThemifyGallery.getYoutubePath( $link );
+				}
 				var $args = {
 					items: {
 						src: $link,
@@ -166,9 +172,11 @@ ThemifyGallery = {
 						if($(this).parent().next('.gallery-caption').length > 0){
 							// If there's a caption set for the image, use it
 							description = $(this).parent().next('.wp-caption-text').html();
-						} else {
+						} else if ( $(this).children('img').length > 0 ) {
 							// Otherwise, see if there's an alt attribute set
 							description = $(this).children('img').attr('alt');
+						} else if ( $(this).find('.gallery-caption').find('.entry-content').length > 0 ) {
+							description = $(this).find('.gallery-caption').find('.entry-content').text();
 						}
 						images.push({ src: $(this).attr('href'), title: description, type: 'image' });
 					});
@@ -198,88 +206,8 @@ ThemifyGallery = {
 		}
 	},
 	
-	doFullscreen: function(){
-		if(this.config.context.selector){
-			context = $(themifyScript.lightbox.contentImagesAreas, this.config.context);
-		} else {
-			context = this.config.context;
-		}
-
-		if( typeof $.fn.photoSwipe !== 'undefined' && typeof themifyScript.lightbox.fullscreenOn !== 'undefined' ) {
-
-			$(context).each(function() {
-				var $elf = $(this),
-					settings = {
-						target: window,
-						preventHide: false,
-						zIndex: 50000,
-						getImageSource: function(obj){
-							return obj.url;
-						},
-						getImageCaption: function(obj){
-							return obj.caption;
-						}
-					};
-
-				// Images in WP Gallery
-				if($(ThemifyGallery.config.fullscreen, $elf).length > 0){
-					var images = [],
-						instance,
-						id = $elf.attr('id');
-					$(ThemifyGallery.config.fullscreen, $elf).each(function() {
-						images.push({url: $(this).attr('href'), caption: $('img', this).attr('alt')});
-					});
-
-					for ( var attrname in themifyScript.lightbox ) {
-						settings[attrname] = themifyScript.lightbox[attrname];
-					}
-
-					instance = Code.PhotoSwipe.getInstance(id);
-
-					if( Code.Util.isNothing(instance) ) {
-						instance = Code.PhotoSwipe.attach(
-							images,
-							settings,
-							id
-						);
-					}
-				}
-				
-				// Images in post content
-				if(themifyScript.lightbox.lightboxContentImages && $(ThemifyGallery.config.lightboxContentImages, $elf).length > 0){
-					$cimgs = $(ThemifyGallery.config.lightboxContentImages, $elf).filter( function(){
-						if(!$(this).parent().hasClass('gallery-icon') && !$(this).hasClass('lightbox'))
-							return $(this);
-					});
-					if($cimgs.length > 0) {
-						$cimgs.photoSwipe(themifyScript.lightbox);
-					}
-				}
-			});
-
-			if(themifyScript.lightbox.fullscreenOn){
-				$(context).on('click', ThemifyGallery.config.fullscreen, function(e){
-					e.preventDefault();
-					var $a = $(this),
-						id = $a.closest(themifyScript.lightbox.contentImagesAreas).attr('id');
-					
-					// get instance
-					var instance = window.parent.Code.PhotoSwipe.getInstance(id);
-					var index = 0;
-					$.each(instance.cache.images, function(i, item) {
-						if(item.src == $a.attr('href')) {
-							index = i;
-						}
-					});
-					instance.show(index);
-				});
-			}
-
-		}
-	},
-	
 	countItems : function(type){
-		context = this.config.context;
+		var context = this.config.context;
 		if('lightbox' == type) return $(this.config.lightbox, context).length + $(this.config.lightboxGallery, context).length + $(ThemifyGallery.config.lightboxContentImages, context).length;
 		else return $(this.config.fullscreen, context).length + $(ThemifyGallery.config.lightboxContentImages, context).length;
 	},
@@ -292,8 +220,8 @@ ThemifyGallery = {
 		}
 	},
 	
-	getFileType: function(itemSrc){
-		if (itemSrc.match(/youtube\.com\/watch/i) || itemSrc.match(/youtu\.be/i)
+	getFileType: function( itemSrc ) {
+		if ( ThemifyGallery.isYoutube( itemSrc )
 			|| itemSrc.match(/vimeo\.com/i) || itemSrc.match(/\b.mov\b/i)
 			|| itemSrc.match(/\b.swf\b/i) || itemSrc.match(/\biframe=true\b/i) ) {
 			return 'iframe';
@@ -306,10 +234,23 @@ ThemifyGallery = {
 		}
 	},
 	
-	isVideo: function(itemSrc){
-		return itemSrc.match(/youtube\.com\/watch/i) || itemSrc.match(/youtu\.be/i)
+	isVideo: function( itemSrc ) {
+		return ThemifyGallery.isYoutube( itemSrc )
 			|| itemSrc.match(/vimeo\.com/i) || itemSrc.match(/\b.mov\b/i)
 			|| itemSrc.match(/\b.swf\b/i);
+	},
+
+	isYoutube : function( itemSrc ) {
+		return itemSrc.match( /youtube\.com\/watch/i ) || itemSrc.match( /youtu\.be/i );
+	},
+
+	getYoutubePath : function( url ) {
+		if( url.match( /youtu\.be/i ) ) {
+			// convert youtu.be/ urls to youtube.com
+			return 'http://youtube.com/watch?v=' + url.match( /youtu\.be\/(.*?)$/i )[1];
+		} else {
+			return 'http://youtube.com/watch?v=' + ThemifyGallery.getParam( 'v', url );
+		}
 	},
 	
 	getParam: function(name, url){

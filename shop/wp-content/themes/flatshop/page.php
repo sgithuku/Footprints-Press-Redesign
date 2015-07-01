@@ -51,7 +51,7 @@ global $themify; ?>
 
 					<?php the_content(); ?>
 
-					<?php wp_link_pages(array('before' => '<p><strong>'.__('Pages:','themify').'</strong> ', 'after' => '</p>', 'next_or_number' => 'number')); ?>
+					<?php wp_link_pages(array('before' => '<p class="post-pagination"><strong>'.__('Pages:','themify').'</strong> ', 'after' => '</p>', 'next_or_number' => 'number')); ?>
 
 					<?php edit_post_link(__('Edit','themify'), '[', ']'); ?>
 
@@ -109,6 +109,8 @@ global $themify; ?>
 				<?php else : ?>
 
 				<?php endif; ?>
+
+				<?php wp_reset_query(); ?>
 
 			<?php endif; ?>
 

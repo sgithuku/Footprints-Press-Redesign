@@ -8,7 +8,7 @@
 include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 
 // Disable WooCommerce styles
-if ( version_compare( WOOCOMMERCE_VERSION, "2.1" ) >= 0 ) {
+if ( version_compare( WOOCOMMERCE_VERSION, '2.1' ) >= 0 ) {
 	add_filter( 'woocommerce_enqueue_styles', '__return_false' );
 } else {
 	define( 'WOOCOMMERCE_USE_CSS', false );
@@ -117,6 +117,13 @@ add_filter( 'add_to_cart_fragments', 'themify_theme_add_to_cart_fragments' );
  */
 add_action( 'wp_ajax_theme_delete_cart', 'themify_theme_woocommerce_delete_cart' );
 add_action( 'wp_ajax_nopriv_theme_delete_cart', 'themify_theme_woocommerce_delete_cart' );
+
+/**
+ * Theme adding cart hook
+ * Adding cart ajax on single product page
+ */
+add_action( 'wp_ajax_theme_add_to_cart', 'themify_theme_woocommerce_add_to_cart' );
+add_action( 'wp_ajax_nopriv_theme_add_to_cart', 'themify_theme_woocommerce_add_to_cart' );
 
 /**
  * WC Plugins compliance 

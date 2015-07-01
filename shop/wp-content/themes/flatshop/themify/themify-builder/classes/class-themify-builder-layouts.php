@@ -15,25 +15,16 @@ class Themify_Builder_Layouts {
 		// Builder write panel
 		add_filter( 'themify_do_metaboxes', array( $this, 'layout_write_panels' ), 11 );
 		add_filter( 'themify_post_types', array( $this, 'extend_post_types' ) );
+		add_action( 'add_meta_boxes_tbuilder_layout_part', array( $this, 'custom_meta_boxes' ) );
 
 		add_action( 'wp_ajax_tfb_load_layout', array( $this, 'load_layout_ajaxify' ), 10 );
 		add_action( 'wp_ajax_tfb_set_layout', array( $this, 'set_layout_ajaxify' ), 10 );
 		add_action( 'wp_ajax_tfb_custom_layout_form', array( $this, 'custom_layout_form_ajaxify' ), 10 );
 		add_action( 'wp_ajax_tfb_save_custom_layout', array( $this, 'save_custom_layout_ajaxify' ), 10 );
 
-		/* Layout Action */
-		add_action( 'wp_ajax_tfb_duplicate_layout', array( $this, 'duplicate_layout_ajaxify' ), 10 );
-		add_action( 'wp_ajax_tfb_delete_layout', array( $this, 'delete_layout_ajaxify' ), 10 );
-
-		add_action( 'template_redirect', array( $this, 'template_singular_layout' ) );
+		add_filter( 'template_include', array( $this, 'template_singular_layout' ) );
 
 		add_shortcode( 'themify_layout_part', array( $this, 'layout_part_shortcode' ) );
-
-		// Restrict prebuilt Layouts from deletion and edit
-		add_action( 'edit_post', array( $this, 'restrict_post_deletion' ), 10, 1);
-		add_action( 'wp_trash_post', array( $this, 'restrict_post_deletion' ), 10, 1);
-		add_action( 'before_delete_post', array( $this, 'restrict_post_deletion' ), 10, 1);
-		add_action( 'admin_init', array( $this, 'block_layout_edit_screen' ) );
 
 		// Quick Edit Links
 		add_filter( 'post_row_actions', array( $this, 'row_actions' ) );
@@ -53,6 +44,8 @@ class Themify_Builder_Layouts {
 			include_once THEMIFY_BUILDER_LIBRARIES_DIR . '/' . 'CPT.php';
 		}
 
+		$public = ( is_user_logged_in() && current_user_can( 'edit_posts' ) ) ? true : false;
+
 		// create a template custom post type
 		$this->layout = new CPT( array(
 			'post_type_name' => 'tbuilder_layout',
@@ -62,7 +55,8 @@ class Themify_Builder_Layouts {
 			'supports' => array('title', 'thumbnail'),
 			'exclude_from_search' => true,
 			'show_in_nav_menus' => false,
-			'show_in_menu' => false
+			'show_in_menu' => false,
+			'public' => $public
 		));
 
 		// define the columns to appear on the admin edit screen
@@ -90,7 +84,8 @@ class Themify_Builder_Layouts {
 			'supports' => array('title', 'thumbnail'),
 			'exclude_from_search' => true,
 			'show_in_nav_menus' => false,
-			'show_in_menu' => false
+			'show_in_menu' => false,
+			'public' => $public
 		));
 
 		// define the columns to appear on the admin edit screen
@@ -139,36 +134,23 @@ class Themify_Builder_Layouts {
 			return $meta_boxes;
 		}
 
-		$builder_meta = array(
-				'name' 		=> 'page_builder',
-				'title' 	=> __( 'Themify Builder', 'themify' ),
-				'description' => '',
-				'type' 		=> 'page_builder',
-				'meta'		=> array()
-		);
-		if ( 'tbuilder_layout' == $this->layout->post_type_name ) {
-			$feature_img = array(
+		$meta_settings = array(
+			array(
 				'name' 		=> 'post_image',
 				'title' 	=> __('Layout Thumbnail', 'themify'),
 				'description' => '',
 				'type' 		=> 'image',
 				'meta'		=> array()
-			);
-			$page_builder_options = array_merge( array( $feature_img, $builder_meta ) );
-		} else {
-			$page_builder_options = array( $builder_meta );
-		}
-		
-		$types = array( $this->layout->post_type_name, $this->layout_part->post_type_name );
+			)
+		);
+			
 		$all_meta_boxes = array();
-		foreach ( $types as $type ) {
-			$all_meta_boxes[] = apply_filters( 'layout_write_panels_meta_boxes', array(
-				'name'		=> __( 'Settings', 'themify' ),
-				'id' 		=> 'layout-settings-builder',
-				'options'	=> $page_builder_options,
-				'pages'    	=> $type
-			) );
-		}
+		$all_meta_boxes[] = apply_filters( 'layout_write_panels_meta_boxes', array(
+			'name'		=> __( 'Settings', 'themify' ),
+			'id' 		=> 'layout-settings-builder',
+			'options'	=> $meta_settings,
+			'pages'    	=> $this->layout->post_type_name
+		) );
 		return array_merge( $meta_boxes, $all_meta_boxes);
 	}
 
@@ -180,6 +162,27 @@ class Themify_Builder_Layouts {
 	function extend_post_types( $types ) {
 		$cpts = array( $this->layout->post_type_name, $this->layout_part->post_type_name );
 		return array_merge( $types, $cpts );
+	}
+
+	/**
+	 * Add meta boxes to layout and/or layout part screens.
+	 *
+	 * @param $post
+	 */
+	function custom_meta_boxes( $post ) {
+		add_meta_box( 'layout-part-info', __( 'Using this Layout Part', 'themify' ), array( $this, 'layout_part_info' ), $this->layout_part->post_type_name, 'side', 'default' );
+	}
+
+	/**
+	 * Displays information about this layout part.
+	 */
+	function layout_part_info() {
+		$layout_part = get_post();
+		echo '<div>' . __( 'To display this Layout Part, insert this shortcode:', 'themify' ) . '<br/><span class="code">[themify_layout_part id="' . esc_html( $layout_part->ID ) . '"]</span>';
+		if ( ! empty( $layout_part->post_name ) ) {
+			echo  '<div class="themify-layout-part-slug-block">' . __( 'or', 'themify' ) . '<br/><span class="code">[themify_layout_part slug="<span class="themify-layout-part-slug">' . esc_html( $layout_part->post_name ) . '"]</span></span></div>';
+		}
+		echo '</div>';
 	}
 
 	/**
@@ -198,23 +201,9 @@ class Themify_Builder_Layouts {
 	}
 
 	/**
-	 * Template redirect function
-	 **/
-	function do_theme_redirect( $url ) {
-		global $post, $wp_query;
-
-		if ( have_posts() ) {
-			include( $url );
-			die();
-		} else {
-			$wp_query->is_404 = true;
-		}
-	}
-
-	/**
 	 * Custom layout for Template / Template Part Builder Editor
 	 */
-	function template_singular_layout() {
+	function template_singular_layout( $original_template ) {
 		if ( is_singular( array( $this->layout->post_type_name, $this->layout_part->post_type_name ) ) ) {
 			$templatefilename = 'template-builder-editor.php';
 			
@@ -228,7 +217,9 @@ class Themify_Builder_Layouts {
 			if ( ! $return_template )
 				$return_template = THEMIFY_BUILDER_TEMPLATES_DIR . '/' . $templatefilename;
 
-			$this->do_theme_redirect( $return_template );
+			return $return_template;
+		} else {
+			return $original_template;
 		}
 	}
 
@@ -364,81 +355,16 @@ class Themify_Builder_Layouts {
 	}
 
 	/**
-	 * Duplicate Layout Ajax
-	 * @return json
-	 */
-	function duplicate_layout_ajaxify() {
-		check_ajax_referer( 'tfb_load_nonce', 'nonce' );
-		global $themifyBuilderDuplicate;
-		$layout = (int) $_POST['layout_id'];
-		$post = get_post( $layout );
-		remove_action( 'edit_post', array( $this, 'restrict_post_deletion' ), 10, 1);
-		$new_id = $themifyBuilderDuplicate->duplicate( $post );
-		delete_post_meta( $new_id, '_themify_builder_prebuilt_layout' );
-		add_action( 'edit_post', array( $this, 'restrict_post_deletion' ), 10, 1);
-		wp_send_json_success();
-	}
-
-	/**
-	 * Delete Layout Ajax
-	 * @return json
-	 */
-	function delete_layout_ajaxify() {
-		check_ajax_referer( 'tfb_load_nonce', 'nonce' );
-		$layout = (int) $_POST['layout_id'];
-		if ( Themify_Builder_Model::is_prebuilt_layout( $layout ) ) {
-			wp_send_json_error( array( 'msg' => __('Cannot delete prebuilt layout', 'themify' ) ) );
-		} else {
-			wp_delete_post( $layout, true );
-			wp_send_json_success();
-		}
-	}
-
-	/**
-	 * Restrict Pre-built Layouts from deletion
-	 */
-	function restrict_post_deletion( $postid ) {
-		if ( Themify_Builder_Model::is_prebuilt_layout( $postid ) ) {
-			wp_die( __('Pre-built Layouts and Parts can\'t be editable or delete-able. Please use duplicate feature to have same layout.', 'themify') );
-			exit;
-		}
-	}
-
-	/**
-	 * Block users from accessing Pre-built Layouts Edit Screen
-	 */
-	function block_layout_edit_screen() {
-		global $pagenow;
-
-		if ( 'post.php' == $pagenow && ( isset( $_GET['action'] ) 
-			&& 'edit' == $_GET['action'] ) 
-			&& ( $this->layout->post_type_name == get_post_type( $_GET['post'] ) || $this->layout_part->post_type_name == get_post_type( $_GET['post'] ) ) ) {
-
-			if ( Themify_Builder_Model::is_prebuilt_layout( $_GET['post'] ) ) {
-				wp_die( __('Pre-built Layouts and Parts can\'t be editable or delete-able. Please use duplicate feature to have same layout.', 'themify') );
-				exit;
-			}
-
-		}
-	}
-
-	/**
 	 * Add custom link actions in post / page rows
 	 * @param array $actions 
 	 * @return array
 	 */
 	function row_actions( $actions ) {
 		global $post;
-		$builder_link = sprintf( '<a href="%s" target="_blank">%s</a>', get_permalink( $post->ID ) . '#builder_active', __('Themify Builder', 'themify' ));
+		$builder_link = sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( get_permalink( $post->ID ) . '#builder_active' ), __('Themify Builder', 'themify' ));
 		if ( ( $this->layout->post_type_name == get_post_type() ) || ( $this->layout_part->post_type_name == get_post_type() ) ) {
 			$actions['themify-builder-duplicate'] = sprintf( '<a href="%s">%s</a>', wp_nonce_url( admin_url( 'post.php?post=' . $post->ID . '&action=duplicate_tbuilder' ), 'duplicate_themify_builder' ), __('Duplicate', 'themify') );
 			$actions['themify-builder'] = $builder_link;
-			if ( Themify_Builder_Model::is_prebuilt_layout( $post->ID ) ) {
-				unset( $actions['edit'] );
-				unset( $actions['inline hide-if-no-js'] );
-				unset( $actions['trash'] );
-				unset( $actions['themify-builder'] );
-			}
 		} else {
 			// print builder links on another post types
 			$registered_post_types = themify_post_types();
@@ -458,14 +384,8 @@ class Themify_Builder_Layouts {
 			$postid = (int) $_GET['post'];
 			$layout = get_post( $postid );
 
-			// Disable post restrict edit
-			remove_action( 'edit_post', array( $this, 'restrict_post_deletion' ), 10, 1);
-
 			$new_id = $themifyBuilderDuplicate->duplicate( $layout );
 			delete_post_meta( $new_id, '_themify_builder_prebuilt_layout' );
-
-			// Enable post restrict edit
-			add_action( 'edit_post', array( $this, 'restrict_post_deletion' ), 10, 1);
 
 			wp_redirect( admin_url( 'edit.php?post_type=' . get_post_type( $postid ) ) );
 			exit;
@@ -536,13 +456,19 @@ class Themify_Builder_Layouts {
 	 */
 	function uncompress_gzip($srcName, $dstName) {
 		$sfp = gzopen( $srcName, "rb" );
-		$fp = fopen($dstName, "w" );
-
-		while ( ! gzeof( $sfp ) ) {
-			$string = gzgets( $sfp, 8192 );
-			fwrite( $fp, $string, strlen( $string ) );
+		
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/file.php' );
 		}
+
+		WP_Filesystem();
+		global $wp_filesystem;
+
+		$string = '';
+		while ( ! gzeof( $sfp ) ) {
+			$string .= gzgets( $sfp, 8192 );
+		}
+		$wp_filesystem->put_contents( $dstName, $string, FS_CHMOD_FILE );
 		gzclose($sfp);
-		fclose($fp);
 	}
 }

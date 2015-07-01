@@ -27,7 +27,7 @@ if ( 1 == $wp_query->found_posts || ! woocommerce_products_will_display() )	retu
 
 		foreach ( $catalog_orderby as $id => $name ) {
 			$selected = isset( $_GET['orderby'] ) && $_GET['orderby'] == $id ? 'class="selected"': '';
-			echo '<li ' . $selected . '><a href="'. add_query_arg( array( 'orderby' => $id ) ) . '">' . esc_attr( $name ) . '</a></li>';
+			echo '<li ' . $selected . '><a href="'. esc_url( add_query_arg( array( 'orderby' => $id ) ) ) . '">' . esc_attr( $name ) . '</a></li>';
 		}
 		?>
 		</ul>

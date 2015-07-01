@@ -28,7 +28,7 @@ global $themify; ?>
 		
 		<?php get_template_part( 'includes/loop' , 'single'); ?>
 
-		<?php wp_link_pages(array('before' => '<p><strong>' . __('Pages:', 'themify') . ' </strong>', 'after' => '</p>', 'next_or_number' => 'number')); ?>
+		<?php wp_link_pages(array('before' => '<p class="post-pagination"><strong>' . __('Pages:', 'themify') . ' </strong>', 'after' => '</p>', 'next_or_number' => 'number')); ?>
 		
 		<?php get_template_part( 'includes/author-box', 'single'); ?>
 

@@ -142,12 +142,9 @@ function themify_default_layout( $data = array() ){
 	$output .= '<p>
 					<span class="label">' . __('More Text', 'themify') . '</span>
 					<input type="text" name="'.$prefix.'more_text" value="'.$more_text.'">
+					
+					<span class="pushlabel vertical-grouped"><label for="setting-excerpt_more"><input type="checkbox" value="1" id="setting-excerpt_more" name="setting-excerpt_more" '.checked( themify_get( 'setting-excerpt_more' ), 1, false ).'/> ' . __('Display more link button in excerpt mode as well.', 'themify') . '</label></span>
 				</p>';
-
-	/**
-	 * Display more link in excerpt mode
-	 */
-	$output .= '<span class="pushlabel vertical-grouped"><label for="setting-excerpt_more"><input type="checkbox" value="1" id="setting-excerpt_more" name="setting-excerpt_more" '.checked( themify_get( 'setting-excerpt_more' ), 1, false ).'/> ' . __('Display more link button in excerpt mode as well.', 'themify') . '</label></span>';
 
 	/**
 	 * Order & OrderBy Options

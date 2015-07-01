@@ -125,10 +125,9 @@ class CPT {
 				} else {
 
 					// define the method to be used
-					$method = 'get_'.$name;
 
 					// generate the name
-					$this->$name = $this->$method();
+					$this->$name = $this->{'get_'.$name}();
 
 				}
 
@@ -473,10 +472,9 @@ class CPT {
 				} else {
 
 					// define the fnction to be used
-					$method = 'get_'.$name;
 
 					// generate the name
-					$$name = $this->$method($taxonomy_name);
+					$$name = $this->{'get_'.$name}( $taxonomy_name );
 
 				}
 
@@ -689,7 +687,7 @@ class CPT {
 			// if column is for the post ID
 			case 'post_id' :
 
-				echo $post->ID;
+				echo esc_attr( $post->ID );
 
 			break;
 
@@ -710,20 +708,20 @@ class CPT {
 			case 'icon' :
 
 				// create the edit link
-				$link = esc_url(add_query_arg(array('post' => $post->ID, 'action' => 'edit'), 'post.php'));
+				$link = add_query_arg(array('post' => $post->ID, 'action' => 'edit'), 'post.php');
 
 				// if it post has a featured image
 				if(has_post_thumbnail()) {
 
 					// display post featured image with edit link
-					echo '<a href="'. $link .'">';
+					echo '<a href="'. esc_url( $link ) .'">';
 						the_post_thumbnail(array(60, 60));
 					echo '</a>';
 
 				} else {
 
 					// display default media image with link
-					echo '<a href="'.$link.'"><img src="'. site_url('/wp-includes/images/crystal/default.png') .'" alt="'. $post->post_title .'" /></a>';
+					echo '<a href="'.esc_url( $link ).'"><img src="'. site_url('/wp-includes/images/crystal/default.png') .'" alt="'. $post->post_title .'" /></a>';
 
 				}
 

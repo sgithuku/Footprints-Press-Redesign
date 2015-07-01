@@ -12,6 +12,8 @@
 
 (function($){
 
+	'use strict';
+
 	// Google Font Loader
 	var wf = document.createElement( 'script' );
 		wf.src = ('https:' == document.location.protocol ? 'https' : 'http') + '://ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js';
@@ -126,9 +128,6 @@
 				var family = font.family;
 				if ( family.fonttype && 'google' == family.fonttype ) {
 					var googleFont = family.name;
-					if ( family.variant ) {
-						googleFont =  family.name + ':' + family.variant
-					}
 					WebFont.load({
 						google: {
 							families: [googleFont]
@@ -182,13 +181,15 @@
 				}
 			}
 
+			var unit = 'px';
+
 			if ( font.sizenum && '' != font.sizenum ) {
-				var unit = ( font.sizeunit && '' != font.sizeunit ) ? font.sizeunit : 'px';
+				unit = ( font.sizeunit && '' != font.sizeunit ) ? font.sizeunit : 'px';
 				$selector.css( 'font-size', font.sizenum + unit );
 			}
 
 			if ( font.linenum && '' != font.linenum ) {
-				var unit = ( font.lineunit && '' != font.lineunit ) ? font.lineunit : 'px';
+				unit = ( font.lineunit && '' != font.lineunit ) ? font.lineunit : 'px';
 				$selector.css( 'line-height', font.linenum + unit );
 			}
 		}
@@ -224,22 +225,22 @@
 
 					setFont( $selector, values );
 
-					if ( values ) {
+					if ( values.mode && 'none' == values.mode ) {
 
-						if ( values.mode && 'none' == values.mode ) {
+						$selector.css( 'display', 'none' );
 
-							$selector.css( 'display', 'none' );
+					} else {
 
-						} else if ( 'none' != values.mode ) {
+						$selector.css( 'display', 'block' );
 
-							$selector.css( 'display', 'block' );
+						var $img = $('img', $selector);
+						if ( $img.length > 0 ) {
+							$img.remove();
+						}
 
-							var $img = $('img', $selector);
-							if ( $img.length > 0 ) {
-								$img.remove();
-							}
-							if ( '' != values.src && 'image' == values.mode ) {
-								$($selector).find('span').hide();
+						if ( values.mode && 'image' == values.mode ) {
+							$selector.find('span').hide();
+							if ( 'undefined' != typeof values.src && '' != values.src ) {
 								if ( $('a', $selector).length > 0 ) {
 									$selector.find('a').prepend('<img src="' + values.src + '" />');
 									if ( values.link && '' != values.link ) {
@@ -254,30 +255,30 @@
 									'width': imgwidth,
 									'height': imgheight
 								});
-							} else {
-								$($selector).find('span').show();
-								if ( $('a', $selector).length > 0 ) {
-									if ( values.link && '' != values.link ) {
-										$selector.find('a').attr('href', values.link);
-									}
-									setColor( $selector, 'color', values );
-									setColor( $selector.find('a'), 'color', values );
-								}
-
-								$.post(
-									themifyCustomizer.ajaxurl,
-									{
-										'action': 'themify_customizer_get_option',
-										'option': 'blogname',
-										'nonce' : themifyCustomizer.nonce
-									},
-									function(data) {
-										if ( 'notfound' != data ) {
-											$('#site-logo, #footer-logo').find('span').text( data );
-										}
-									}
-								);
 							}
+						} else {
+							$selector.find('span').show();
+							if ( $('a', $selector).length > 0 ) {
+								if ( values.link && '' != values.link ) {
+									$selector.find('a').attr('href', values.link);
+								}
+								setColor( $selector, 'color', values );
+								setColor( $selector.find('a'), 'color', values );
+							}
+
+							$.post(
+								themifyCustomizer.ajaxurl,
+								{
+									'action': 'themify_customizer_get_option',
+									'option': 'blogname',
+									'nonce' : themifyCustomizer.nonce
+								},
+								function(data) {
+									if ( 'notfound' != data ) {
+										$('#site-logo, #footer-logo').find('span').text( data );
+									}
+								}
+							);
 						}
 					}
 
@@ -301,22 +302,22 @@
 
 					setFont( $selector, values );
 
-					if ( values ) {
+					if ( values.mode && 'none' == values.mode ) {
 
-						if ( values.mode && 'none' == values.mode ) {
+						$selector.css( 'display', 'none' );
 
-							$selector.css( 'display', 'none' );
+					} else if ( 'none' != values.mode ) {
 
-						} else if ( 'none' != values.mode ) {
+						$selector.css( 'display', 'block' );
 
-							$selector.css( 'display', 'block' );
+						var $img = $('img', $selector);
+						if ( $img.length > 0 ) {
+							$img.remove();
+						}
 
-							var $img = $('img', $selector);
-							if ( $img.length > 0 ) {
-								$img.remove();
-							}
-							if ( '' != values.src && 'image' == values.mode ) {
-								$($selector).find('span').hide();
+						if ( values.mode && 'image' == values.mode ) {
+							$selector.find('span').hide();
+							if ( 'undefined' != typeof values.src && '' != values.src ) {
 								$selector.prepend('<img src="' + values.src + '" />');
 								var imgwidth = values.imgwidth && '' != values.imgwidth ? values.imgwidth : '';
 								var imgheight = values.imgheight && '' != values.imgheight ? values.imgheight : '';
@@ -324,27 +325,26 @@
 									'width': imgwidth,
 									'height': imgheight
 								});
-							} else {
-								$($selector).find('span').show();
-								setColor( $selector, 'color', values );
-
-								$.post(
-									themifyCustomizer.ajaxurl,
-									{
-										'action': 'themify_customizer_get_option',
-										'option': 'blogdescription',
-										'nonce' : themifyCustomizer.nonce
-									},
-									function(data) {
-										if ( 'notfound' != data ) {
-											$selector.find('span').text( data );
-										}
-									}
-								);
 							}
+						} else {
+							$selector.find('span').show();
+							setColor( $selector, 'color', values );
+
+							$.post(
+								themifyCustomizer.ajaxurl,
+								{
+									'action': 'themify_customizer_get_option',
+									'option': 'blogdescription',
+									'nonce' : themifyCustomizer.nonce
+								},
+								function(data) {
+									if ( 'notfound' != data ) {
+										$selector.find('span').text( data );
+									}
+								}
+							);
 						}
 					}
-
 				});
 			});
 		});
@@ -635,13 +635,13 @@
 
 					if ( values && '' != values.position ) {
 						$selector.css( 'position', values.position );
-					}
 
-					_.each(['top', 'right', 'bottom', 'left'], function(side){
-						if ( values[side] ) {
-							setDimension( $selector, side, values[side] );
-						}
-					});
+						_.each(['top', 'right', 'bottom', 'left'], function(side){
+							if ( values[side] ) {
+								setDimension( $selector, side, values[side] );
+							}
+						});
+					}
 
 				});
 			});
@@ -687,13 +687,20 @@
 					}
 
 					try {
-						var customcss = $.parseJSON( customcssData );
+						var customcss = $.parseJSON( customcssData ),
+							stylesheet = 'themify-custom-css',
+							$stylesheet = $('#'+stylesheet);
 						if ( customcss.css ) {
-							var stylesheet = 'themify-custom-css';
-							if ( $('#'+stylesheet).length > 0 ) {
-								$('#'+stylesheet).remove();
+							var css = customcss.css;
+							css = css.replace(/\\"/g, '"').replace(/:(\s*?)(\"|\')(\\+)(.*?)(\"|\')/g, ': $2\\$4$5');
+							if ( $stylesheet.length > 0 ) {
+								$stylesheet.remove();
 							}
-							$('head').append( '<style id="' + stylesheet + '">' + customcss.css + '</div>' );
+							$('head').append( '<style id="' + stylesheet + '">' + css + '</style>' );
+						} else {
+							if ( $stylesheet.length > 0 ) {
+								$stylesheet.remove();
+							}
 						}
 					} catch(e) {
 						window.console && console.log && console.log(e);

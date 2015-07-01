@@ -3,20 +3,40 @@
  * Module Class
  * @package themifyBuilder
  */
-class Themify_Builder_Module {
-	var $name;
-	var $slug;
-	var $options = array();
-	var $styling = array();
-	var $style_selectors = array();
-	var $cpt_args = array();
-	var $cpt_options = array();
-	var $tax_options = array();
-	var $meta_box = array();
+abstract class Themify_Builder_Module {
+	public $name;
+	public $slug;
+	public $cpt_args = array();
+	public $cpt_options = array();
+	public $tax_options = array();
+	public $meta_box = array();
+
+	/**
+	 * Compatibility with legacy versions of Builder, stores the array of options containing the module options
+	 */
+	public $_legacy_options = array();
 
 	function __construct( $params ) {
 		$this->name = $params['name'];
 		$this->slug = $params['slug'];
+	}
+
+	public function get_options() {
+		if( isset( $this->_legacy_options['options'] ) ) {
+			return $this->_legacy_options['options'];
+		}
+	}
+
+	public function get_styling() {
+		if( isset( $this->_legacy_options['styling'] ) ) {
+			return $this->_legacy_options['styling'];
+		}
+	}
+
+	public function get_css_selectors() {
+		if( isset( $this->_legacy_options['styling_selector'] ) ) {
+			return $this->_legacy_options['styling_selector'];
+		}
 	}
 
 	function initialize_cpt( $args ) {
@@ -50,12 +70,11 @@ class Themify_Builder_Module {
 	 */
 	function cpt_updated_messages( $messages ) {
 		global $post, $post_ID;
-		$view = esc_url( get_permalink( $post_ID ) );
-		$preview = esc_url( add_query_arg( 'preview', 'true', get_permalink( $post_ID ) ) );
-		
+		$view = get_permalink( $post_ID );
+
 		$messages[ $this->slug ] = array(
 			0 => '',
-			1 => sprintf( __('%s updated. <a href="%s">View %s</a>.', 'themify'), $this->name, $view, $this->name ),
+			1 => sprintf( __('%s updated. <a href="%s">View %s</a>.', 'themify'), $this->name, esc_url( $view ), $this->name ),
 			2 => __( 'Custom field updated.', 'themify' ),
 			3 => __( 'Custom field deleted.', 'themify' ),
 			4 => sprintf( __('%s updated.', 'themify'), $this->name ),
@@ -181,5 +200,9 @@ class Themify_Builder_Module {
 				'pages'	=> $this->slug
 			)
 		));
+	}
+
+	public function get_title( $module ) {
+		return '';
 	}
 }

@@ -4,9 +4,40 @@
 
 (function($){
 
+	'use strict';
+
 	Themify_Icons = {
 
 		target: '',
+
+		init: function() {
+
+			var $body = $('body');
+
+			$( '#themify_lightbox_overlay, #themify_lightbox_fa' ).appendTo( 'body' );
+
+			$body.on('click', '.themify_fa_toggle', function(e){
+				e.preventDefault();
+				var $self = $( this );
+				if( $self.attr('data-target') ) {
+					Themify_Icons.target = $( $self.attr('data-target') );
+				} else {
+					Themify_Icons.target = $self.prev();
+				}
+				Themify_Icons.showLightbox( Themify_Icons.target.val() );
+			});
+
+			$body.on('click', '#themify_lightbox_fa .lightbox_container a', function(e){
+				e.preventDefault();
+				Themify_Icons.setIcon( $(this).text().replace( '(alias)', '' ).trim() );
+			});
+
+			$body.on('click', '#themify_lightbox_overlay, #themify_lightbox_fa .close_lightbox', function(e){
+				e.preventDefault();
+				Themify_Icons.closeLightbox();
+			});
+
+		},
 
 		getDocHeight: function() {
 			var D = document;
@@ -19,9 +50,11 @@
 
 		showLightbox: function( selected ) {
 			var top = $(document).scrollTop() + 80,
-				$lightbox = $("#themify_lightbox_fa");
+				$lightbox = $("#themify_lightbox_fa"),
+				$lightboxOverlay = $('#themify_lightbox_overlay'),
+				$body = $('body');
 
-			$('#themify_lightbox_overlay').show();
+			$lightboxOverlay.show();
 			$lightbox
 			.show()
 			.css('top', Themify_Icons.getDocHeight())
@@ -35,23 +68,24 @@
 				.closest('a')
 					.addClass('selected');
 			}
+
+			// Position lightbox correctly in Builder
+			if ( $body.hasClass('themify_builder_active') && $body.hasClass('frontend') ) {
+				var $tbOverlay = $('#themify_builder_overlay');
+				if ( $tbOverlay.length > 0 ) {
+					$lightboxOverlay.insertAfter($tbOverlay);
+					$lightbox.insertAfter($tbOverlay);
+				}
+			}
 		},
 
 		setIcon: function(iconName) {
 			var $target = $(Themify_Icons.target);
-			$target.val( iconName );
+			$target.val( 'fa-' + iconName );
 			if ( $('.fa:not(.icon-close)', $target.parent().parent()).length > 0 ) {
-				$('.fa:not(.icon-close)', $target.parent().parent()).removeClass().addClass( 'fa ' + iconName );
+				$('.fa:not(.icon-close)', $target.parent().parent()).removeClass().addClass( 'fa fa-' + iconName );
 			}
 			Themify_Icons.closeLightbox();
-		},
-
-		initLightbox: function(target) {
-			if( ! $(target).length > 0 ) {
-				Themify_Icons.target = $(target).prev();
-			}
-			Themify_Icons.target = target;
-			Themify_Icons.showLightbox( $(target).val() );
 		},
 
 		closeLightbox: function() {
@@ -66,22 +100,11 @@
 	};
 
 	$(document).ready(function(){
-		var $body = $('body');
+		Themify_Icons.init();
+	});
 
-		$body.on('click', '.themify_fa_toggle', function(e){
-			e.preventDefault();
-			Themify_Icons.initLightbox( $(this).attr('data-target') );
-		});
-
-		$body.on('click', '#themify_lightbox_fa .lightbox_container a', function(e){
-			e.preventDefault();
-			Themify_Icons.setIcon( $(this).attr('data-name') );
-		});
-
-		$body.on('click', '#themify_lightbox_overlay, #themify_lightbox_fa .close_lightbox', function(e){
-			e.preventDefault();
-			Themify_Icons.closeLightbox();
-		});
+	$('body').on('builderscriptsloaded.themify', function(e){
+		Themify_Icons.init();
 	});
 
 })(jQuery);

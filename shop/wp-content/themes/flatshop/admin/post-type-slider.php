@@ -79,7 +79,7 @@ function themify_theme_slider_meta_box( $args = array() ) {
 		array(
 			"name" 		=> "external_link",
 			"title" 		=> __('External Link', 'themify'),
-			"description" => __('Link Featured Image to external URL', 'themify'),
+			"description" => __('Link Featured Image and Post Title to external URL', 'themify'),
 			"type" 		=> "textbox",
 			"meta"		=> array()
 		),
@@ -222,6 +222,7 @@ function themify_theme_register_header_slider() {
 		'public' => true,
 		'show_ui' => true,
 		'capability_type' => 'post',
+		'show_in_nav_menus' => false,
 		'hierarchical' => false,
 		'rewrite' => false,
 		'query_var' => false,
@@ -251,7 +252,7 @@ function themify_theme_register_header_slider() {
 			'menu_name' => __( 'Slide Category', 'themify' ),
 		),
 		'public' => true,
-		'show_in_nav_menus' => true,
+		'show_in_nav_menus' => false,
 		'show_ui' => true,
 		'show_admin_column' => true,
 		'show_tagcloud' => true,

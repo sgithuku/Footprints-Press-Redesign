@@ -10,7 +10,52 @@
  *
  ***************************************************************************/
 (function( exports, $ ){
-	var api = wp.customize;
+
+	'use strict';
+
+	var api = wp.customize,
+		customCSSInit = true;
+
+	window.onbeforeunload = function() {
+		if ( ! wp.customize.state('saved')() ) {
+			return themifyCustomizerControls.confirm_on_unload;
+		}
+	};
+
+	$( window ).on( 'message', function(e){
+		var msg = $.parseJSON( e.originalEvent.data );
+		if ( 'synced' == msg.id && 'preview-0' == msg.channel ) {
+			// Starting in WP 4.1, place controls inside accordions
+			setTimeout(function(){
+				$('.themify-subaccordion').each(function() {
+					var $self = $(this),
+						thisGroup = $self.data('accordion');
+					$('.' + thisGroup + '-group').appendTo($self);
+				});
+
+				// Nest main nav menus
+				$('li[id*=nav_menu_locations]').each(function() {
+					var $self = $(this);
+					$self.appendTo($self.prev().find('.themify-subaccordion'));
+				});
+
+				// Open Themify Options on page load
+				$('#accordion-section-themify_options').find('.accordion-section-title').trigger('click');
+
+				// Trigger Custom CSS initially to apply its settings
+				var $customCSS = $('#customize-control-customcss_ctrl').find('.customcss');
+				if ( $customCSS.length > 0 ) {
+					$customCSS.each(function(){
+						var $self = $(this);
+						if ( '' != $self.val() ) {
+							$self.trigger('keyup');
+							api.trigger( 'saved' );
+						}
+					});
+				}
+			}, 100);
+		}
+	} );
 
 	////////////////////////////////////////////////////////////////////////////
 	// Accordion Start
@@ -21,29 +66,25 @@
 				$a = $('.themify-suba-toggle', control.container ),
 				$ul = $a.next();
 
-			$ul.hide();
-
 			$('.customize-control.customize-control-themify_subaccordion_end').remove();
 
 			$a.on('click', function(e){
 				e.preventDefault();
-				$(this).toggleClass('open');
-				$(this).parent().toggleClass('open');
-				$ul.stop().slideToggle(200);
+				$(this).parent().toggleClass('topen');
+				$ul.toggleClass('tpanelopen');
 			});
 
-			$('select[data-customize-setting-link^=nav_menu_locations]', control.container).wrap('<div class="themify-customizer-brick" />').wrap('<div class="custom-select nav-menu-select" />' );
+			var $navMenu = $('select[data-customize-setting-link^=nav_menu_locations]', control.container);
+			$navMenu.closest('label').map(function() {
+				$(this).replaceWith( $(this).contents() );
+			});
+			$navMenu.wrap('<div class="themify-customizer-brick" />').wrap('<div class="custom-select nav-menu-select" />');
 		}
 	});
 	api.controlConstructor.themify_subaccordion_start = api.ThemifySubAccordion;
 	////////////////////////////////////////////////////////////////////////////
 	// Accordion End
 	////////////////////////////////////////////////////////////////////////////
-
-	// Open Themify Options on page load
-	$(window).load(function(){
-		$('#accordion-section-themify_options' ).find('.accordion-section-title').trigger('click');
-	});
 
 	/***************************************************************************
 	 *                      ThemifyControl Start
@@ -81,7 +122,7 @@
 				});
 
 				file_frame.on( 'select', function() {
-					attachment = file_frame.state().get('selection').first().toJSON();
+					var attachment = file_frame.state().get('selection').first().toJSON();
 
 					var $imgPreview = $('<a href="#" class="remove-image ti-close"></a><img src="' + attachment.url + '" />').css('display', 'inline-block');
 
@@ -128,6 +169,14 @@
 				defaultValue: '',
 				letterCase: 'lowercase',
 				opacity: true,
+				show: function() {
+					var $self = $(this);
+					if ( $self.closest( 'li' ).is( ':last-child' ) ) {
+						$self.closest( '.color-picker' ).addClass( 'color-picker-visible' );
+						var $wpFullOverLaySidebar = $('.wp-full-overlay-sidebar-content');
+						$wpFullOverLaySidebar.scrollTop( $wpFullOverLaySidebar.scrollTop() + 140 );
+					}
+				},
 				change: function(hex, opacity) {
 					control.value[control.id].color = hex.replace( '#', '' );
 					control.value[control.id].opacity = opacity;
@@ -139,6 +188,10 @@
 						control.value[control.id].color = $(this).val().replace( '#', '' );
 						$field.val( JSON.stringify( control.value[control.id] ) ).trigger('change');
 						$removeColor.show();
+					}
+					var $self = $(this);
+					if ( $self.closest( 'li' ).is( ':last-child' ) ) {
+						$self.closest( '.color-picker' ).removeClass( 'color-picker-visible' );
 					}
 				}
 			});
@@ -687,9 +740,6 @@
 			// Line height unit
 			control.dropdown( $('.font_line_unit', control.container), 'lineunit' );
 
-			// Font variant
-			control.dropdown( $('.themify_font_variant', control.container), 'variant' );
-
 			// Font style
 			control.fontStyle( $('.themify_font_style', control.container ) );
 
@@ -759,9 +809,6 @@
 			// Line height unit
 			control.dropdown( $('.font_line_unit', control.container), 'lineunit' );
 
-			// Font variant
-			control.dropdown( $('.themify_font_variant', control.container), 'variant' );
-
 			// Font style
 			control.fontStyle( $('.themify_font_style', control.container ) );
 
@@ -827,9 +874,6 @@
 
 			// Line height unit
 			control.dropdown( $('.font_line_unit', control.container), 'lineunit' );
-
-			// Font variant
-			control.dropdown( $('.themify_font_variant', control.container), 'variant' );
 
 			// Font style
 			control.fontStyle( $('.themify_font_style', control.container ) );
@@ -1199,31 +1243,83 @@
 
 		markup: function($obj, key) {
 			var control = this,	$field = $(control.field, control.container);
+			$obj.on( 'keyup paste', function (e) {
+				if ( 'paste' == e.type ) {
+					setTimeout( function() {
+						control.value[control.id][key] = $obj.val();
+						$field.val( JSON.stringify( control.value[control.id], control.clean ) ).trigger('change');
+						if ( customCSSInit ) {
+							customCSSInit = false;
+						}
+					}, 1 );
+				} else {
+					control.value[control.id][key] = $obj.val();
+					$field.val( JSON.stringify( control.value[control.id], control.clean ) ).trigger('change');
+					if ( customCSSInit ) {
+						customCSSInit = false;
+					}
+				}
+			});
+		},
 
-			$obj.on( 'keyup', function () {
-				control.value[control.id][key] = $(this).val();
-				$field.val( JSON.stringify( control.value[control.id], control.clean ) ).trigger('change');
+		expand: function( container, $customCSS ) {
+			var $blockToHide = $customCSS.closest('.themify-customizer-brick');
+
+			// Expand panel hides custom css in accordion, adds markup and attaches needed events
+			$('.themify-expand', container).on('click', function(e){
+				e.preventDefault();
+				var $expand = $('<div class="customize-control customcss-expand"><a class="themify-contract ti ti-close"></a><textarea class="customcss">' + $customCSS.val() + '</textarea></div>').hide();
+				$blockToHide.stop().slideUp();
+				$expand.prependTo( $('#widgets-right')).slideDown();
+				$expand.find('.customcss').on('keyup paste', function(e) {
+					if ( 'paste' == e.type ) {
+						setTimeout( function() {
+							$customCSS.val( $(this).val() ).trigger('keyup');
+						}, 1 );
+					} else {
+						$customCSS.val( $(this).val() ).trigger('keyup');
+					}
+				});
+
+				// Contract panel removes markup and events and reveals custom css in accordion
+				$expand.find('.themify-contract').on('click', function(e){
+					e.preventDefault();
+					$(this).off('click').closest('.customize-control').remove();
+					$expand.find('.customcss').off('keyup paste');
+					$blockToHide.stop().slideDown();
+				});
 			});
 		},
 
 		ready: function() {
 			var control = this,
-				$field = $(control.field, control.container);
+				$field = $(control.field, control.container),
+				$customCSS = $('.customcss', control.container);
 
 			try {
 				if ( '' != $field.val() ) {
-					var currentVal =  $field.val();
-					control.value[control.id] = $.parseJSON( currentVal );
+					var currentVal =  $field.val(),
+						tempcss = currentVal.replace('{"css":"', '').replace('"}', '').replace(/\\/g, "\\\\").replace(/"/g, '\\"'),
+						customcssData = '{"css":"' + tempcss + '"}';
+					control.value[control.id] = $.parseJSON( customcssData );
 				} else {
 					control.value[control.id] = {
 						'css' : ''
 					};
 				}
 				// Custom CSS textarea
-				control.markup( $('.customcss', control.container), 'css' );
+				control.markup( $customCSS, 'css' );
 			} catch(e) {
 				window.console && console.log && console.log(e);
+				control.value[control.id] = {
+					'css' : ''
+				};
+				// Custom CSS textarea
+				control.markup( $customCSS, 'css' );
 			}
+
+			// Initialize expand/contract action
+			control.expand( control.container, $customCSS );
 		}
 	});
 	api.controlConstructor.themify_customcss = api.ThemifyCustomCSS;

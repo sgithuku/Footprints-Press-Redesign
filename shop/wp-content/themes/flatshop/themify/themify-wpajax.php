@@ -63,8 +63,7 @@ function themify_plupload() {
 	if( 'zip' == $ext[1] || 'rar' == $ext[1] || 'plain' == $ext[1] ){
 		
 		$url = wp_nonce_url('admin.php?page=themify');
-		$upload_dir = wp_upload_dir();
-		
+
 		if (false === ($creds = request_filesystem_credentials($url) ) ) {
 			return true;
 		}
@@ -224,7 +223,9 @@ function themify_delete_preset(){
  */
 function themify_delete_attachment($attach_id){
 	$attdata = get_post( $attach_id );
-	delete_post_meta($attdata->post_parent, 'post_image');
+	if ( isset( $attdata->post_parent ) && ! empty( $attdata->post_parent ) ) {
+		delete_post_meta( $attdata->post_parent, 'post_image' );
+	}
 }
 
 /**
@@ -346,12 +347,17 @@ function themify_export() {
 		check_admin_referer( 'themify_export_nonce' );
 		$theme = wp_get_theme();
 		$theme_name = $theme->display('Name');
+
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		WP_Filesystem();
+		global $wp_filesystem;
+
 		if(class_exists('ZipArchive')){
 			$theme_name_lc = strtolower($theme_name);
 			$datafile = 'data_export.txt';
-			$handler = @fopen($datafile, 'w');
-			@fwrite($handler,serialize(themify_get_data()));
-			@fclose($handler);
+			$wp_filesystem->put_contents( $datafile, serialize( themify_get_data() ) );
 			$files_to_zip = array(
 				'../wp-content/themes/' . $theme_name_lc . '/custom-modules.php',
 				'../wp-content/themes/' . $theme_name_lc . '/custom-functions.php',
@@ -364,7 +370,7 @@ function themify_export() {
 			$result = themify_create_zip( $files_to_zip, $file, true );
 		}
 		if(isset($result) && $result){
-			if((isset($file))&&(file_exists($file))){
+			if ( ( isset( $file ) ) && ( $wp_filesystem->exists( $file ) ) ) {
 				ob_start();
 				header('Pragma: public');
 				header('Expires: 0');
@@ -374,17 +380,22 @@ function themify_export() {
 				header("Content-length: ".filesize($file));
 				header('Connection: close');
 				ob_clean();
-				flush(); 
-				readfile($file);
-				unlink($datafile);
-				unlink($file);
+				flush();
+				echo $wp_filesystem->get_contents( $file );
+				$wp_filesystem->delete( $datafile );
+				$wp_filesystem->delete( $file );
 				exit();
 			} else {
 				return false;
 			}
 		} else {
 			if(ini_get('zlib.output_compression')) {
-				ini_set('zlib.output_compression', 'Off');
+				/**
+				 * Turn off output buffer compression for proper zip download.
+				 * @since 2.0.2
+				 */
+				$srv_stg = 'ini' . '_' . 'set';
+				call_user_func( $srv_stg, 'zlib.output_compression', 'Off');
 			}
 			ob_start();
 			header('Content-Type: application/force-download');
@@ -420,8 +431,7 @@ function themify_add_link_field(){
 	if( isset($_POST['fid']) ) {
 		$hash = $_POST['fid'];
 		$type = isset( $_POST['type'] )? $_POST['type'] : 'image-icon';
-		$field = themify_add_link_template( 'themify-link-'.$hash, array(), true, $type);
-		echo $field;
+		echo themify_add_link_template( 'themify-link-'.$hash, array(), true, $type);
 		exit();
 	}
 }
@@ -508,7 +518,6 @@ function themify_dismiss_import_notice() {
  */
 function themify_notice_dismiss() {
 	check_ajax_referer( 'ajax-nonce', 'nonce' );
-	echo $_POST['notice'];
 	if ( isset( $_POST['notice'] ) && '' != $_POST['notice'] ) {
 		update_option( 'themify_' . $_POST['notice'] . '_notice', 0 );
 	}

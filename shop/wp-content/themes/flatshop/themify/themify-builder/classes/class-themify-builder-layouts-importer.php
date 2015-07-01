@@ -9,7 +9,9 @@ if ( ! class_exists( 'WP_Importer' ) ) {
 }
 
 // include WXR file parsers
-require THEMIFY_BUILDER_INCLUDES_DIR . '/libraries/parsers.php';
+if ( ! class_exists( 'WXR_Parser' ) ) {
+	require THEMIFY_BUILDER_INCLUDES_DIR . '/libraries/parsers.php';
+}
 
 /**
  * WordPress Importer class for managing the import process of a WXR file

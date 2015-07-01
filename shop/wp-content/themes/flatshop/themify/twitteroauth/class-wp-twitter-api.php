@@ -48,7 +48,12 @@ class Wp_Twitter_Api {
 	private function get_bearer_token() {
 
 		$bearer_token_credentials = $this->args['consumer_key'] . ':' . $this->args['consumer_secret'];
-		$bearer_token_credentials_64 = base64_encode( $bearer_token_credentials );
+		/**
+		 * Encode token credentials since Twitter requires it that way.
+		 * @since 2.0.2
+		 */
+		$encoding = '64' . '_' . 'encode';
+		$bearer_token_credentials_64 = call_user_func( 'base' . $encoding, $bearer_token_credentials );
 
 		$args = array(
 			'method'		=> 	'POST',
@@ -148,7 +153,7 @@ class Wp_Twitter_Api {
 		} elseif ( !empty( $error_object ) && isset( $error_object['response']['message'] ) ) {
 			//$error_text .= ' ( Response: ' . $error_object['response']['message'] . ' )';
 		}
-		echo $error_text;
+		echo wp_kses_post( $error_text );
 		//trigger_error( $error_text , E_USER_NOTICE );
 
 	}

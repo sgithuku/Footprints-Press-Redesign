@@ -11,14 +11,9 @@ class TB_Divider_Module extends Themify_Builder_Module {
 			'slug' => 'divider'
 		));
 	}
-}
 
-///////////////////////////////////////
-// Module Options
-///////////////////////////////////////
-Themify_Builder_Model::register_module( 'TB_Divider_Module', 
-	apply_filters( 'themify_builder_module_divider', array(
-		'options' => array(
+	public function get_options() {
+		$options = array(
 			array(
 				'id' => 'mod_title_divider',
 				'type' => 'text',
@@ -64,8 +59,12 @@ Themify_Builder_Model::register_module( 'TB_Divider_Module',
 				'class' => 'xsmall',
 				'help' => 'px'
 			)
-		),
-		'styling' => array(
+		);
+		return $options;
+	}
+
+	public function get_styling() {
+		$styling = array(
 			// Additional CSS
 			array(
 				'id' => 'css_divider',
@@ -74,6 +73,12 @@ Themify_Builder_Model::register_module( 'TB_Divider_Module',
 				'class' => 'large exclude-from-reset-field',
 				'description' => sprintf( '<br/><small>%s</small>', __('Add additional CSS class(es) for custom styling', 'themify') )
 			)
-		)
-	) )
-);
+		);
+		return $styling;
+	}
+}
+
+///////////////////////////////////////
+// Module Options
+///////////////////////////////////////
+Themify_Builder_Model::register_module( 'TB_Divider_Module' );

@@ -18,7 +18,7 @@ global $themify; ?>
 
 	<?php themify_post_start(); // hook ?>
 
-	<?php if ( ! is_singular( 'post' ) ): ?>
+	<?php if ( $themify->is_builder_loop == true || ( $themify->is_builder_loop == false && ! is_singular( 'post' ) ) ) : ?>
 			<?php get_template_part( 'includes/post-media' ); ?>
 	<?php endif; // hide image ?>
 
@@ -60,7 +60,7 @@ global $themify; ?>
 			<p class="post-meta entry-meta">
 
 				<?php if($themify->hide_date != 'yes'): ?>
-					<time datetime="<?php the_time('o-m-d') ?>" class="post-date entry-date updated" itemprop="datePublished"><?php the_time(apply_filters('themify_loop_date', 'M j, Y')) ?></time> <span class="separator">|</span>
+					<time datetime="<?php the_time('o-m-d') ?>" class="post-date entry-date updated" itemprop="datePublished"><?php echo get_the_date( apply_filters( 'themify_loop_date', '' ) ) ?></time> <span class="separator">|</span>
 				<?php endif; ?>
 
 				<?php if($themify->hide_meta_author != 'yes'): ?>

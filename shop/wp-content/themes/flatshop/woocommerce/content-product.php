@@ -60,25 +60,37 @@ if ( $themify->is_related_loop || ( ( is_woocommerce() || themify_theme_is_produ
 		<div class="clearfix <?php echo $full_width; ?>">
 	<?php endif; ?>
 
-		<a href="<?php the_permalink(); ?>">
-			<?php
-				/**
-				 * woocommerce_before_shop_loop_item_title hook
-				 *
-				 * @hooked woocommerce_show_product_loop_sale_flash - 10
-				 * @hooked woocommerce_template_loop_product_thumbnail - 10
-				 */
-				do_action( 'woocommerce_before_shop_loop_item_title' );
-			?>
-		</a>
+		<?php if( 'yes' != $themify->hide_product_image ) : ?>
+			<?php if( 'yes' != $themify->unlink_product_image ) : ?>
+				<a href="<?php the_permalink(); ?>">
+					<?php
+						/**
+						 * woocommerce_before_shop_loop_item_title hook
+						 *
+						 * @hooked woocommerce_show_product_loop_sale_flash - 10
+						 * @hooked woocommerce_template_loop_product_thumbnail - 10
+						 */
+						do_action( 'woocommerce_before_shop_loop_item_title' );
+					?>
+				</a>
+			<?php else : ?>
+				<?php do_action( 'woocommerce_before_shop_loop_item_title' ); ?>
+			<?php endif; ?>
+		<?php endif; ?>
 
 		<?php if ( ! $themify->is_related_loop ) : ?>
 			<div class="summary entry-summary">
 		<?php endif; ?>
 
-			<a href="<?php the_permalink(); ?>">
-				<h3 class="<?php echo $title_class; ?>"><?php the_title(); ?></h3>
-			</a>
+			<?php if( 'yes' != $themify->hide_product_title ) : ?>
+				<?php if( 'yes' != $themify->unlink_product_title ) : ?>
+					<a href="<?php the_permalink(); ?>">
+						<h3 class="<?php echo $title_class; ?>"><?php the_title(); ?></h3>
+					</a>
+				<?php else : ?>
+					<h3 class="<?php echo $title_class; ?>"><?php the_title(); ?></h3>
+				<?php endif; ?>
+			<?php endif; ?>
 
 			<?php
 				/**

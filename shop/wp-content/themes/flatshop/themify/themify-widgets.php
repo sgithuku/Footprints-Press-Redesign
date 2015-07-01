@@ -37,21 +37,19 @@ class Themify_Social_Links extends WP_Widget {
 	// Widget
 	///////////////////////////////////////////
 	function widget( $args, $instance ) {
-		
-		extract( $args );
 
 		/* User-selected settings. */
-		$title = apply_filters('widget_title', $instance['title'] );
+		$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
 
 		/* Before widget (defined by themes). */
-		echo $before_widget;
+		echo wp_kses( $args['before_widget'], themify_before_after_widget_allowed_tags() );
 		
 		/* Title of widget (before and after defined by themes). */
-		if ( $title ) echo $before_title . $title . $after_title;
+		if ( $title ) echo wp_kses( $args['before_title'] . $title . $args['after_title'], themify_before_after_widget_title_allowed_tags() );
 		
 		$data = themify_get_data();
 		$pre = 'setting-link_';
-		$out = '';
+
 		$field_ids = isset( $data[$pre.'field_ids'] ) ? json_decode( $data[$pre.'field_ids'] ) : '';
 		
 		if ( is_array( $field_ids ) || is_object( $field_ids ) ) {
@@ -67,7 +65,7 @@ class Themify_Social_Links extends WP_Widget {
 			// Orientation
 			$orientation = isset($instance['orientation']) && '' != $instance['orientation']? $instance['orientation'] : 'horizontal';
 
-			$out .= '<ul class="social-links ' . $orientation . '">';
+			echo '<ul class="social-links ' . esc_attr( $orientation ) . '">';
 
 				foreach($field_ids as $key => $fid){
 
@@ -83,7 +81,7 @@ class Themify_Social_Links extends WP_Widget {
 					} else {
 						$title_val = isset($data[$title_name])? $data[$title_name] : '';
 					}
-					
+
 					$link_name = $pre.'link_'.$fid;
 					$link_val = isset($data[$link_name])? trim( $data[$link_name] ) : '';
 					if ( '' == $link_val ) {
@@ -92,8 +90,7 @@ class Themify_Social_Links extends WP_Widget {
 
 					// Image Icon
 					$img_name = $pre.'img_'.$fid;
-					$img_val = ! isset( $data[$img_name] ) || '' == $data[$img_name] ? '' :
-						'<img src="'.$data[$img_name].'" />';
+					$img_val = ! isset( $data[$img_name] ) || '' == $data[$img_name] ? '' : '<img src="' . esc_url( $data[ $img_name ] ) . '" />';
 
 					// Font Icon
 					$font_icon = '';
@@ -110,22 +107,22 @@ class Themify_Social_Links extends WP_Widget {
 							$fi_style .= 'background-color: #' . $font_icon_bgcolor . ';';
 						}
 						if ( '' != $fi_style ) {
-							$fi_style = 'style="' . $fi_style . '"';
+							$fi_style = 'style="' . esc_attr( $fi_style ) . '"';
 						}
-						$font_icon = '<i class="' . $font_icon_class . '" ' . $fi_style . '></i>';
+						$font_icon = '<i class="' . esc_attr( $font_icon_class ) . '" ' . $fi_style . '></i>';
 					}
 
 					if('' != $link_val){
-						$out .= sprintf('
+						echo sprintf('
 							<li class="social-link-item %s %s %s">
 								<a href="%s" title="%s" %s>%s %s %s</a>
 							</li>
 							<!-- /themify-link-item -->',
 							sanitize_title($title_val),
-							$icon_type,
-							$icon_size,
+							esc_attr( $icon_type ),
+							esc_attr( $icon_size ),
 							esc_url( $link_val ),
-							$title_val,
+							esc_attr( $title_val ),
 							$new_window_attr,
 							$font_icon,
 							$img_val,
@@ -134,15 +131,11 @@ class Themify_Social_Links extends WP_Widget {
 					}
 				}
 			
-			$out .= '</ul>';
-
+			echo '</ul>';
 		}
 
-		echo $out;
-
 		/* After widget (defined by themes). */
-		echo $after_widget;
-
+		echo wp_kses( $args['after_widget'], themify_before_after_widget_allowed_tags() );
 	}
 	
 	
@@ -178,23 +171,23 @@ class Themify_Social_Links extends WP_Widget {
 		$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 		
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
-			<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" class="widefat" type="text" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
+			<input id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" class="widefat" type="text" />
 		</p>
 		
 		<p>
-			<input class="checkbox" type="checkbox" <?php checked( $instance['show_link_name'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_link_name' ); ?>" name="<?php echo $this->get_field_name( 'show_link_name' ); ?>" />
-			<label for="<?php echo $this->get_field_id( 'show_link_name' ); ?>"><?php _e('Show link name', 'themify'); ?></label>
+			<input class="checkbox" type="checkbox" <?php checked( $instance['show_link_name'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_link_name' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_link_name' ) ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'show_link_name' ) ); ?>"><?php _e('Show link name', 'themify'); ?></label>
 		</p>
 
 		<p>
-			<input class="checkbox" type="checkbox" <?php checked( $instance['open_new_window'], 'on' ); ?> id="<?php echo $this->get_field_id( 'open_new_window' ); ?>" name="<?php echo $this->get_field_name( 'open_new_window' ); ?>" />
-			<label for="<?php echo $this->get_field_id( 'open_new_window' ); ?>"><?php _e('Open link in new window', 'themify'); ?></label>
+			<input class="checkbox" type="checkbox" <?php checked( $instance['open_new_window'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'open_new_window' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'open_new_window' ) ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'open_new_window' ) ); ?>"><?php _e('Open link in new window', 'themify'); ?></label>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'icon_size' ); ?>"><?php _e('Icon Size', 'themify'); ?></label>
-			<select id="<?php echo $this->get_field_id( 'icon_size' ); ?>" name="<?php echo $this->get_field_name( 'icon_size' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'icon_size' ) ); ?>"><?php _e('Icon Size', 'themify'); ?></label>
+			<select id="<?php echo esc_attr( $this->get_field_id( 'icon_size' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'icon_size' ) ); ?>">
 				<?php
 				$sizes = array(
 					'icon-small' => __( 'Small', 'themify' ),
@@ -202,8 +195,8 @@ class Themify_Social_Links extends WP_Widget {
 					'icon-large' => __( 'Large', 'themify' ),
 				);
 				foreach( $sizes as $size => $name ) {
-					echo '<option value="' . $size . '"' . selected( isset( $instance['icon_size'] )? $instance['icon_size'] : 'icon-medium', $size, false ) . '>';
-						echo $name;
+					echo '<option value="' . esc_attr( $size ) . '"' . selected( isset( $instance['icon_size'] )? $instance['icon_size'] : 'icon-medium', $size, false ) . '>';
+						echo esc_html( $name );
 					echo '</option>';
 				}
 				?>
@@ -211,16 +204,16 @@ class Themify_Social_Links extends WP_Widget {
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'orientation' ); ?>"><?php _e('Orientation', 'themify'); ?></label>
-			<select id="<?php echo $this->get_field_id( 'orientation' ); ?>" name="<?php echo $this->get_field_name( 'orientation' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'orientation' ) ); ?>"><?php _e('Orientation', 'themify'); ?></label>
+			<select id="<?php echo esc_attr( $this->get_field_id( 'orientation' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'orientation' ) ); ?>">
 				<?php
 				$orientation_options = array(
 					'vertical'   => __( 'Vertical', 'themify' ),
 					'horizontal' => __( 'Horizontal', 'themify' ),
 				);
 				foreach( $orientation_options as $orientation => $name ) {
-					echo '<option value="' . $orientation . '"' . selected( isset( $instance['orientation'] )? $instance['orientation'] : 'horizontal', $orientation, false ) . '>';
-						echo $name;
+					echo '<option value="' . esc_attr( $orientation ) . '"' . selected( isset( $instance['orientation'] )? $instance['orientation'] : 'horizontal', $orientation, false ) . '>';
+						echo esc_html( $name );
 					echo '</option>';
 				}
 				?>
@@ -228,7 +221,7 @@ class Themify_Social_Links extends WP_Widget {
 		</p>
 		
 		<p>
-			<?php echo sprintf(__('<small>Manage links at <a href="%s">Themify > Settings > Social Links</a>.</small>', 'themify'), admin_url('admin.php?page=themify#setting-social_links')); ?>
+			<?php echo wp_kses_post( sprintf( __( '<small>Manage links at <a href="%s">Themify > Settings > Social Links</a>.</small>', 'themify' ), esc_url( admin_url( 'admin.php?page=themify#setting-social_links' ) ) ) ); ?>
 		</p>
 		<?php
 	}
@@ -257,19 +250,19 @@ class Themify_Social_Links extends WP_Widget {
 		// Widget
 		///////////////////////////////////////////
 		function widget( $args, $instance ) {
-			
+
 			extract( $args );
-	
+
 			/* User-selected settings. */
-			$title 			= apply_filters('widget_title', $instance['title'] );
-			$category 		= $instance['category'];
-			$show_count 	= $instance['show_count'];
-			$show_date 		= $instance['show_date'] ? true : false;
-			$show_thumb 	= $instance['show_thumb'] ? true : false;
+			$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
+			$category 		= isset( $instance['category'] ) ? $instance['category'] : 0;
+			$show_count 	= isset( $instance['show_count'] ) ? $instance['show_count'] : 5;
+			$show_date 		= isset( $instance['show_date'] ) ? true : false;
+			$show_thumb 	= isset( $instance['show_thumb'] ) ? true : false;
 			$display 		= isset( $instance['display'] )? $instance['display'] : false;
 			$show_excerpt 	= isset( $instance['show_excerpt'] ) && $instance['show_excerpt'] ? true : false;
-			$excerpt_length = $instance['excerpt_length'];
-			$show_title 	= $instance['hide_title'] ? false : true;
+			$excerpt_length = isset( $instance['excerpt_length'] ) ? $instance['excerpt_length'] : 55;
+			$show_title 	= isset( $instance['hide_title'] ) ? false : true;
 			$orderby 		= isset( $instance['orderby'] ) ? $instance['orderby'] : 'date';
 			$order 			= isset( $instance['order'] ) ? $instance['order'] : 'DESC';
 
@@ -278,6 +271,7 @@ class Themify_Social_Links extends WP_Widget {
 				'post_type' => 'post',
 				'orderby' => $orderby,
 				'order' => $order,
+				'suppress_filters' => false,
 			));
 			if ( $category ) $query_opts['cat'] = $category;
 			
@@ -286,11 +280,11 @@ class Themify_Social_Links extends WP_Widget {
 			if($loop) {
 				
 				/* Before widget (defined by themes). */
-				echo $before_widget;
+				echo wp_kses( $before_widget, themify_before_after_widget_allowed_tags() );
 				
 				/* Title of widget (before and after defined by themes). */
 				if ( $title )
-					echo $before_title . $title . $after_title;
+					echo wp_kses( $before_title . $title . $after_title, themify_before_after_widget_title_allowed_tags() );
 
 				echo '<ul class="feature-posts-list">';
 
@@ -305,12 +299,12 @@ class Themify_Social_Links extends WP_Widget {
 						}
 
 						if ( $show_thumb ) {
-							themify_image('ignore=true&w='.$instance['thumb_width'].'&h='.$instance['thumb_height'].'&before=<a href="' . $link . '">&after=</a>&class=post-img');
+							themify_image('ignore=true&w='.$instance['thumb_width'].'&h='.$instance['thumb_height'].'&before=<a href="' . esc_url( $link ) . '">&after=</a>&class=post-img');
 						}
 
-						if ( $show_title ) echo '<a href="' . $link . '" class="feature-posts-title">' . get_the_title() . '</a> <br />';
+						if ( $show_title ) echo '<a href="' . esc_url( $link ) . '" class="feature-posts-title">' . get_the_title() . '</a> <br />';
 
-						if ( $show_date ) echo '<small>' . get_the_time( apply_filters('themify_filter_widget_date', 'M d, Y') ) . '</small> <br />';
+						if ( $show_date ) echo '<small>' . get_the_date( apply_filters( 'themify_filter_widget_date', '' ) ) . '</small> <br />';
 
 						if ( $show_excerpt || 'excerpt' == $display ) {
 							$the_excerpt = get_the_excerpt();
@@ -320,10 +314,10 @@ class Themify_Social_Links extends WP_Widget {
 								// cut to last space
 								$the_excerpt = substr( $the_excerpt, 0, strrpos( $the_excerpt, ' '));
 							}
-							echo '<span class="post-excerpt">' . $the_excerpt . '</span>';
+							echo '<span class="post-excerpt">' . wp_kses_post( $the_excerpt ) . '</span>';
 						} elseif( 'content' == $display ) {
 							$the_content = get_the_content();
-							echo '<div class="post-content">' . $the_content . '</div>';
+							echo '<div class="post-content">' . wp_kses_post( $the_content ) . '</div>';
 						}
 
 					echo '</li>';
@@ -333,12 +327,11 @@ class Themify_Social_Links extends WP_Widget {
 				echo '</ul>';
 	
 				/* After widget (defined by themes). */
-				echo $after_widget;
+				echo wp_kses( $after_widget, themify_before_after_widget_allowed_tags() );
 				
 			}//end if $loop
 			
 		}
-		
 		
 		///////////////////////////////////////////
 		// Update
@@ -386,23 +379,23 @@ class Themify_Social_Links extends WP_Widget {
 			$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
-				<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" width="100%" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
+				<input id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" width="100%" />
 			</p>
 	
 			<p>
-				<label for="<?php echo $this->get_field_id( 'category' ); ?>"><?php _e('Category:', 'themify'); ?></label>
-				<select id="<?php echo $this->get_field_id( 'category' ); ?>" name="<?php echo $this->get_field_name( 'category' ); ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'category' ) ); ?>"><?php _e('Category:', 'themify'); ?></label>
+				<select id="<?php echo esc_attr( $this->get_field_id( 'category' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'category' ) ); ?>">
 					<option value="0" <?php if ( !$instance['category'] ) echo 'selected="selected"'; ?>><?php _e('All', 'themify'); ?></option>
 					<?php
 					$categories = get_categories(array('type' => 'post'));
 					
 					foreach( $categories as $cat ) {
-						echo '<option value="' . $cat->cat_ID . '"';
+						echo '<option value="' . esc_attr( $cat->cat_ID ) . '"';
 						
 						if ( $cat->cat_ID == $instance['category'] ) echo  ' selected="selected"';
 						
-						echo '>' . $cat->cat_name . ' (' . $cat->category_count . ')';
+						echo '>' . esc_html( $cat->cat_name . ' (' . $cat->category_count . ')' );
 						
 						echo '</option>';
 					}
@@ -411,8 +404,8 @@ class Themify_Social_Links extends WP_Widget {
 			</p>
 
 			<p>
-				<label for="<?php echo $this->get_field_id( 'orderby' ); ?>"><?php _e( 'Order By', 'themify' ); ?></label>
-				<select id="<?php echo $this->get_field_id( 'orderby' ); ?>" name="<?php echo $this->get_field_name( 'orderby' ); ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'orderby' ) ); ?>"><?php _e( 'Order By', 'themify' ); ?></label>
+				<select id="<?php echo esc_attr( $this->get_field_id( 'orderby' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'orderby' ) ); ?>">
 					<?php
 					$orderby_options = apply_filters( 'themify_posts_widget_orderby', array(
 							'date'          => __( 'Date (default)', 'themify' ),
@@ -426,8 +419,8 @@ class Themify_Social_Links extends WP_Widget {
 						)
 					);
 					foreach ( $orderby_options as $criteria => $name ) {
-						echo '<option value="' . $criteria . '"' . selected( isset( $instance['orderby'] ) ? $instance['orderby'] : 'date', $criteria, false ) . '>';
-						echo $name;
+						echo '<option value="' . esc_attr( $criteria ) . '"' . selected( isset( $instance['orderby'] ) ? $instance['orderby'] : 'date', $criteria, false ) . '>';
+						echo esc_html( $name );
 						echo '</option>';
 					}
 					?>
@@ -435,16 +428,16 @@ class Themify_Social_Links extends WP_Widget {
 			</p>
 
 			<p>
-				<label for="<?php echo $this->get_field_id( 'order' ); ?>"><?php _e( 'Order', 'themify' ); ?></label>
-				<select id="<?php echo $this->get_field_id( 'order' ); ?>" name="<?php echo $this->get_field_name( 'order' ); ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'order' ) ); ?>"><?php _e( 'Order', 'themify' ); ?></label>
+				<select id="<?php echo esc_attr( $this->get_field_id( 'order' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'order' ) ); ?>">
 					<?php
 					$order_options = array(
 						'DESC'	=> __( 'Descending (default)', 'themify' ),
 						'ASC'  => __( 'Ascending', 'themify' ),
 					);
 					foreach ( $order_options as $criteria => $name ) {
-						echo '<option value="' . $criteria . '"' . selected( isset( $instance['order'] ) ? $instance['order'] : 'date', $criteria, false ) . '>';
-						echo $name;
+						echo '<option value="' . esc_attr( $criteria ) . '"' . selected( isset( $instance['order'] ) ? $instance['order'] : 'date', $criteria, false ) . '>';
+						echo esc_html( $name );
 						echo '</option>';
 					}
 					?>
@@ -452,23 +445,23 @@ class Themify_Social_Links extends WP_Widget {
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'show_count' ); ?>"><?php _e('Show:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'show_count' ); ?>" name="<?php echo $this->get_field_name( 'show_count' ); ?>" value="<?php echo esc_attr( $instance['show_count'] ); ?>" size="2" /> <?php _e('posts', 'themify'); ?>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>"><?php _e('Show:', 'themify'); ?></label>
+				<input id="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_count' ) ); ?>" value="<?php echo esc_attr( $instance['show_count'] ); ?>" size="2" /> <?php _e('posts', 'themify'); ?>
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['hide_title'], 'on' ); ?> id="<?php echo $this->get_field_id( 'hide_title' ); ?>" name="<?php echo $this->get_field_name( 'hide_title' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'hide_title' ); ?>"><?php _e('Hide post title', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['hide_title'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'hide_title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'hide_title' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'hide_title' ) ); ?>"><?php _e('Hide post title', 'themify'); ?></label>
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_date'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_date' ); ?>" name="<?php echo $this->get_field_name( 'show_date' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'show_date' ); ?>"><?php _e('Display post date', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_date'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_date' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_date' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_date' ) ); ?>"><?php _e('Display post date', 'themify'); ?></label>
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_thumb'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_thumb' ); ?>" name="<?php echo $this->get_field_name( 'show_thumb' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'show_thumb' ); ?>"><?php _e('Display post thumbnail', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_thumb'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_thumb' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_thumb' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_thumb' ) ); ?>"><?php _e('Display post thumbnail', 'themify'); ?></label>
 			</p>
 			
 			<?php
@@ -476,30 +469,30 @@ class Themify_Social_Links extends WP_Widget {
 			if ( function_exists('imagecreatetruecolor') ) {
 			?>
 			<p>
-			   <label for="<?php echo $this->get_field_id( 'thumb_width' ); ?>"><?php _e('Thumbnail size', 'themify'); ?></label> <input type="text" id="<?php echo $this->get_field_id( 'thumb_width' ); ?>" name="<?php echo $this->get_field_name( 'thumb_width' ); ?>" value="<?php echo esc_attr( $instance['thumb_width'] ); ?>" size="3" /> x <input type="text" id="<?php echo $this->get_field_id( 'thumb_height' ); ?>" name="<?php echo $this->get_field_name( 'thumb_height' ); ?>" value="<?php echo esc_attr( $instance['thumb_height'] ); ?>" size="3" />
+			   <label for="<?php echo esc_attr( $this->get_field_id( 'thumb_width' ) ); ?>"><?php _e('Thumbnail size', 'themify'); ?></label> <input type="text" id="<?php echo esc_attr( $this->get_field_id( 'thumb_width' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'thumb_width' ) ); ?>" value="<?php echo esc_attr( $instance['thumb_width'] ); ?>" size="3" /> x <input type="text" id="<?php echo esc_attr( $this->get_field_id( 'thumb_height' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'thumb_height' ) ); ?>" value="<?php echo esc_attr( $instance['thumb_height'] ); ?>" size="3" />
 			</p>
 			<?php
 			}
 			?>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'display' ); ?>"><?php _e('Display:', 'themify'); ?></label>
-				<select id="<?php echo $this->get_field_id( 'display' ); ?>" name="<?php echo $this->get_field_name( 'display' ); ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'display' ) ); ?>"><?php _e('Display:', 'themify'); ?></label>
+				<select id="<?php echo esc_attr( $this->get_field_id( 'display' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'display' ) ); ?>">
 					<?php
 					foreach( array(
 						'none' => __('None', 'themify'),
 						'content' => __('Content', 'themify'),
 						'excerpt' => __('Excerpt', 'themify')
 					) as $key => $title ) {
-						echo '<option value="' . $key . '" '.selected($key, $instance['display'], false).' >' . $title . '</option>';
+						echo '<option value="' . esc_attr( $key ) . '" '.selected($key, $instance['display'], false).' >' . esc_html( $title ) . '</option>';
 					}
 					?>
 				</select>
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'excerpt_length' ); ?>"><?php _e('Excerpt character limit:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'excerpt_length' ); ?>" name="<?php echo $this->get_field_name( 'excerpt_length' ); ?>" value="<?php echo esc_attr( $instance['excerpt_length'] ); ?>" size="5" /><br /><small><?php _e('(leave empty = full excerpt)', 'themify'); ?></small>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'excerpt_length' ) ); ?>"><?php _e('Excerpt character limit:', 'themify'); ?></label>
+				<input id="<?php echo esc_attr( $this->get_field_id( 'excerpt_length' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'excerpt_length' ) ); ?>" value="<?php echo esc_attr( $instance['excerpt_length'] ); ?>" size="5" /><br /><small><?php _e('(leave empty = full excerpt)', 'themify'); ?></small>
 			</p>
 			
 			<?php
@@ -532,18 +525,18 @@ class Themify_Social_Links extends WP_Widget {
 			extract( $args );
 	
 			/* User-selected settings. */
-			$title = apply_filters('widget_title', $instance['title'] );
-			$parent = $instance['parent'];
-			$depth = $instance['depth'];
+			$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
+			$parent = isset( $instance['parent'] ) ? $instance['parent'] : '';
+			$depth = isset( $instance['depth'] ) ? $instance['depth'] : 0;
 			$orderby = isset( $instance['orderby'] ) ? $instance['orderby'] : false;
 			$exclude = isset( $instance['exclude'] ) ? $instance['exclude'] : false;
 	
 			/* Before widget (defined by themes). */
-			echo $before_widget;
+			echo wp_kses( $before_widget, themify_before_after_widget_allowed_tags() );
 	
 			/* Title of widget (before and after defined by themes). */
 			if ( $title )
-				echo $before_title . $title . $after_title;
+				echo wp_kses( $before_title . $title . $after_title, themify_before_after_widget_title_allowed_tags() );
 			
 			echo '<ul class="pages-list">';
 			
@@ -558,7 +551,7 @@ class Themify_Social_Links extends WP_Widget {
 			echo '</ul>';
 			
 			/* After widget (defined by themes). */
-			echo $after_widget;
+			echo wp_kses( $after_widget, themify_before_after_widget_allowed_tags() );
 		}
 		
 		///////////////////////////////////////////
@@ -583,27 +576,33 @@ class Themify_Social_Links extends WP_Widget {
 		function form( $instance ) {
 	
 			/* Set up some default widget settings. */
-			$defaults = array( 'title' => __('Pages', 'themify'), 'parent' => '', 'depth' => 0, 'orderby' => 'post_title', 'exclude' => '' );
+			$defaults = array( 
+				'title' => __('Pages', 'themify'),
+				'parent' => '',
+				'depth' => 0,
+				'orderby' => 'post_title',
+				'exclude' => ''
+				);
 			$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
-				<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" width="100%" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
+				<input id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" width="100%" />
 			</p>
 	
 			<p>
-				<label for="<?php echo $this->get_field_id( 'parent' ); ?>"><?php _e('Parent:', 'themify'); ?></label>
-				<select id="<?php echo $this->get_field_id( 'parent' ); ?>" name="<?php echo $this->get_field_name( 'parent' ); ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'parent' ) ); ?>"><?php _e('Parent:', 'themify'); ?></label>
+				<select id="<?php echo esc_attr( $this->get_field_id( 'parent' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'parent' ) ); ?>">
 					<option value="0" <?php if ( 0 == $instance['parent'] ) echo 'selected="selected"'; ?>>All</option>
 					<?php
 					$pages = get_pages();
 					
 					foreach( $pages as $thepage ) {
-						echo '<option value="' . $thepage->ID . '"';
+						echo '<option value="' . esc_attr( $thepage->ID ) . '"';
 						
-						if ( $thepage->ID == $instance['parent'] ) echo  ' selected="selected"';
+						if ( $thepage->ID == $instance['parent'] ) echo ' selected="selected"';
 						
-						echo '>' . $thepage->post_title;
+						echo '>' . esc_html( $thepage->post_title );
 						
 						echo '</option>';
 					}
@@ -612,8 +611,8 @@ class Themify_Social_Links extends WP_Widget {
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'depth' ); ?>"><?php _e('Depth:', 'themify'); ?></label>
-				<select id="<?php echo $this->get_field_id( 'depth' ); ?>" name="<?php echo $this->get_field_name( 'depth' ); ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'depth' ) ); ?>"><?php _e('Depth:', 'themify'); ?></label>
+				<select id="<?php echo esc_attr( $this->get_field_id( 'depth' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'depth' ) ); ?>">
 					<option value="0" <?php if ( 0 == $instance['depth'] ) echo 'selected="selected"'; ?>><?php _e('0 (default)', 'themify'); ?></option>
 					<option value="1" <?php if ( 1 == $instance['depth'] ) echo 'selected="selected"'; ?>>1</option>
 					<option value="2" <?php if ( 2 == $instance['depth'] ) echo 'selected="selected"'; ?>>2</option>
@@ -623,8 +622,8 @@ class Themify_Social_Links extends WP_Widget {
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'orderby' ); ?>"><?php _e('Sort By:', 'themify'); ?></label>
-				<select id="<?php echo $this->get_field_id( 'orderby' ); ?>" name="<?php echo $this->get_field_name( 'orderby' ); ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'orderby' ) ); ?>"><?php _e('Sort By:', 'themify'); ?></label>
+				<select id="<?php echo esc_attr( $this->get_field_id( 'orderby' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'orderby' ) ); ?>">
 					<option value="id" <?php if ( 'id' == $instance['orderby'] ) echo 'selected="selected"'; ?>>ID</option>
 					<option value="menu_order" <?php if ( 'menu_order' == $instance['orderby'] ) echo 'selected="selected"'; ?>><?php _e('Menu Order', 'themify'); ?></option>
 					<option value="post_title" <?php if ( 'post_title' == $instance['orderby'] ) echo 'selected="selected"'; ?>><?php _e('Post Title', 'themify'); ?></option>
@@ -634,8 +633,8 @@ class Themify_Social_Links extends WP_Widget {
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'exclude' ); ?>"><?php _e('Exclude:', 'themify'); ?></label><br />
-				<input id="<?php echo $this->get_field_id( 'exclude' ); ?>" name="<?php echo $this->get_field_name( 'exclude' ); ?>" value="<?php echo esc_attr( $instance['exclude'] ); ?>" /><br />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'exclude' ) ); ?>"><?php _e('Exclude:', 'themify'); ?></label><br />
+				<input id="<?php echo esc_attr( $this->get_field_id( 'exclude' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'exclude' ) ); ?>" value="<?php echo esc_attr( $instance['exclude'] ); ?>" /><br />
 				<small><?php _e('Page IDs, separated by commas (eg. 5,8)', 'themify'); ?></small>
 			</p>
 			
@@ -672,21 +671,21 @@ class Themify_Social_Links extends WP_Widget {
 			$themify_widget_id = $themify_this_widget_id_pre . '-cats';
 	
 			/* User-selected settings. */
-			$title = apply_filters('widget_title', $instance['title'] );
-			$parent = $instance['parent'];
-			$depth = $instance['depth'];
-			$orderby = $instance['orderby'];
-			$exclude = $instance['exclude'];
+			$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
+			$parent = isset( $instance['parent'] ) ? $instance['parent'] : null;
+			$depth = isset( $instance['depth'] ) ? $instance['depth'] : null;
+			$orderby = isset( $instance['orderby'] ) ? $instance['orderby'] : null;
+			$exclude = isset( $instance['exclude'] ) ? $instance['exclude'] : null;
 			$show_dropdown = isset( $instance['show_dropdown'] ) ? $instance['show_dropdown'] : false;
 			$show_counts = isset( $instance['show_counts'] ) ? $instance['show_counts'] : false;
 			$show_hierarchy = isset( $instance['show_hierarchy'] ) ? $instance['show_hierarchy'] : false;
 	
 			/* Before widget (defined by themes). */
-			echo $before_widget;
+			echo wp_kses( $before_widget, themify_before_after_widget_allowed_tags() );
 	
 			/* Title of widget (before and after defined by themes). */
 			if ( $title )
-				echo $before_title . $title . $after_title;
+				echo wp_kses( $before_title . $title . $after_title, themify_before_after_widget_title_allowed_tags() );
 
 			$args = array(
 					'orderby'       => $orderby,
@@ -707,14 +706,14 @@ class Themify_Social_Links extends WP_Widget {
 				<script type='text/javascript'>
 				/* <![CDATA[ */
 					function onCatChange() {
-						var dropdown = document.getElementById('<?php echo $themify_widget_id; ?>'),
+						var dropdown = document.getElementById('<?php echo esc_js( $themify_widget_id ); ?>'),
 							catSelected = dropdown.options[dropdown.selectedIndex].value;
 						console.log(catSelected);
 						if ( catSelected > 0 ) {
 							location.href = "<?php echo home_url(); ?>/?cat="+catSelected;
 						}
 					}
-					document.getElementById('<?php echo $themify_widget_id; ?>').onchange = onCatChange;
+					document.getElementById('<?php echo esc_js( $themify_widget_id ); ?>').onchange = onCatChange;
 				/* ]]> */
 				</script>
 			
@@ -729,7 +728,7 @@ class Themify_Social_Links extends WP_Widget {
 			}
 	
 			/* After widget (defined by themes). */
-			echo $after_widget;
+			echo wp_kses( $after_widget, themify_before_after_widget_allowed_tags() );
 		}
 		
 		///////////////////////////////////////////
@@ -761,13 +760,12 @@ class Themify_Social_Links extends WP_Widget {
 			$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
-				<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" width="100%" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
+				<input id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" width="100%" />
 			</p>
 	
 			<p>
-				<label for="<?php echo $this->get_field_id( 'parent' ); ?>"><?php _e('Parent:', 'themify'); ?></label>
-				
+				<label for="<?php echo esc_attr( $this->get_field_id( 'parent' ) ); ?>"><?php _e('Parent:', 'themify'); ?></label>
 				<?php
 				wp_dropdown_categories( array(
 					'show_option_all' => __('All', 'themify'),
@@ -781,8 +779,8 @@ class Themify_Social_Links extends WP_Widget {
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'depth' ); ?>"><?php _e('Depth:', 'themify'); ?></label>
-				<select id="<?php echo $this->get_field_id( 'depth' ); ?>" name="<?php echo $this->get_field_name( 'depth' ); ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'depth' ) ); ?>"><?php _e('Depth:', 'themify'); ?></label>
+				<select id="<?php echo esc_attr( $this->get_field_id( 'depth' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'depth' ) ); ?>">
 					<option value="0" <?php if ( 0 == $instance['depth'] ) echo 'selected="selected"'; ?>><?php _e('0 (default)', 'themify'); ?></option>
 					<option value="1" <?php if ( 1 == $instance['depth'] ) echo 'selected="selected"'; ?>>1</option>
 					<option value="2" <?php if ( 2 == $instance['depth'] ) echo 'selected="selected"'; ?>>2</option>
@@ -792,8 +790,8 @@ class Themify_Social_Links extends WP_Widget {
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'orderby' ); ?>"><?php _e('Orderby:', 'themify'); ?></label>
-				<select id="<?php echo $this->get_field_id( 'orderby' ); ?>" name="<?php echo $this->get_field_name( 'orderby' ); ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'orderby' ) ); ?>"><?php _e('Orderby:', 'themify'); ?></label>
+				<select id="<?php echo esc_attr( $this->get_field_id( 'orderby' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'orderby' ) ); ?>">
 					<option value="id" <?php if ( 'id' == $instance['orderby'] ) echo 'selected="selected"'; ?>>ID</option>
 					<option value="name" <?php if ( 'name' == $instance['orderby'] ) echo 'selected="selected"'; ?>>Name</option>
 					<option value="slug" <?php if ( 'slug' == $instance['orderby'] ) echo 'selected="selected"'; ?>>Slug</option>
@@ -802,24 +800,24 @@ class Themify_Social_Links extends WP_Widget {
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'exclude' ); ?>"><?php _e('Exclude:', 'themify'); ?></label><br />
-				<input id="<?php echo $this->get_field_id( 'exclude' ); ?>" name="<?php echo $this->get_field_name( 'exclude' ); ?>" value="<?php echo esc_attr( $instance['exclude'] ); ?>" /><br />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'exclude' ) ); ?>"><?php _e('Exclude:', 'themify'); ?></label><br />
+				<input id="<?php echo esc_attr( $this->get_field_id( 'exclude' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'exclude' ) ); ?>" value="<?php echo esc_attr( $instance['exclude'] ); ?>" /><br />
 				<small><?php _e('Category IDs, separated by commas (eg. 5,8)', 'themify'); ?></small>
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_dropdown'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_dropdown' ); ?>" name="<?php echo $this->get_field_name( 'show_dropdown' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'show_dropdown' ); ?>"><?php _e('Show as dropdown', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_dropdown'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_dropdown' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_dropdown' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_dropdown' ) ); ?>"><?php _e('Show as dropdown', 'themify'); ?></label>
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_counts'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_counts' ); ?>" name="<?php echo $this->get_field_name( 'show_counts' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'show_counts' ); ?>"><?php _e('Show post counts', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_counts'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_counts' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_counts' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_counts' ) ); ?>"><?php _e('Show post counts', 'themify'); ?></label>
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_hierarchy'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_hierarchy' ); ?>" name="<?php echo $this->get_field_name( 'show_hierarchy' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'show_hierarchy' ); ?>"><?php _e('Show hierarchy', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_hierarchy'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_hierarchy' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_hierarchy' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_hierarchy' ) ); ?>"><?php _e('Show hierarchy', 'themify'); ?></label>
 			</p>
 			
 			<?php
@@ -852,11 +850,11 @@ class Themify_Social_Links extends WP_Widget {
 			extract( $args );
 	
 			/* User-selected settings. */
-			$title = apply_filters('widget_title', $instance['title'] );
-			$show_count = $instance['show_count'];
+			$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
+			$show_count = isset( $instance['show_count'] ) ? $instance['show_count'] : 3;
 			$show_avatar = isset( $instance['show_avatar'] ) ? $instance['show_avatar'] : false;
-			$avatar_size = $instance['avatar_size'];
-			$excerpt_length = $instance['excerpt_length'];
+			$avatar_size = isset( $instance['avatar_size'] ) ? $instance['avatar_size'] : 32;
+			$excerpt_length = isset( $instance['excerpt_length'] ) ? $instance['excerpt_length'] : 60;
 
 			$comments = get_comments(array(
 				'number' => $show_count,
@@ -866,11 +864,11 @@ class Themify_Social_Links extends WP_Widget {
 			if($comments){
 			
 				/* Before widget (defined by themes). */
-				echo $before_widget;
+				echo wp_kses( $before_widget, themify_before_after_widget_allowed_tags() );
 		
 				/* Title of widget (before and after defined by themes). */
 				if ( $title )
-					echo $before_title . $title . $after_title;
+					echo wp_kses( $before_title . $title . $after_title, themify_before_after_widget_title_allowed_tags() );
 				
 				echo '<ul class="recent-comments-list">';
 				
@@ -884,7 +882,7 @@ class Themify_Social_Links extends WP_Widget {
 					<li>
 						<?php
 							if ( $show_avatar ) {
-								echo '<a href="' . $comm_link . '">' . get_avatar($comment,$size=$avatar_size) . '</a>';
+								echo '<a href="' . esc_url( $comm_link ) . '">' . get_avatar($comment,$size=$avatar_size) . '</a>';
 							}
 							$comment_text = get_comment_excerpt( $comment->comment_ID );
 							if(0 != $excerpt_length) {
@@ -896,7 +894,7 @@ class Themify_Social_Links extends WP_Widget {
 								}
 							}
 						?>
-						<a href="<?php echo($comm_link)?>"><strong class="comment-author"><?php echo($comment->comment_author)?></strong>:</a> <?php echo $comment_text; ?>&hellip;
+						<a href="<?php echo esc_url( $comm_link );?>"><strong class="comment-author"><?php echo wp_kses_data( $comment->comment_author ); ?></strong>:</a> <?php echo wp_kses_data( $comment_text ); ?>&hellip;
 					</li> 
 				
 					<?php 
@@ -905,7 +903,7 @@ class Themify_Social_Links extends WP_Widget {
 				echo '</ul>';
 	
 				/* After widget (defined by themes). */
-				echo $after_widget;
+				echo wp_kses( $after_widget, themify_before_after_widget_allowed_tags() );
 			}//end if $comments
 		}
 		
@@ -931,17 +929,23 @@ class Themify_Social_Links extends WP_Widget {
 		function form( $instance ) {
 	
 			/* Set up some default widget settings. */
-			$defaults = array( 'title' => __('Recent Comments', 'themify'), 'show_count' => 3, 'show_avatar' => false, 'avatar_size' => 32, 'excerpt_length' => 60 );
+			$defaults = array(
+				'title' => __('Recent Comments', 'themify'),
+				'show_count' => 3, 
+				'show_avatar' => false, 
+				'avatar_size' => 32,
+				'excerpt_length' => 60
+				);
 			$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
-				<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" width="100%" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
+				<input id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" width="100%" />
 			</p>
 	
 			<p>
-				<label for="<?php echo $this->get_field_id( 'show_count' ); ?>"><?php _e('Show:', 'themify'); ?></label>
-				<select id="<?php echo $this->get_field_id( 'show_count' ); ?>" name="<?php echo $this->get_field_name( 'show_count' ); ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>"><?php _e('Show:', 'themify'); ?></label>
+				<select id="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_count' ) ); ?>">
 					<?php
 					for ( $i = 1; $i < 11; $i++ ) {
 						echo '<option' . ( $i == $instance['show_count'] ? ' selected="selected"' : '' ) . '>' . $i . '</option>';
@@ -951,18 +955,18 @@ class Themify_Social_Links extends WP_Widget {
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_avatar'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_avatar' ); ?>" name="<?php echo $this->get_field_name( 'show_avatar' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'avatar' ); ?>"><?php _e('Show avatar', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_avatar'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_avatar' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_avatar' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'avatar' ) ); ?>"><?php _e('Show avatar', 'themify'); ?></label>
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'avatar_size' ); ?>"><?php _e('Avatar size:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'avatar_size' ); ?>" name="<?php echo $this->get_field_name( 'avatar_size' ); ?>" value="<?php echo esc_attr( $instance['avatar_size'] ); ?>" size="4" /> px
+				<label for="<?php echo esc_attr( $this->get_field_id( 'avatar_size' ) ); ?>"><?php _e('Avatar size:', 'themify'); ?></label>
+				<input id="<?php echo esc_attr( $this->get_field_id( 'avatar_size' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'avatar_size' ) ); ?>" value="<?php echo esc_attr( $instance['avatar_size'] ); ?>" size="4" /> px
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'excerpt_length' ); ?>"><?php _e('Comment excerpt:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'excerpt_length' ); ?>" name="<?php echo $this->get_field_name( 'excerpt_length' ); ?>" value="<?php echo esc_attr( $instance['excerpt_length'] ); ?>" size="4" /> <?php _e('characters', 'themify'); ?>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'excerpt_length' ) ); ?>"><?php _e('Comment excerpt:', 'themify'); ?></label>
+				<input id="<?php echo esc_attr( $this->get_field_id( 'excerpt_length' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'excerpt_length' ) ); ?>" value="<?php echo esc_attr( $instance['excerpt_length'] ); ?>" size="4" /> <?php _e('characters', 'themify'); ?>
 			</p>
 			
 			<?php
@@ -995,20 +999,20 @@ class Themify_Social_Links extends WP_Widget {
 			extract( $args );
 	
 			/* User-selected settings. */
-			$title = apply_filters('widget_title', $instance['title'] );
-			$category = $instance['category'];
-			$orderby = $instance['orderby'];
-			$show_count = $instance['show_count'];
+			$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
+			$category = isset( $instance['category'] ) ? $instance['category'] : '';
+			$orderby = isset( $instance['orderby'] ) ? $instance['orderby'] : 'rand';
+			$show_count = isset( $instance['show_count'] ) ? $instance['show_count'] : '';
 			$show_thumb = isset( $instance['show_thumb'] ) ? $instance['show_thumb'] : false;
 			$show_name = isset( $instance['show_name'] ) ? $instance['show_name'] : false;
 			$show_desc = isset( $instance['show_desc'] ) ? $instance['show_desc'] : false;
 	
 			/* Before widget (defined by themes). */
-			echo $before_widget;
+			echo wp_kses( $before_widget, themify_before_after_widget_allowed_tags() );
 	
 			/* Title of widget (before and after defined by themes). */
 			if ( $title )
-				echo $before_title . $title . $after_title;
+				echo wp_kses( $before_title . $title . $after_title, themify_before_after_widget_title_allowed_tags() );
 			
 			echo '<ul class="links-list">';
 			
@@ -1026,7 +1030,7 @@ class Themify_Social_Links extends WP_Widget {
 			echo '</ul>';
 	
 			/* After widget (defined by themes). */
-			echo $after_widget;
+			echo wp_kses( $after_widget, themify_before_after_widget_allowed_tags() );
 		}
 		
 		///////////////////////////////////////////
@@ -1057,23 +1061,23 @@ class Themify_Social_Links extends WP_Widget {
 			$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
-				<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" width="100%" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
+				<input id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" width="100%" />
 			</p>
 	
 			<p>
-				<label for="<?php echo $this->get_field_id( 'category' ); ?>"><?php _e('Category:', 'themify'); ?></label>
-				<select id="<?php echo $this->get_field_id( 'category' ); ?>" name="<?php echo $this->get_field_name( 'category' ); ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'category' ) ); ?>"><?php _e('Category:', 'themify'); ?></label>
+				<select id="<?php echo esc_attr( $this->get_field_id( 'category' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'category' ) ); ?>">
 					<option value="" <?php if ( '' == $instance['category'] ) echo 'selected="selected"'; ?>>All</option>
 					<?php
 					$categories = get_categories(array('type' => 'link'));
 					
 					foreach( $categories as $cat ) {
-						echo '<option value="' . $cat->cat_ID . '"';
+						echo '<option value="' . esc_attr( $cat->cat_ID ) . '"';
 						
 						if ( $cat->cat_ID == $instance['category'] ) echo  ' selected="selected"';
 						
-						echo '>' . $cat->cat_name . ' (' . $cat->category_count . ')';
+						echo '>' . esc_html( $cat->cat_name . ' (' . $cat->category_count . ')' );
 						
 						echo '</option>';
 					}
@@ -1082,8 +1086,8 @@ class Themify_Social_Links extends WP_Widget {
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'orderby' ); ?>"><?php _e('Orderby:', 'themify'); ?></label>
-				<select id="<?php echo $this->get_field_id( 'orderby' ); ?>" name="<?php echo $this->get_field_name( 'orderby' ); ?>">
+				<label for="<?php echo esc_attr( $this->get_field_id( 'orderby' ) ); ?>"><?php _e('Orderby:', 'themify'); ?></label>
+				<select id="<?php echo esc_attr( $this->get_field_id( 'orderby' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'orderby' ) ); ?>">
 					<option value="id" <?php if ( 'id' == $instance['orderby'] ) echo 'selected="selected"'; ?>><?php _e('ID', 'themify'); ?></option>
 					<option value="name" <?php if ( 'name' == $instance['orderby'] ) echo 'selected="selected"'; ?>><?php _e('Name', 'themify'); ?></option>
 					<option value="rating" <?php if ( 'rating' == $instance['orderby'] ) echo 'selected="selected"'; ?>><?php _e('Rating', 'themify'); ?></option>
@@ -1092,23 +1096,23 @@ class Themify_Social_Links extends WP_Widget {
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'show_count' ); ?>"><?php _e('Limit:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'show_count' ); ?>" name="<?php echo $this->get_field_name( 'show_count' ); ?>" value="<?php echo esc_attr( $instance['show_count'] ); ?>" size="2" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>"><?php _e('Limit:', 'themify'); ?></label>
+				<input id="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_count' ) ); ?>" value="<?php echo esc_attr( $instance['show_count'] ); ?>" size="2" />
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_thumb'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_thumb' ); ?>" name="<?php echo $this->get_field_name( 'show_thumb' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'show_thumb' ); ?>"><?php _e('Show link image', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_thumb'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_thumb' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_thumb' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_thumb' ) ); ?>"><?php _e('Show link image', 'themify'); ?></label>
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_name'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_name' ); ?>" name="<?php echo $this->get_field_name( 'show_name' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'show_name' ); ?>"><?php _e('Show link name', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_name'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_name' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_name' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_name' ) ); ?>"><?php _e('Show link name', 'themify'); ?></label>
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_desc'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_desc' ); ?>" name="<?php echo $this->get_field_name( 'show_desc' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'show_desc' ); ?>"><?php _e('Show link description', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_desc'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_desc' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_desc' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_desc' ) ); ?>"><?php _e('Show link description', 'themify'); ?></label>
 			</p>
 			
 			<?php
@@ -1141,22 +1145,22 @@ class Themify_Social_Links extends WP_Widget {
 			extract( $args );
 	
 			/* User-selected settings. */
-			$title = apply_filters('widget_title', $instance['title'] );
-			$username = $instance['username'];
-			$show_count = $instance['show_count'];
+			$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
+			$username = isset( $instance['username'] ) ? $instance['username'] : '';
+			$show_count = isset( $instance['show_count'] ) ? $instance['show_count'] : 5;
 			$hide_timestamp = isset( $instance['hide_timestamp'] ) ? 'false' : 'true';
 			$show_follow = isset( $instance['show_follow'] ) ? ''.$instance['show_follow'] : 'false';
-			$follow_text = $instance['follow_text'];
+			$follow_text = isset( $instance['follow_text'] ) ? $instance['follow_text'] : '';
 			$include_retweets = isset( $instance['include_retweets'] ) ? 'true' : 'false';
 			$exclude_replies = isset( $instance['exclude_replies'] ) ? 'true' : 'false';
 			$widget_id = $this->id;
 	
 			/* Before widget (defined by themes). */
-			echo $before_widget;
+			echo wp_kses( $before_widget, themify_before_after_widget_allowed_tags() );
 	
 			/* Title of widget (before and after defined by themes). */
 			if ( $title )
-				echo $before_title . $title . $after_title;
+				echo wp_kses( $before_title . $title . $after_title, themify_before_after_widget_title_allowed_tags() );
 
 			echo themify_shortcode_twitter(array(
 				'username' => $username,
@@ -1171,7 +1175,7 @@ class Themify_Social_Links extends WP_Widget {
 			));
 	
 			/* After widget (defined by themes). */
-			echo $after_widget;
+			echo wp_kses( $after_widget, themify_before_after_widget_allowed_tags() );
 		}
 		
 		///////////////////////////////////////////
@@ -1215,135 +1219,47 @@ class Themify_Social_Links extends WP_Widget {
 			$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
-				<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" class="widefat" type="text" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
+				<input id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" class="widefat" type="text" />
 			</p>
 	
 			<p>
-				<label for="<?php echo $this->get_field_id( 'username' ); ?>"><?php _e('Twitter ID:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'username' ); ?>" name="<?php echo $this->get_field_name( 'username' ); ?>" value="<?php echo esc_attr( $instance['username'] ); ?>" type="text"/>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'username' ) ); ?>"><?php _e('Twitter ID:', 'themify'); ?></label>
+				<input id="<?php echo esc_attr( $this->get_field_id( 'username' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'username' ) ); ?>" value="<?php echo esc_attr( $instance['username'] ); ?>" type="text"/>
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'show_count' ); ?>"><?php _e('Show:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'show_count' ); ?>" name="<?php echo $this->get_field_name( 'show_count' ); ?>" value="<?php echo esc_attr( $instance['show_count'] ); ?>" size="3" type="text" /> <?php _e('tweets', 'themify'); ?>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>"><?php _e('Show:', 'themify'); ?></label>
+				<input id="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_count' ) ); ?>" value="<?php echo esc_attr( $instance['show_count'] ); ?>" size="3" type="text" /> <?php _e('tweets', 'themify'); ?>
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['hide_timestamp'], 'on' ); ?> id="<?php echo $this->get_field_id( 'hide_timestamp' ); ?>" name="<?php echo $this->get_field_name( 'hide_timestamp' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'hide_timestamp' ); ?>"><?php _e('Hide timestamp', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['hide_timestamp'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'hide_timestamp' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'hide_timestamp' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'hide_timestamp' ) ); ?>"><?php _e('Hide timestamp', 'themify'); ?></label>
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_follow'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_follow' ); ?>" name="<?php echo $this->get_field_name( 'show_follow' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'show_follow' ); ?>"><?php _e('Display follow me button', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_follow'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_follow' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_follow' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_follow' ) ); ?>"><?php _e('Display follow me button', 'themify'); ?></label>
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'follow_text' ); ?>"><?php _e('Follow me text:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'follow_text' ); ?>" name="<?php echo $this->get_field_name( 'follow_text' ); ?>" value="<?php echo esc_attr( $instance['follow_text'] ); ?>" type="text" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'follow_text' ) ); ?>"><?php _e('Follow me text:', 'themify'); ?></label>
+				<input id="<?php echo esc_attr( $this->get_field_id( 'follow_text' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'follow_text' ) ); ?>" value="<?php echo esc_attr( $instance['follow_text'] ); ?>" type="text" />
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['include_retweets'], 'on' ); ?> id="<?php echo $this->get_field_id( 'include_retweets' ); ?>" name="<?php echo $this->get_field_name( 'include_retweets' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'include_retweets' ); ?>"><?php _e('Include retweets', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['include_retweets'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'include_retweets' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'include_retweets' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'include_retweets' ) ); ?>"><?php _e('Include retweets', 'themify'); ?></label>
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['exclude_replies'], 'on' ); ?> id="<?php echo $this->get_field_id( 'exclude_replies' ); ?>" name="<?php echo $this->get_field_name( 'exclude_replies' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'exclude_replies' ); ?>"><?php _e('Exclude replies', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['exclude_replies'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'exclude_replies' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'exclude_replies' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'exclude_replies' ) ); ?>"><?php _e('Exclude replies', 'themify'); ?></label>
 			</p>
 			
 			<p>
 				<?php echo sprintf(__('<small>Twitter access token is required at <a href="%s">Themify > Settings > Twitter</a>.</small>', 'themify'), admin_url('admin.php?page=themify#setting')); ?>
-			</p>
-			
-			<?php
-		}
-	}
-
-	///////////////////////////////////////////
-	// Instagram Class
-	///////////////////////////////////////////
-	class Themify_Instagram extends WP_Widget {
-		
-		///////////////////////////////////////////
-		// Twitter
-		///////////////////////////////////////////
-		function Themify_Instagram() {
-			/* Widget settings. */
-			$widget_ops = array( 'classname' => 'instagram', 'description' => __('A list of latest photos', 'themify') );
-	
-			/* Widget control settings. */
-			$control_ops = array( 'id_base' => 'themify-instagram' );
-	
-			/* Create the widget. */
-			$this->WP_Widget( 'themify-instagram', __('Themify - Instagram', 'themify'), $widget_ops, $control_ops );
-		}
-		
-		///////////////////////////////////////////
-		// Widget
-		///////////////////////////////////////////
-		function widget( $args, $instance ) {
-			extract( $args );
-	
-			/* User-selected settings. */
-			$title = apply_filters('widget_title', $instance['title'] );
-			$user = $instance['user'];
-			$show_count = $instance['limit'];
-	
-			/* Before widget (defined by themes). */
-			echo $before_widget;
-	
-			/* Title of widget (before and after defined by themes). */
-			if ( $title )
-				echo $before_title . $title . $after_title;
-			
-			echo do_shortcode("[themify-instagram user='$user' limit='$limit' is_widget='true']");
-	
-			/* After widget (defined by themes). */
-			echo $after_widget;
-		}
-		
-		///////////////////////////////////////////
-		// Update
-		///////////////////////////////////////////
-		function update( $new_instance, $old_instance ) {
-			$instance = $old_instance;
-	
-			/* Strip tags (if needed) and update the widget settings. */
-			$instance['title'] = strip_tags( $new_instance['title'] );
-			$instance['user'] = $new_instance['user'];
-			$instance['limit'] = $new_instance['limit'];
-			return $instance;
-		}
-		
-		///////////////////////////////////////////
-		// Form
-		///////////////////////////////////////////
-		function form( $instance ) {
-	
-			/* Set up some default widget settings. */
-			$defaults = array(
-				'title' => __('Instagram Photos', 'themify'),
-				'user' => '',
-				'limit' => 8
-			);
-			$instance = wp_parse_args( (array) $instance, $defaults ); ?>
-			
-			<p>
-				<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
-				<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" class="widefat" type="text" />
-			</p>
-	
-			<p>
-				<label for="<?php echo $this->get_field_id( 'user' ); ?>"><?php _e('Twitter ID:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'user' ); ?>" name="<?php echo $this->get_field_name( 'user' ); ?>" value="<?php echo esc_attr( $instance['user'] ); ?>" type="text"/>
-			</p>
-			
-			<p>
-				<label for="<?php echo $this->get_field_id( 'limit' ); ?>"><?php _e('Show:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'limit' ); ?>" name="<?php echo $this->get_field_name( 'limit' ); ?>" value="<?php echo esc_attr( $instance['limit'] ); ?>" size="3" type="text" /> <?php _e('photos', 'themify'); ?>
 			</p>
 			
 			<?php
@@ -1376,27 +1292,27 @@ class Themify_Social_Links extends WP_Widget {
 			extract( $args );
 	
 			/* User-selected settings. */
-			$title = apply_filters('widget_title', $instance['title'] );
+			$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
 			$username = isset( $instance['username'] ) ? $instance['username'] : '';
 			$show_count = isset( $instance['show_count'] ) ? $instance['show_count'] : '10';
 			$show_link = isset( $instance['show_link'] ) ? $instance['show_link'] : false;
 	
 			/* Before widget (defined by themes). */
-			echo $before_widget;
+			echo wp_kses( $before_widget, themify_before_after_widget_allowed_tags() );
 	
 			/* Title of widget (before and after defined by themes). */
 			if ( $title ) {
-				echo $before_title . $title . $after_title;
+				echo wp_kses( $before_title . $title . $after_title, themify_before_after_widget_title_allowed_tags() );
 			}
 			
 			echo '<div id="flickr_badge_wrapper" class="clearfix">
-					<script type="text/javascript" src="'.themify_https_esc('http://www.flickr.com/badge_code_v2.gne').'?count='.$show_count.'.&amp;display=latest&amp;size=s&amp;layout=x&amp;source=user&amp;user='.$username.'"></script>
+					<script type="text/javascript" src="' . esc_url( themify_https_esc( 'http://www.flickr.com/badge_code_v2.gne' ) . '?count=' . $show_count . '.&amp;display=latest&amp;size=s&amp;layout=x&amp;source=user&amp;user=' . $username ) . '"></script>
 				</div>';
 			if( $show_link )
-				echo '<a href="http://www.flickr.com/photos/'.$username.'/">' . __('View my Flickr photostream', 'themify') . '</a>';
+				echo '<a href="' . esc_url( 'http://www.flickr.com/photos/' . $username . '/' ) . '">' . __( 'View my Flickr photostream', 'themify' ) . '</a>';
 	
 			/* After widget (defined by themes). */
-			echo $after_widget;
+			echo wp_kses( $after_widget, themify_before_after_widget_allowed_tags() );
 		}
 		
         ///////////////////////////////////////////
@@ -1429,24 +1345,24 @@ class Themify_Social_Links extends WP_Widget {
 			$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
-				<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" width="100%" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
+				<input id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" width="100%" />
 			</p>
 	
 			<p>
-				<label for="<?php echo $this->get_field_id( 'username' ); ?>"><?php _e('Flickr ID:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'username' ); ?>" name="<?php echo $this->get_field_name( 'username' ); ?>" value="<?php echo esc_attr( $instance['username'] ); ?>" /><br />
-				<small>* Find your Flickr ID: <a href="http://www.idgettr.com" target="_blank">idGettr</a></small>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'username' ) ); ?>"><?php _e('Flickr ID:', 'themify'); ?></label>
+				<input id="<?php echo esc_attr( $this->get_field_id( 'username' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'username' ) ); ?>" value="<?php echo esc_attr( $instance['username'] ); ?>" /><br />
+				<small><?php printf( __( '* Find your Flickr ID: <a href="%s" target="_blank">idGettr</a>', 'themify' ), 'http://www.idgettr.com' ); ?></small>
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'show_count' ); ?>"><?php _e('Show:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'show_count' ); ?>" name="<?php echo $this->get_field_name( 'show_count' ); ?>" value="<?php echo esc_attr( $instance['show_count'] ); ?>" size="2" /> <?php _e('photos', 'themify'); ?>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>"><?php _e('Show:', 'themify'); ?></label>
+				<input id="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_count' ) ); ?>" value="<?php echo esc_attr( $instance['show_count'] ); ?>" size="2" /> <?php _e('photos', 'themify'); ?>
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_link'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_link' ); ?>" name="<?php echo $this->get_field_name( 'show_link' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'show_link' ); ?>"><?php _e('Show link to account', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_link'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_link' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_link' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_link' ) ); ?>"><?php _e('Show link to account', 'themify'); ?></label>
 			</p>
 	
 			<?php
@@ -1468,89 +1384,75 @@ class Themify_Social_Links extends WP_Widget {
 		}
 		
 		function widget( $args, $instance ) {
-			
-			/**
-			 *  Default Values
-			 *  'title' => 'Most Commented Posts',
-				'show_count' => 5,
-				'show_excerpt'	=> false,
-				'show_thumb' => false,
-				'thumb_width' => 50,
-				'thumb_height' => 50,
-				'excerpt_length' => 55,
-				'hide_title' => false
-			 */
+
 			extract( $args );
-			extract( $instance );
-			
+
+			$title = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
+			$show_count = isset( $instance['show_count'] ) ? $instance['show_count'] : 10;
+			$show_excerpt = isset( $instance['show_excerpt'] ) ? $instance['show_excerpt'] : false;
+			$show_thumb = isset( $instance['show_thumb'] ) ? $instance['show_thumb'] : false;
+			$thumb_width = isset( $instance['thumb_width'] ) ? $instance['thumb_width'] : 50;
+			$thumb_height = isset( $instance['thumb_height'] ) ? $instance['thumb_height'] : 50;
+			$excerpt_length = isset( $instance['excerpt_length'] ) ? $instance['excerpt_length'] : 55;
+			$hide_title = isset( $instance['hide_title'] ) ? $instance['hide_title'] : false;
+			$show_comment_count = isset( $instance['show_comment_count'] ) ? $instance['show_comment_count'] : false;
+
 			$loop = get_posts( array(
 				'numberposts' => $show_count,
 				'orderby' => 'comment_count',
 				'post_type' => 'post',
-				'order' => 'DESC' ) );
-			$html = '';	
-			
-			if($loop) {
+				'order' => 'DESC',
+				'suppress_filters' => false,
+			) );
+
+			if ( $loop ) {
 				
 				/* Before widget (defined by themes). */
-				echo $before_widget;
+				echo wp_kses( $before_widget, themify_before_after_widget_allowed_tags() );
 				
 				/* Title of widget (before and after defined by themes). */
 				if ( $title )
-					echo $before_title . $title . $after_title;
+					echo wp_kses( $before_title . $title . $after_title, themify_before_after_widget_title_allowed_tags() );
 				
-				$html .= '<ul class="feature-posts-list">';
+				echo '<ul class="feature-posts-list">';
 				global $post;
-				foreach ($loop as $post) {
-					setup_postdata($post);
+				foreach ( $loop as $post ) {
+					setup_postdata( $post );
 					
-					$post_excerpt = trim(strip_tags( $post->post_excerpt ));
-					$post_title = trim(strip_tags( $post->post_title ));
-					
-					// cut to character limit
-					$cut_excerpt = substr( $post_excerpt, 0, $excerpt_length );
-					if( $cut_excerpt != $post_excerpt ){
-						// cut to last space
-						$post_excerpt = substr( $post_excerpt, 0, strrpos( $post_excerpt, ' '));
-					}
-					
-					$html .= '<li>';
+					echo '<li>';
 					
 					if ( $show_thumb ) {
-						$html .= themify_get_image('ignore=true&w='.$instance['thumb_width'].'&h='.$instance['thumb_height'].'&before=<a href="'.get_permalink().'">&after=</a>&class=post-img');
+						echo themify_get_image( 'ignore=true&w=' . $instance['thumb_width'] . '&h=' . $instance['thumb_height'] . '&before=<a href="' . esc_url( get_permalink() ) . '">&after=</a>&class=post-img' );
 					}
 
 					if( !$hide_title ){
-						$html .= '<a href="' . get_permalink() . '" class="feature-posts-title">' . get_the_title() . '</a>';
+						echo '<a href="' . esc_url( get_permalink() ) . '" class="feature-posts-title">' . get_the_title() . '</a>';
 					}
 					
 					if ( $show_comment_count ){
 						$comment_string = (get_comments_number() > 1)? __('comments', 'themify') : __('comment', 'themify');
-						
-						$html .= '<br/><small>' . get_comments_number() . ' ' . $comment_string . '</small> <br />';
+						echo '<br/><small>' . get_comments_number() . ' ' . $comment_string . '</small> <br />';
 					}
 					if ( $show_excerpt ) {
 						$the_excerpt = get_the_excerpt();
-						
-						if($excerpt_length != "") {
-						// cut to character limit
-						$the_excerpt = substr( $the_excerpt, 0, $excerpt_length );
-						
-						// cut to last space
-						$the_excerpt = substr( $the_excerpt, 0, strrpos( $the_excerpt, ' '));
+
+						if ( $excerpt_length != '' ) {
+							// cut to character limit
+							$the_excerpt = substr( $the_excerpt, 0, $excerpt_length );
+
+							// cut to last space
+							$the_excerpt = substr( $the_excerpt, 0, strrpos( $the_excerpt, ' ' ) );
 						}
 						
-						$html .= '<span class="post-excerpt">' . $the_excerpt . '</span>';
+						echo '<span class="post-excerpt">' . wp_kses_post( $the_excerpt ) . '</span>';
 					}
 						
-					$html .= '</li>';
+					echo '</li>';
 					wp_reset_postdata();
 				}
-				$html .= '</ul>';
-				
-				echo $html;
-				
-				echo $after_widget;
+				echo '</ul>';
+
+				echo wp_kses( $after_widget, themify_before_after_widget_allowed_tags() );
 			}
 			
 		}
@@ -1575,42 +1477,42 @@ class Themify_Social_Links extends WP_Widget {
 	
 			/* Set up some default widget settings. */
 			$defaults = array(
-						'title' => __('Most Commented Posts', 'themify'),
-						'show_count' => 5,
-						'show_excerpt'	=> false,
-						'show_thumb' => false,
-						'thumb_width' => 50,
-						'thumb_height' => 50,
-						'excerpt_length' => 55,
-						'hide_title' => false,
-						'show_comment_count' => false
-					);
+				'title' => __('Most Commented Posts', 'themify'),
+				'show_count' => 5,
+				'show_excerpt'	=> false,
+				'show_thumb' => false,
+				'thumb_width' => 50,
+				'thumb_height' => 50,
+				'excerpt_length' => 55,
+				'hide_title' => false,
+				'show_comment_count' => false
+			);
 			
 			$instance = wp_parse_args( (array) $instance, $defaults ); ?>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
-				<input id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" type="text" class="widefat" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php _e('Title:', 'themify'); ?></label><br />
+				<input id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" type="text" class="widefat" />
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['hide_title'], 'on' ); ?> id="<?php echo $this->get_field_id( 'hide_title' ); ?>" name="<?php echo $this->get_field_name( 'hide_title' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'hide_title' ); ?>"><?php _e('Hide post title', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['hide_title'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'hide_title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'hide_title' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'hide_title' ) ); ?>"><?php _e('Hide post title', 'themify'); ?></label>
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_comment_count'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_comment_count' ); ?>" name="<?php echo $this->get_field_name( 'show_comment_count' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'show_comment_count' ); ?>"><?php _e('Display comment count', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_comment_count'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_comment_count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_comment_count' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_comment_count' ) ); ?>"><?php _e('Display comment count', 'themify'); ?></label>
 			</p>
 	
 			<p>
-				<label for="<?php echo $this->get_field_id( 'show_count' ); ?>"><?php _e('Number of posts:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'show_count' ); ?>" name="<?php echo $this->get_field_name( 'show_count' ); ?>" value="<?php echo esc_attr( $instance['show_count'] ); ?>" size="2" type="text" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>"><?php _e('Number of posts:', 'themify'); ?></label>
+				<input id="<?php echo esc_attr( $this->get_field_id( 'show_count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_count' ) ); ?>" value="<?php echo esc_attr( $instance['show_count'] ); ?>" size="2" type="text" />
 			</p>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_thumb'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_thumb' ); ?>" name="<?php echo $this->get_field_name( 'show_thumb' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'show_thumb' ); ?>"><?php _e('Display post thumbnail', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_thumb'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_thumb' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_thumb' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_thumb' ) ); ?>"><?php _e('Display post thumbnail', 'themify'); ?></label>
 			</p>
 			
 			<?php
@@ -1618,20 +1520,20 @@ class Themify_Social_Links extends WP_Widget {
 			if ( function_exists('imagecreatetruecolor') ) {
 			?>
 			<p>
-			   <label for="<?php echo $this->get_field_id( 'thumb_width' ); ?>"><?php _e('Thumbnail size', 'themify'); ?></label> <input type="text" id="<?php echo $this->get_field_id( 'thumb_width' ); ?>" name="<?php echo $this->get_field_name( 'thumb_width' ); ?>" value="<?php echo esc_attr( $instance['thumb_width'] ); ?>" size="3" /> x <input type="text" id="<?php echo $this->get_field_id( 'thumb_height' ); ?>" name="<?php echo $this->get_field_name( 'thumb_height' ); ?>" value="<?php echo esc_attr( $instance['thumb_height'] ); ?>" size="3" />
+			   <label for="<?php echo esc_attr( $this->get_field_id( 'thumb_width' ) ); ?>"><?php _e('Thumbnail size', 'themify'); ?></label> <input type="text" id="<?php echo esc_attr( $this->get_field_id( 'thumb_width' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'thumb_width' ) ); ?>" value="<?php echo esc_attr( $instance['thumb_width'] ); ?>" size="3" /> x <input type="text" id="<?php echo esc_attr( $this->get_field_id( 'thumb_height' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'thumb_height' ) ); ?>" value="<?php echo esc_attr( $instance['thumb_height'] ); ?>" size="3" />
 			</p>
 			<?php
 			}
 			?>
 			
 			<p>
-				<input class="checkbox" type="checkbox" <?php checked( $instance['show_excerpt'], 'on' ); ?> id="<?php echo $this->get_field_id( 'show_excerpt' ); ?>" name="<?php echo $this->get_field_name( 'show_excerpt' ); ?>" />
-				<label for="<?php echo $this->get_field_id( 'show_excerpt' ); ?>"><?php _e('Display post excerpt', 'themify'); ?></label>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['show_excerpt'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_excerpt' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_excerpt' ) ); ?>" />
+				<label for="<?php echo esc_attr( $this->get_field_id( 'show_excerpt' ) ); ?>"><?php _e('Display post excerpt', 'themify'); ?></label>
 			</p>
 			
 			<p>
-				<label for="<?php echo $this->get_field_id( 'excerpt_length' ); ?>"><?php _e('Excerpt character limit:', 'themify'); ?></label>
-				<input id="<?php echo $this->get_field_id( 'excerpt_length' ); ?>" name="<?php echo $this->get_field_name( 'excerpt_length' ); ?>" value="<?php echo esc_attr( $instance['excerpt_length'] ); ?>" size="1" type="text" /><br/><small><?php _e('(leave empty = full excerpt)', 'themify'); ?></small>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'excerpt_length' ) ); ?>"><?php _e('Excerpt character limit:', 'themify'); ?></label>
+				<input id="<?php echo esc_attr( $this->get_field_id( 'excerpt_length' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'excerpt_length' ) ); ?>" value="<?php echo esc_attr( $instance['excerpt_length'] ); ?>" size="1" type="text" /><br/><small><?php _e('(leave empty = full excerpt)', 'themify'); ?></small>
 			</p>
 	
 			<?php
@@ -1652,7 +1554,6 @@ class Themify_Social_Links extends WP_Widget {
 		}
 		register_widget('Themify_Social_Links');
 		register_widget('Themify_Twitter');
-		//register_widget('Themify_Instagram');
 		register_widget('Themify_Flickr');
 		register_widget('Themify_Most_Commented');
 	}

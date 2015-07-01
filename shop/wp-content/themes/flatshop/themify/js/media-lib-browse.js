@@ -1,16 +1,22 @@
-var themifyMediaLib = {
+var themifyMediaLib = {};
+
+(function($){
+
+'use strict';
+
+themifyMediaLib = {
 	init: function() {
 		this.mediaUploader();
 	},
 
 	mediaUploader: function() {
-    
+
     // Uploading files
     var file_frame = '', set_to_post_id = wp.media.model.settings.post.id; // Set this
-    
+
     jQuery('.themify-media-lib-browse').on('click', function( event ){
       var $el = jQuery(this), $data = $el.data('submit');
-      
+
       file_frame = wp.media.frames.file_frame = wp.media({
         title: jQuery(this).data('uploader-title'),
         library: {
@@ -21,13 +27,13 @@ var themifyMediaLib = {
         },
         multiple: false  // Set to true to allow multiple files to be selected
       });
-   
+
       // When an image is selected, run a callback.
       file_frame.on( 'select', function() {
         // We set multiple to false so only get one image from the uploader
-        attachment = file_frame.state().get('selection').first().toJSON();
+        var attachment = file_frame.state().get('selection').first().toJSON();
         $data.attach_id = attachment.id;
-        
+
         // Do something with attachment.id and/or attachment.url here
         jQuery.ajax({
 	        type: "POST",
@@ -50,15 +56,18 @@ var themifyMediaLib = {
 						.find('a').attr('data-attachid', attachment.id);
 	        }
 	      });
-        
+
       });
-   
+
       // Finally, open the modal
       file_frame.open();
       event.preventDefault();
     });
   }
 };
-jQuery(document).ready(function($){
+
+$(document).ready(function(){
 	themifyMediaLib.init();
 });
+
+})(jQuery);

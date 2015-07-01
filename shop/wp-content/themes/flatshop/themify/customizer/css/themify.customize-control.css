@@ -10,22 +10,61 @@
  *
  ***************************************************************************/
 
+/* Mode Switcher
+------------------------------------------------------*/
+#accordion-section-themify_options > ul > li:first-child {
+	margin: 0;
+	/* padding: 0; */
+}
+#accordion-section-themify_options > ul > li .customize-section-description {
+	margin: 0;
+	padding: 7px 7px 0 7px;
+	background: #888;
+}
+#accordion-section-themify_options .themify-customizer-switch {
+	color: #fff;
+	padding: 5px 15px 5px 9px;
+	display: inline-block;
+	transition: all .2s ease-out;
+}
+#accordion-section-themify_options .themify-customizer-switch.switchto {
+	cursor: pointer;
+	outline: none;
+	box-shadow: none;
+}
+#accordion-section-themify_options .themify-customizer-switch.switchto:hover {
+	color: #000;
+	background-color: #ddd;
+}
+#accordion-section-themify_options .themify-customizer-switch.selected {
+	color: #333;
+	background-color: #fff;
+}
+#accordion-section-themify_options .themify-customizer-switch strong {
+	display: block;
+	font-size: 14px;
+}
+.accordion-section-content .customize-control-themify_subaccordion_start:nth-child(2).topen {
+	border-color: #666;
+}
+
 /* Sub Accordion
 ------------------------------------------------------*/
 .customize-control-themify_subaccordion_start {
 	position: relative;
 	margin: 0 0 -1px;
-	padding: 10px 20px 5px 20px;
+	padding: 5px 20px 1px 20px;
 	width: 89.5%;
 	border-top: 1px solid #ccc;
 }
-#customize-theme-controls #accordion-section-themify_options.control-section.open .accordion-section-title {
+
+#customize-theme-controls #accordion-section-themify_options.control-section.topen .accordion-section-title {
 	border-bottom-color: #ccc !important;
 }
 .customize-control-themify_subaccordion_start:first-child {
 	border: none;
 }
-.accordion-section-content .customize-control-themify_subaccordion_start.open {
+.accordion-section-content .customize-control-themify_subaccordion_start.topen {
 	background: #dcdcdc;
 }
 .themify-suba-toggle {
@@ -41,6 +80,11 @@
 	color: #333;
 	outline: none !important;
 }
+.themify-suba-toggle:active,
+.themify-suba-toggle:focus {
+	outline: none;
+	box-shadow: none;
+}
 .themify-suba-toggle:after, .custom-select:before {
 	content: '\e64b';
 	font: normal 17px/1 'themify';
@@ -53,8 +97,16 @@
 	-moz-osx-font-smoothing: grayscale;
 	text-decoration: none !important;
 }
-.themify-suba-toggle.open:after {
+.topen .themify-suba-toggle {
+    margin: -5px 0 5px -14px;
+    padding: 5px 13px 5px 15px;
+    background-color: #666;
+    color: #fff;
+}
+.topen .themify-suba-toggle:after {
 	content: '\e648';
+    top: 9px;
+    right: 15px;
 }
 .themify-suba-toggle a {
 	color: #000;
@@ -77,10 +129,14 @@
 	padding-left: 5%;
 	padding-right: 5%;
 	width: 100%;
+	display: none;
+}
+.accordion-section-content .themify-subaccordion.tpanelopen {
+	display: block;
 }
 .themify-subaccordion .customize-control {
-	border-bottom: 1px solid #bbb;
-	margin-bottom: 15px;
+	border-bottom: 1px solid #ccc;
+	margin-bottom: 10px;
 	padding-bottom: 5px;
 }
 .themify-subaccordion .customize-control:last-child {
@@ -90,11 +146,11 @@
 /* Control
 ------------------------------------------------------*/
 .themify-control-title {
-	font-size: 16px;
-	margin: 15px 0;
+	font-size: 15px;
+	margin: 8px 0;
 }
 .themify-customizer-brick {
-	margin-bottom: 10px;
+	margin-bottom: 5px;
 	display: inline-block;
 	width: 100%;
 }
@@ -128,6 +184,10 @@ li.customize-control[class*=themify] button {
 	border-radius: 0;
 	-webkit-box-shadow: none;
 	box-shadow: none;
+	outline: none;
+}
+li.customize-control[class*=themify] button::selection {
+	background: none;
 }
 li.customize-control[class*=themify] .selected {
 	background: #b2b2b2;
@@ -223,7 +283,7 @@ li.customize-control[class*=themify] .selected {
 }
 .image-label {
 	font-size: 14px;
-	margin: 5px 0 10px;
+	margin: 2px 0 6px;
 	display: inline-block;
 }
 .open-media-wrap img {
@@ -241,6 +301,10 @@ li.customize-control[class*=themify] .selected {
 	display: inline-block;
 	position: relative;
 	margin-bottom: 15px;
+	padding-bottom: 8px;
+}
+.color-picker-visible {
+	height: 140px;
 }
 .color-picker + label {
 	display: block;
@@ -389,13 +453,57 @@ input[type=text].dimension-width,
 	width: 45px;
 	display: inline-block;
 }
+.customize-control-themify_position .position {
+	width: 100px;
+}
 
 /* Custom CSS
 ------------------------------------------------------*/
 .customize-control .customcss {
-	width: 100%;
-	height: 300px;
-	font-family: monospace;
+    width: 100%;
+	min-height: 100%;
+    height: 500px;
+    font-family: monospace;
+    word-wrap: break-word;
+    word-break: normal;
+    white-space: pre;
+	font-size: 12px;
+	overflow: auto;
+
+	position: relative;
+	z-index: 52;
+	top: -23px;
+	padding: 28px 10px 0;
+	margin: 20px 0 0;
+}
+.customize-control .themify-expand, .customize-control .themify-contract {
+	position: relative;
+	top: 20px;
+	z-index: 53;
+	background: #fff;
+	float: right;
+	margin-right: 20px;
+	font-size: 17px;
+	color: #000;
+	cursor: pointer;
+}
+.customize-control .themify-contract {
+	top: 10px;
+}
+.customcss-expand {
+	float: none;
+	position: absolute;
+	z-index: 51;
+	top: 0;
+	left: 0;
+	width: 550px;
+	height: 100%;
+}
+.customcss-expand .customcss {
+	margin: 0;
+}
+.customcss-expand .customcss {
+	top: -17px;
 }
 
 /* Site Logo
@@ -604,4 +712,8 @@ select.dimension-unit, select.font_size_unit, select.font_line_unit {
 }
 .hcollapse.hide-horizontally {
 	width: 0;
+}
+.doc-link {
+	vertical-align: bottom;
+	padding: 0 5px;
 }

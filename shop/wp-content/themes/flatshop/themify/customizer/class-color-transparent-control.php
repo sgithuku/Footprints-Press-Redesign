@@ -30,7 +30,7 @@ class Themify_Color_Transparent_Control extends Themify_Color_Control {
 			'color_label' => ( isset( $this->color_label ) && ! empty( $this->color_label ) ) ? $this->color_label : __( 'Color', 'themify' ),
 		) ); ?>
 
-		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo $this->type; ?>_control themify-customizer-value-field"/>
+		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
 		<?php
 	}
 }

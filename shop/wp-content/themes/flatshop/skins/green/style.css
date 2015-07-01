@@ -14,12 +14,18 @@ h1, h2, h3, h4, h5, h6,
 .post-title a,
 .widgettitle,
 #footer .social-widget a,
-#body h2 {
+#body h2,
+.horizontal-menu a {
 	color: #00af8c;
 }
 #menu-icon:hover,
 #site-logo a:hover,
-#footer .social-widget a:hover {
+#footer .social-widget a:hover,
+#menu-icon-close:hover,
+.horizontal-menu a:hover,
+#slide-cart a:hover,
+#slide-cart .cart-total #view-cart,
+.sidemenu ::-webkit-input-placeholder {
 	color: #00cea5;
 }
 #main-nav a:hover,
@@ -37,10 +43,14 @@ h1, h2, h3, h4, h5, h6,
 	border-width: 0 0 1px 0;
 }
 
+#slide-cart .product:last-child {
+	border-color: #00cea5;
+}
+
 /* menu slide */
 #cart-icon,
-#slide-nav,
-#slide-cart {
+.sidemenu,
+#slide-nav > div {
 	color: #fff;
 	background: #00af8c;
 }

@@ -49,7 +49,7 @@
 						<?php endif; ?>
 
 						<?php if ( themify_check( 'setting-store_info_phone' ) ) : ?>
-							<p class="store-phone"><i class="fa fa-phone icon-phone"></i><?php echo themify_get('setting-store_info_phone' ); ?></p>
+							<p class="store-phone"><i class="fa fa-phone icon-phone"></i><a href="tel:<?php echo esc_attr( themify_get('setting-store_info_phone' ) ); ?>"><?php echo esc_html( themify_get('setting-store_info_phone' ) ); ?></a></p>
 						<?php endif; ?>
 
 						<?php if ( themify_check( 'setting-store_info_hours' ) ) : ?>

@@ -46,7 +46,7 @@ class Themify_Logo_Control extends Themify_Control {
 
 		<!-- Site Logo Text Mode -->
 		<div class="logo-mode-wrap logo-text-mode">
-			<label><?php _e( 'Site Title', 'themify' ); ?><input type="text" class="site-name" value="<?php echo get_bloginfo('name'); ?>"/></label>
+			<label><?php _e( 'Site Title', 'themify' ); ?><input type="text" class="site-name" value="<?php echo esc_attr( get_bloginfo('name') ); ?>"/></label>
 		</div>
 
 		<div class="logo-mode-wrap logo-text-mode">
@@ -65,10 +65,10 @@ class Themify_Logo_Control extends Themify_Control {
 		</div>
 
 		<div class="logo-mode-wrap logo-text-mode logo-image-mode">
-			<p><label><?php _e( 'Custom Site Logo Link', 'themify' ); ?><input type="text" class="site-link" value="<?php echo $link; ?>"/></label></p>
+			<p><label><?php _e( 'Custom Site Logo Link', 'themify' ); ?><input type="text" class="site-link" value="<?php echo esc_url( $link ); ?>"/></label></p>
 		</div>
 
-		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo $this->type; ?>_control themify-customizer-value-field"/>
+		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
 		<?php
 	}
 

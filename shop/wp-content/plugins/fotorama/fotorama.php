@@ -1,14 +1,14 @@
 <?php
 /**
  * @package Fotorama
- * @version 4.6.0
+ * @version 4.6.3
  */
 /*
 Plugin Name: Fotorama
 Plugin URI: http://fotorama.io/
 Description: Transforms standard galleries into fotoramas. Fotorama is a simple, stunning, powerful jQuery gallery. Licensed under the MIT.
 Author: Artem Polikarpov
-Version: 4.6.0
+Version: 4.6.3
 Author URI: https://github.com/artpolikarpov
 */
 

@@ -7,10 +7,13 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * @author Themify
  */
 
-wp_enqueue_script( 'themify-easy-pie-chart' );
+// Load styles and scripts registered in Themify_Builder::register_frontend_js_css()
+$GLOBALS['ThemifyBuilder']->load_templates_js_css( array( 'chart' => true ) );
+
 $chart_vars = apply_filters('themify_chart_init_vars', array(
 	'trackColor' => 'rgba(0,0,0,.1)',
 	'scaleColor' => 0,
+	'scaleLength' => 0,
 	'lineCap' => 'butt',
 	'rotate' => 0,
 	'size' => 150,
@@ -29,7 +32,7 @@ $fields_default = array(
 	'icon_type_feature' => 'icon',
 	'image_feature' => '',
 	'icon_feature' => '',
-	'icon_color_feature' => '',
+	'icon_color_feature' => '000000',
 	'icon_bg_feature' => '',
 	'circle_size_feature' => 'medium',
 	'link_feature' => '',
@@ -57,27 +60,27 @@ if( '' == $circle_percentage_feature ) {
 	$circle_percentage_feature = '0';
 	$chart_vars['trackColor'] = 'rgba(0,0,0,0)'; // transparent
 }
-
+$link_type = '';
 if( '' != $link_feature ) {
 	if( in_array( 'lightbox', $param_feature ) ) {
-		$link_feature = themify_get_lightbox_iframe_link( $link_feature ) . '" class="lightbox';
+		$link_type = 'lightbox';
 	} elseif( in_array( 'newtab', $param_feature ) ) {
-		$link_feature = $link_feature . '" target="_blank';
+		$link_type = 'newtab';
 	}
 }
 
 $container_class = implode(' ', 
-	apply_filters('themify_builder_module_classes', array(
-		'module', 'module-' . $mod_name, $module_ID, $chart_class, $layout_feature, 'size-' . $circle_size_feature, $css_feature, $animation_effect
-	) )
+	apply_filters( 'themify_builder_module_classes', array(
+		'module', 'module-' . $mod_name, $module_ID, $chart_class, 'layout-' . $layout_feature, 'size-' . $circle_size_feature, $css_feature, $animation_effect
+	), $mod_name, $module_ID, $fields_args )
 );
 
 ?>
-<!-- module image -->
-<div id="<?php echo $module_ID; ?>" class="<?php echo esc_attr( $container_class ); ?>">
+<!-- module feature -->
+<div id="<?php echo esc_attr( $module_ID ); ?>" class="<?php echo esc_attr( $container_class ); ?>">
 
 	<?php if ( $mod_title_feature != '' ): ?>
-	<h3 class="module-title"><?php echo $mod_title_feature; ?></h3>
+	<h3 class="module-title"><?php echo wp_kses_post( $mod_title_feature ); ?></h3>
 	<?php endif; ?>
 
 	<?php do_action( 'themify_builder_before_template_content_render' ); ?>
@@ -85,18 +88,19 @@ $container_class = implode(' ',
 	<figure class="module-feature-image">
 
 		<?php if( '' != $link_feature ) : ?>
-			<a href="<?php echo $link_feature ?>">
+			<a href="<?php echo esc_url( 'lightbox' == $link_type ? themify_get_lightbox_iframe_link( $link_feature ) : $link_feature ); ?>" <?php if ( 'lightbox' == $link_type ) : echo 'class="lightbox"'; endif; if ( 'newtab' == $link_type ) : echo 'target="_blank"'; endif; ?>>
 		<?php endif; ?>
 
 		<?php if( '' != $circle_percentage_feature ) : ?>
-			<div class="chart" data-percent="<?php echo esc_attr( $circle_percentage_feature ); ?>" data-color="#<?php echo $circle_color_feature; ?>" data-trackcolor="<?php echo $chart_vars['trackColor']; ?>" data-linecap="<?php echo $chart_vars['lineCap']; ?>" data-rotate="<?php echo $chart_vars['rotate']; ?>" data-size="<?php echo $chart_vars['size']; ?>" data-linewidth="<?php echo $circle_stroke_feature; ?>" data-animate="<?php echo $chart_vars['animate']; ?>">
+			<div class="module-feature-chart" data-percent="<?php echo esc_attr( $circle_percentage_feature ); ?>" data-color="<?php echo esc_attr( $this->get_rgba_color( $circle_color_feature ) ); ?>" data-trackcolor="<?php echo esc_attr( $chart_vars['trackColor'] ); ?>" data-linecap="<?php echo esc_attr( $chart_vars['lineCap'] ); ?>" data-scalelength="<?php echo esc_attr( $chart_vars['scaleLength'] ); ?>" data-rotate="<?php echo esc_attr( $chart_vars['rotate'] ); ?>" data-size="<?php echo esc_attr( $chart_vars['size'] ); ?>" data-linewidth="<?php echo esc_attr( $circle_stroke_feature ); ?>" data-animate="<?php echo esc_attr( $chart_vars['animate'] ); ?>">
 		<?php endif; ?>
 
 			<?php if( 'image' == $icon_type_feature && ! empty( $image_feature ) ) : ?>
-				<img src="<?php echo $image_feature; ?>" alt="<?php echo $title_feature ?>" />
+				<?php $alt = ( $alt_text = get_post_meta( TB_Feature_Module::get_attachment_id_by_url( $image_feature ), '_wp_attachment_image_alt', true ) ) ? $alt_text : $title_feature; ?>
+				<img src="<?php echo esc_url( $image_feature ); ?>" alt="<?php echo esc_attr( $alt ); ?>" />
 			<?php else : ?>
-				<?php if( '' != $icon_bg_feature ) : ?><div class="module-feature-background" style="background: #<?php echo $icon_bg_feature; ?>"></div><?php endif; ?>
-				<?php if( '' != $icon_feature ) : ?><i class="module-feature-icon fa <?php echo $icon_feature; ?>" style="color: #<?php echo $icon_color_feature; ?>"></i><?php endif; ?>
+				<?php if( '' != $icon_bg_feature ) : ?><div class="module-feature-background" style="background: <?php echo esc_attr( $this->get_rgba_color( $icon_bg_feature ) ); ?>"></div><?php endif; ?>
+				<?php if( '' != $icon_feature ) : ?><i class="module-feature-icon fa <?php echo esc_attr( themify_get_fa_icon_classname( $icon_feature ) ); ?>" style="color: <?php echo esc_attr( $this->get_rgba_color( $icon_color_feature ) ); ?>"></i><?php endif; ?>
 			<?php endif; ?>
 
 		<?php if( '' != $circle_percentage_feature ) : ?>
@@ -113,10 +117,10 @@ $container_class = implode(' ',
 		<?php if( '' != $title_feature ) : ?>
 			<h3 class="module-feature-title">
 			<?php if( '' != $link_feature ) : ?>
-				<a href="<?php echo $link_feature ?>">
+				<a href="<?php echo esc_url( 'lightbox' == $link_type ? themify_get_lightbox_iframe_link( $link_feature ) : $link_feature ); ?>" <?php if ( 'lightbox' == $link_type ) : echo 'class="lightbox"'; endif; if ( 'newtab' == $link_type ) : echo 'target="_blank"'; endif; ?>>
 			<?php endif; ?>
 
-			<?php echo $title_feature; ?>
+			<?php echo wp_kses_post( $title_feature ); ?>
 
 			<?php if( '' != $link_feature ) : ?>
 				</a>
@@ -129,4 +133,4 @@ $container_class = implode(' ',
 
 	<?php do_action( 'themify_builder_after_template_content_render' ); ?>
 </div>
-<!-- /module image -->
+<!-- /module feature -->

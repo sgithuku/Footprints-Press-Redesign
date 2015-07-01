@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 		<div class="slide_builder_module_wrapper">
 		<?php foreach( Themify_Builder_Model::$modules as $module ): ?>
-		<?php $class = "themify_builder_module module-{$module->slug}"; ?>
+		<?php $class = "themify_builder_module module-type-{$module->slug}"; ?>
 
 		<div class="<?php echo esc_attr($class); ?>" data-module-name="<?php echo esc_attr( $module->slug ); ?>">
 			<strong class="module_name"><?php echo esc_html( $module->name ); ?></strong>

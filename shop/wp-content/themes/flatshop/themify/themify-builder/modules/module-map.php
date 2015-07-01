@@ -10,26 +10,18 @@ class TB_Map_Module extends Themify_Builder_Module {
 			'name' => __('Map', 'themify'),
 			'slug' => 'map'
 		));
-
-		add_action( 'wp_enqueue_scripts', array( $this, 'load_map_script' ) );
 	}
 
-	function load_map_script() {
-		//Register map scripts
-		wp_register_script( 'themify-builder-map-script', themify_https_esc( 'http://maps.google.com/maps/api/js' ) . '?sensor=false', array(), false, true );
+	public function get_title( $module ) {
+		return isset( $module['mod_settings']['address_map'] ) ? esc_textarea( $module['mod_settings']['address_map'] ) : '';
 	}
-}
 
-///////////////////////////////////////
-// Module Options
-///////////////////////////////////////
-$zoom_opt = array();
-for ( $i=1; $i < 17 ; $i++ ) { 
- array_push( $zoom_opt, $i );
-}
-Themify_Builder_Model::register_module( 'TB_Map_Module', 
-	apply_filters( 'themify_builder_module_map', array(
-		'options' => array(
+	public function get_options() {
+		$zoom_opt = array();
+		for ( $i=1; $i < 17 ; $i++ ) { 
+		 array_push( $zoom_opt, $i );
+		}
+		$options = array(
 			array(
 				'id' => 'mod_title_map',
 				'type' => 'text',
@@ -42,6 +34,14 @@ Themify_Builder_Model::register_module( 'TB_Map_Module',
 				'value' => '',
 				'class' => 'fullwidth',
 				'label' => __('Address', 'themify')
+			),
+			array(
+				'id' => 'latlong_map',
+				'type' => 'text',
+				'value' => '',
+				'class' => 'large',
+				'label' => __('Lat/Long', 'themify'),
+				'help' => '<br/>' . __('Use Lat/Long instead of address (Leave address field empty to use this). Exp: 43.6453137,-79.3918391', 'themify')
 			),
 			array(
 				'id' => 'zoom_map',
@@ -79,26 +79,34 @@ Themify_Builder_Model::register_module( 'TB_Map_Module',
 				'value' => 300
 			),
 			array(
-				'id' => 'multifield',
-				'type' => 'multifield',
+				'id' => 'multi_map_border',
+				'type' => 'multi',
 				'label' => __('Border', 'themify'),
-				'options' => array(
-					'select' => array(
+				'fields' => array(
+					array(
 						'id' => 'b_style_map',
+						'type' => 'select',
+						'label' => '',
 						'options' => array(
 							'solid' => __( 'Solid', 'themify' ),
 							'dotted' => __( 'Dotted', 'themify' ),
 							'dashed' => __( 'Dashed', 'themify' ),
 						)
 					),
-					'text' => array(
+					array(
 						'id' => 'b_width_map',
-						'help' => 'px'
+						'type' => 'text',
+						'label' => '',
+						'class' => 'medium',
+						'after' => 'px'
 					),
-					'colorpicker' => array(
+					array(
 						'id' => 'b_color_map',
-						'class' => 'small'
-					)
+						'type' => 'text',
+						'colorpicker' => true,
+						'class' => 'large',
+						'label' => ''
+					),
 				)
 			),
 			array(
@@ -117,8 +125,8 @@ Themify_Builder_Model::register_module( 'TB_Map_Module',
 				'type' => 'select',
 				'label' => __( 'Scrollwheel', 'themify' ),
 				'options' => array(
+					'disable' => __( 'Disable', 'themify' ),
 					'enable' => __( 'Enable', 'themify' ),
-					'disable' => __( 'Disable', 'themify' )
 				)
 			),
 			array(
@@ -129,10 +137,30 @@ Themify_Builder_Model::register_module( 'TB_Map_Module',
 					'enable' => __( 'Enable', 'themify' ),
 					'disable' => __( 'Disable', 'themify' )
 				)
+			),
+			array(
+				'id' => 'draggable_disable_mobile_map',
+				'type' => 'select',
+				'label' => __( 'Disable draggable on mobile', 'themify' ),
+				'options' => array(
+					'yes' => __( 'Yes', 'themify' ),
+					'no' => __( 'No', 'themify' )
+				)
+			),
+			array(
+				'id' => 'info_window_map',
+				'type' => 'textarea',
+				'value' => '',
+				'class' => 'fullwidth',
+				'label' => __('Info window', 'themify'),
+				'help' => __('Additional info that will be shown when clicking on map marker', 'themify')
 			)
-		),
-		// Styling
-		'styling' => array(
+		);
+		return $options;
+	}
+
+	public function get_styling() {
+		$styling = array(
 			// Animation
 			array(
 				'id' => 'separator_animation',
@@ -163,7 +191,9 @@ Themify_Builder_Model::register_module( 'TB_Map_Module',
 				'id' => 'background_color',
 				'type' => 'color',
 				'label' => __('Background Color', 'themify'),
-				'class' => 'small'
+				'class' => 'small',
+				'prop' => 'background-color',
+				'selector' => '.module-map',
 			),
 			// Padding
 			array(
@@ -176,34 +206,95 @@ Themify_Builder_Model::register_module( 'TB_Map_Module',
 				'meta' => array('html'=>'<h4>'.__('Padding', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'multi_padding',
+				'id' => 'multi_padding_top',
 				'type' => 'multi',
 				'label' => __('Padding', 'themify'),
 				'fields' => array(
 					array(
 						'id' => 'padding_top',
 						'type' => 'text',
-						'description' => __('top', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'padding-top',
+						'selector' => '.module-map',
 					),
+					array(
+						'id' => 'padding_top_unit',
+						'type' => 'select',
+						'description' => __('top', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_right',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_right',
 						'type' => 'text',
-						'description' => __('right', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'padding-right',
+						'selector' => '.module-map',
 					),
+					array(
+						'id' => 'padding_right_unit',
+						'type' => 'select',
+						'description' => __('right', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_bottom',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_bottom',
 						'type' => 'text',
-						'description' => __('bottom', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'padding-bottom',
+						'selector' => '.module-map',
 					),
+					array(
+						'id' => 'padding_bottom_unit',
+						'type' => 'select',
+						'description' => __('bottom', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_padding_left',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'padding_left',
 						'type' => 'text',
-						'description' => __('left (px)', 'themify'),
-						'class' => 'xsmall'
-					)
+						'class' => 'xsmall',
+						'prop' => 'padding-left',
+						'selector' => '.module-map',
+					),
+					array(
+						'id' => 'padding_left_unit',
+						'type' => 'select',
+						'description' => __('left', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
 				)
 			),
 			// Margin
@@ -217,34 +308,95 @@ Themify_Builder_Model::register_module( 'TB_Map_Module',
 				'meta' => array('html'=>'<h4>'.__('Margin', 'themify').'</h4>'),
 			),
 			array(
-				'id' => 'multi_margin',
+				'id' => 'multi_margin_top',
 				'type' => 'multi',
 				'label' => __('Margin', 'themify'),
 				'fields' => array(
 					array(
 						'id' => 'margin_top',
 						'type' => 'text',
-						'description' => __('top', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'margin-top',
+						'selector' => '.module-map',
 					),
+					array(
+						'id' => 'margin_top_unit',
+						'type' => 'select',
+						'description' => __('top', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_right',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_right',
 						'type' => 'text',
-						'description' => __('right', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'margin-right',
+						'selector' => '.module-map',
 					),
+					array(
+						'id' => 'margin_right_unit',
+						'type' => 'select',
+						'description' => __('right', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_bottom',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_bottom',
 						'type' => 'text',
-						'description' => __('bottom', 'themify'),
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'margin-bottom',
+						'selector' => '.module-map',
 					),
+					array(
+						'id' => 'margin_bottom_unit',
+						'type' => 'select',
+						'description' => __('bottom', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
+				)
+			),
+			array(
+				'id' => 'multi_margin_left',
+				'type' => 'multi',
+				'label' => '',
+				'fields' => array(
 					array(
 						'id' => 'margin_left',
 						'type' => 'text',
-						'description' => __('left (px)', 'themify'),
-						'class' => 'xsmall'
-					)
+						'class' => 'xsmall',
+						'prop' => 'margin-left',
+						'selector' => '.module-map',
+					),
+					array(
+						'id' => 'margin_left_unit',
+						'type' => 'select',
+						'description' => __('left', 'themify'),
+						'meta' => array(
+							array('value' => 'px', 'name' => __('px', 'themify')),
+							array('value' => '%', 'name' => __('%', 'themify'))
+						)
+					),
 				)
 			),
 			// Border
@@ -265,26 +417,26 @@ Themify_Builder_Model::register_module( 'TB_Map_Module',
 					array(
 						'id' => 'border_top_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-top-color',
+						'selector' => '.module-map',
 					),
 					array(
 						'id' => 'border_top_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'border-top-width',
+						'selector' => '.module-map',
 					),
 					array(
 						'id' => 'border_top_style',
 						'type' => 'select',
 						'description' => __('top', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
-					)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-top-style',
+						'selector' => '.module-map',
+					),
 				)
 			),
 			array(
@@ -295,25 +447,25 @@ Themify_Builder_Model::register_module( 'TB_Map_Module',
 					array(
 						'id' => 'border_right_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-right-color',
+						'selector' => '.module-map',
 					),
 					array(
 						'id' => 'border_right_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'border-right-width',
+						'selector' => '.module-map',
 					),
 					array(
 						'id' => 'border_right_style',
 						'type' => 'select',
 						'description' => __('right', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-right-style',
+						'selector' => '.module-map',
 					)
 				)
 			),
@@ -325,25 +477,25 @@ Themify_Builder_Model::register_module( 'TB_Map_Module',
 					array(
 						'id' => 'border_bottom_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-bottom-color',
+						'selector' => '.module-map',
 					),
 					array(
 						'id' => 'border_bottom_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'border-bottom-width',
+						'selector' => '.module-map',
 					),
 					array(
 						'id' => 'border_bottom_style',
 						'type' => 'select',
 						'description' => __('bottom', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-bottom-style',
+						'selector' => '.module-map',
 					)
 				)
 			),
@@ -355,25 +507,25 @@ Themify_Builder_Model::register_module( 'TB_Map_Module',
 					array(
 						'id' => 'border_left_color',
 						'type' => 'color',
-						'class' => 'small'
+						'class' => 'small',
+						'prop' => 'border-left-color',
+						'selector' => '.module-map',
 					),
 					array(
 						'id' => 'border_left_width',
 						'type' => 'text',
 						'description' => 'px',
-						'class' => 'xsmall'
+						'class' => 'xsmall',
+						'prop' => 'border-left-width',
+						'selector' => '.module-map',
 					),
 					array(
 						'id' => 'border_left_style',
 						'type' => 'select',
 						'description' => __('left', 'themify'),
-						'meta' => array(
-							array( 'value' => '', 'name' => '' ),
-							array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
-							array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
-							array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
-							array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
-						)
+						'meta' => Themify_Builder_model::get_border_styles(),
+						'prop' => 'border-left-style',
+						'selector' => '.module-map',
 					)
 				)
 			),
@@ -389,11 +541,12 @@ Themify_Builder_Model::register_module( 'TB_Map_Module',
 				'class' => 'large exclude-from-reset-field',
 				'description' => sprintf( '<br/><small>%s</small>', __('Add additional CSS class(es) for custom styling', 'themify') )
 			)
-		),
-		'styling_selector' => array(
-			'.module-map' => array(
-				'background_color', 'padding', 'margin', 'border_top', 'border_right', 'border_bottom', 'border_left'
-			)
-		)
-	) )
-);
+		);
+		return $styling;
+	}
+}
+
+///////////////////////////////////////
+// Module Options
+///////////////////////////////////////
+Themify_Builder_Model::register_module( 'TB_Map_Module' );

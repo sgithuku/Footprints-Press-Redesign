@@ -55,6 +55,14 @@ function themify_theme_page_meta_box( $args = array() ) {
 				array('value' => 'no',	'name' => __('No', 'themify'))
 			)
 		),
+		// Custom menu for page
+        array(
+            'name' 		=> 'custom_menu',
+            'title'		=> __( 'Custom Menu', 'themify' ),
+            'description'	=> '',
+            'type'		=> 'dropdown',
+            'meta'		=> themify_get_available_menus(),
+        ),
 		//
 		array(
 			'name' 		=> 'page_slider',

@@ -284,18 +284,18 @@ if(!function_exists('themify_product_image_ajax')){
 
 if(!function_exists('themify_product_image_single')){
 	/**
-	 * Filter image of product loaded in lightbox to remove link and wrap in figure.product-image. Implements filter themify_product_image_ajax for external usage
+	 * Filter image of product loaded in lightbox to remove link and wrap in figure.product-image. Implements filter themify_product_image_single for external usage
 	 * @param string $html Original markup
-	 * @param int $post_id Post ID
+	 * @param int $post_id Product ID
 	 * @return string Image markup without link
 	 */
-	function themify_product_image_single($html, $post_id) {
-		//$html = str_replace('</a>', '<span class="loading-product"></span></a>', $html);
-		//<figure class="product-image">%s</figure>
-		$pattern = '/(<img(.*)>)<\/a>/i';
-		$replacement = '<figure class="product-image">${1}<span class="loading-product"></span></figure></a>';
-		$html = preg_replace($pattern, $replacement, $html);
-		return $html;
+	function themify_product_image_single( $html, $post_id ) {
+		if ( isset( $_GET['post_in_lightbox'] ) && 1 == $_GET['post_in_lightbox'] ) {
+			$pattern = '/<a(.*?)href="(.*?)"(.*?)>/i';
+			$replacement = '<a$1href="' . esc_url( get_permalink( $post_id ) ) . '"$3>';
+			$html = preg_replace( $pattern, $replacement, $html );
+		}
+		return apply_filters( 'themify_product_image_single', $html );
 	};
 }
 
@@ -308,10 +308,17 @@ if(!function_exists('themify_loop_add_to_cart_link')) {
 	 * @return string Markup for link
 	 */
 	function themify_loop_add_to_cart_link( $format = '', $product = null ) {
-		global $themify;
 		$url = $product->add_to_cart_url();
-		if( ( 'variable' == $product->product_type || 'grouped' == $product->product_type )
-		&& !( $themify->detect->isMobile() && !$themify->detect->isTablet() ) ) {
+		if ( function_exists( 'themify_is_touch' ) ) {
+			$isPhone = themify_is_touch( 'phone' );
+		} else {
+			if ( ! class_exists( 'Themify_Mobile_Detect' ) ) {
+				require_once THEMIFY_DIR . '/class-themify-mobile-detect.php';
+			}
+			$detect = new Themify_Mobile_Detect;
+			$isPhone = $detect->isMobile() && !$detect->isTablet();
+		}
+		if( ( 'variable' == $product->product_type || 'grouped' == $product->product_type ) && !$isPhone ) {
 			$url = add_query_arg( array('post_in_lightbox' => '1'), $url );
 			$replacement = 'class="variable-link themify-lightbox '; // add space at the end
 			$format = preg_replace( '/(class=")/', $replacement, $format, 1 );

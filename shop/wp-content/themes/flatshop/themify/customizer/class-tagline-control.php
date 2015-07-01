@@ -42,7 +42,7 @@ class Themify_Tagline_Control extends Themify_Control {
 
 		<!-- Tagline Text Mode -->
 		<div class="tagline-mode-wrap tagline-text-mode">
-			<label><?php _e( 'Tagline', 'themify' ); ?><input type="text" class="site-description" value="<?php echo get_bloginfo('description'); ?>"/></label>
+			<label><?php _e( 'Tagline', 'themify' ); ?><input type="text" class="site-description" value="<?php echo esc_attr( get_bloginfo('description') ); ?>"/></label>
 		</div>
 
 		<div class="tagline-mode-wrap tagline-text-mode">
@@ -59,7 +59,7 @@ class Themify_Tagline_Control extends Themify_Control {
 			</div>
 		</div>
 
-		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo $this->type; ?>_control themify-customizer-value-field"/>
+		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
 		<?php
 	}
 }

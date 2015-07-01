@@ -13,6 +13,9 @@
 	border-radius: 5px;
 	-webkit-font-smoothing: antialiased;
 }
+#themify p {
+	font-size: 100%; /* override WP admin style */
+}
 .box_enabled_display,
 .show_if_disabled_img_php,
 .show_if_enabled_img_php{
@@ -21,7 +24,7 @@
 img {
 	border: none;
 }
-.hide {
+#themify .hide {
 	display: none;	
 }
 
@@ -34,9 +37,14 @@ img {
 	-o-transform: none;
 	-ms-transform: none;
 	transform: none;
+	box-shadow: none;
 }
 #themify a:hover {
 	color: #F60;
+}
+#themify a:focus {
+	outline: none;
+	box-shadow: none;
 }
 #themify p, #themify .uploader-fields,
 #themify .module,
@@ -60,7 +68,7 @@ img {
 	border-bottom: solid 1px #ddd;
 }
 #themify #content {
-	color: #777;
+	color: #666;
 	float: none !important;
 	border-radius: 5px 5px 0 0;
 }
@@ -95,7 +103,7 @@ img {
 #themify .ui-tabs .ui-tabs-nav li.ui-tabs-selected a, #themify .ui-tabs .ui-tabs-nav li.ui-state-disabled a, #themify .ui-tabs .ui-tabs-nav li.ui-state-processing a { cursor: text; }
 #themify .ui-tabs .ui-tabs-nav li a, #themify .ui-tabs.ui-tabs-collapsible #themify .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; } 
 /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
-#themify .ui-tabs .ui-tabs-panel { padding: inherit; display: block; border-width: 0; background: inherit; min-height: 600px; }
+#themify .ui-tabs .ui-tabs-panel { padding: inherit; display: block; border-width: 0; background: inherit; min-height: 600px; position: relative; }
 #themify .ui-tabs .ui-tabs-hide { display: none !important; }
 
 /* Remove box-shadow highlight added in WP 4.0 */
@@ -143,13 +151,13 @@ img {
 }
 #themify #maintabnav a {
 	display: block;
-	width: 75px;
-	font: 400 1.2em/1em 'Open Sans', sans-serif !important;
+	width: 60px;
+	font: 400 1.1em/1em 'Open Sans', sans-serif !important;
 	color: #d1cae2;
 	color: rgba(255,255,255,.7);
 	text-decoration: none;
 	text-align: center;
-	padding: 55px 35px;
+	padding: 55px 25px;
 
 }
 #themify #maintabnav a:hover {
@@ -189,7 +197,9 @@ img {
 #themify #maintabnav .demo-import a {
 	width: 115px;
 }
-
+#themify .demo-import-main {
+	vertical-align: inherit;
+}
 #themify #maintabnav .setting.ui-tabs-selected a {
 	background: #fff;
 	color: #000;
@@ -210,7 +220,9 @@ img {
 #themify #maintabnav .ui-tabs-active a:hover {
 	color: #000;
 	padding-top: 70px;
-	padding-bottom: 26px;
+	padding-bottom: 27px;
+	padding-left: 35px;
+	padding-right: 35px;
 }
 #themify #maintabnav .ui-tabs-selected a:before,
 #themify #maintabnav .ui-tabs-selected a:hover:before,
@@ -232,9 +244,12 @@ img {
 	list-style: none;
 	text-align: right;
 	position: absolute !important;
-	top: 180px;
+	top: 140px;
 	left: 0;
 	z-index: 1;
+}
+#themify .ui-tabs .subtabnav {
+	top: 0;
 }
 #themify .subtabnav li {
 	list-style: none;
@@ -439,9 +454,17 @@ img {
 	margin: 0;
 }
 #themify legend {
-	color: #333;
+	color: #000;
 	font: 300 1.73em/1.5em 'Open Sans', sans-serif;
-	margin: 0 0 .3em;
+	margin: 0 0 1em;
+	border-top: solid 2px #eee;
+	display: block;
+	width: 100%;
+	padding-top: .7em;
+}
+#themify .subtab fieldset:first-of-type legend {
+	border-top: none;
+	padding-top: 0;
 }
 #themify hr {
 	height: 1px;
@@ -469,21 +492,32 @@ img {
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
+#themify .label + input,
+#themify .label + textarea {
+	margin-top: -10px;
+}
 #themify input[type=radio] {
 	position: relative;
 	border: solid 1px #aaa;
-	width: 1.2em;
-	height: 1.2em;
+	width: 18px;
+	height: 18px;
 }
 #themify input[type=radio]:checked:before {
-	width: 8px;
-	height: 8px;
+	width: 10px;
+	height: 10px;
+	margin-top: 3px;
+	margin-left: 3px;
 }
 #themify input[type=checkbox] {
 	position: relative;
 	border: solid 1px #aaa;
-	width: 1.2em;
-	height: 1.2em;
+	width: 18px;
+	height: 18px;
+}
+input[type=checkbox]:checked:before {
+	font-size: 24px;
+	margin-top: -4px;
+	margin-left: -5px;
 }
 #themify input[type=text]:focus,
 #themify textarea:focus {
@@ -698,7 +732,7 @@ img {
 #themify .biggest-transfer-btn {
 	font: normal 1.33em/1em Montserrat, sans-serif;
 	color: #999;
-	paddingleft: 50px;
+	padding-left: 50px;
 	min-height: 80px;
 }
 #themify .biggest-transfer-btn em {
@@ -914,10 +948,9 @@ object {
 	
 .uploadifyProgress {
 	background-color: #FFFFFF;
-	border-top: 1px solid #808080;
-	border-left: 1px solid #808080;
-	border-right: 1px solid #C5C5C5;
-	border-bottom: 1px solid #C5C5C5;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #808080 #C5C5C5 #C5C5C5 #808080;
 	margin-top: 10px;
 	width: 100%;
 }
@@ -1008,6 +1041,10 @@ object {
 	margin-left: -15px;
 	margin-top: -5px;
 	position: relative;
+	z-index: 999;
+}
+.themify_field .themify_featimg_remove.hide {
+	display: none;
 }
 .themify_field .themify_featimg_remove a {
 	background: url('../img/icon-delete.png') 0 0 no-repeat;
@@ -1089,6 +1126,12 @@ object {
 	border: none !important;
 	box-shadow: none !important;
 	display: none;
+	line-height: 1.9;
+	font-size: 16px;
+}
+.themify_field-color .clearColor {
+	bottom: auto;
+	top: 8px;
 }
 .themify_field_row .clearColor:hover,
 .themify_field_row .clearColor:active,
@@ -1101,13 +1144,21 @@ object {
 
 /* notifications
 ---------------------------------------------------------------*/
-
+.update-check a:before {
+	content: "\e619";
+}
+.notifications a {
+	color: #bf3b06;
+	text-decoration: none;
+	font-weight: bold;
+	vertical-align: inherit;
+}
 .notifications p {
-	width: 765px;
+	display: inline-block;
 	margin: 15px 0 0 5px;
 	padding: 10px;
 	border-radius: 4px;
-}	
+}
 .notifications p.update {
 	background: #f9f2c6;
 	border: 1px solid #f2de5b;
@@ -1119,6 +1170,27 @@ object {
 .notifications p.success {
 	background:	#d3ebb5;
 	border: 1px solid #bacda2;
+}
+.themify-info-link .notifications p.update {
+	background: none;
+	border: none;
+	padding: 0;
+}
+#themify .themify-info-link .notifications p {
+	margin-bottom: 0;
+}
+/* Update tab
+---------------------------------------------------------------*/
+#themify .update-main .update {
+	margin-top: 30px;
+}
+#themify .update-main .update .big-button {
+	margin-top: 15px;
+	margin-right: 5px;
+}
+#themify .update-main a {
+	vertical-align: baseline;
+	color: #bf3b06;
 }
 
 /* custom write panel layout options
@@ -1156,6 +1228,7 @@ a.preview-icon {
 	text-decoration: none;
 	display: inline-block;
 	margin-top: -5px;
+	box-shadow: none;
 }
 
 .preview-icon.selected {
@@ -1171,6 +1244,25 @@ a.preview-icon {
 }
 
 .selectit { margin-right: 5px; }
+
+.hide-if {
+	opacity: 1;
+	visibility: visible;
+	max-height: 140px;
+	-webkit-transition: all .2s ease-in-out;
+	transition: all .2s ease-in-out;
+}
+.hide-if.conceal {
+	opacity: 0;
+	visibility: hidden;
+}
+.hide-if.collapse {
+	max-height: 0;
+	margin: 0 !important;
+	padding: 0 !important;
+	overflow: hidden;
+}
+
 
 /* prompt box
 ---------------------------------------------------------------*/
@@ -1228,14 +1320,28 @@ p.prompt-msg {
 	z-index: 99;
 	position: absolute;
 }
+/* Changelog */
+.show-changelog {
+	background: #fff;
+	padding: 15px;
+	width: 60%;
+	left: 40%;
+	height: 70%;
+	top: 25%;
+}
+.show-changelog iframe {
+	width: 100%;
+	max-width: 100%;
+	height: 100%;
+}
 
 /* info link
 ---------------------------------------------------------------*/
 .themify-info-link {
 	font-size: 13px;
 	line-height: 22px;
-	background-color: #fff9b6;
-	color: #5b514d;
+	background-color: #f4f4f4;
+	color: #555;
 	margin: 0 0 20px;
 	padding: 1em 1em 1em 3.2em;
 	border-radius: 3px;
@@ -1255,7 +1361,7 @@ p.prompt-msg {
 	display: inline-block;
 	vertical-align: middle;
 	margin: 0;
-	padding; 0;
+	padding: 0;
 	font-size: 1.38em;
 }
 .themify-info-link a,
@@ -1461,6 +1567,7 @@ p.prompt-msg {
 	padding: 5px 10px;
 	display: block;
 	outline: none;
+	box-shadow: none;
 }
 .themify-tabs-heading .select,
 .themify-tabs-heading .select:hover {
@@ -1527,7 +1634,7 @@ p.prompt-msg {
 	margin-bottom: 4px;
 }
 .filelist .fileprogress {
-	width: 0%;
+	width: 0;
 	background: #B7C53D;
 	height: 5px;
 }
@@ -1684,6 +1791,11 @@ form#themify .remove-item i {
 }
 
 /* Dropdown button */
+.themify_field_row.dropdownbutton-group {
+	display: inline-block;
+	width: 100%;
+	margin: 0 0 0.8em;
+}
 .dropdownbutton-list{
 	float: left;
 	position: relative;
@@ -1775,6 +1887,7 @@ form#themify .remove-item i {
 	zoom: 1;
 	vertical-align: middle;
 	outline: none;
+	box-shadow: none;
 }
 .themify-admin-lightbox .close_lightbox:hover {
 	-webkit-transform: rotate(90deg) scale(.9);
@@ -1885,10 +1998,20 @@ form#themify .remove-item i {
 	-ms-transform: scale(1.8);
 	transform: scale(1.8);
 }
+#themify_lightbox_fa h2 {
+	clear: both;
+	text-align: center;
+	padding: 20px 0 0;
+}
 
-/**
- * Themify Date Picker
- ***************************/
+ /* Query Pages
+---------------------------------------------------------------*/
+.query-field-hide {
+	display: none;
+}
+
+ /* Themify Date Picker
+---------------------------------------------------------------*/
 input.themifyDatePicker {
 	margin-right: 5px;
 	color: #333;
@@ -2042,6 +2165,7 @@ input.themifyDatePicker {
 	color: #d1cae2;
 	color: rgba(255,255,255,.7);
 	outline: none;
+	box-shadow: none;
 }
 #visibility-tabs > .ui-tabs-nav > li.ui-tabs-active {
 	background: #fff;
@@ -2064,6 +2188,7 @@ input.themifyDatePicker {
 	color: #666;
 	border-bottom: 1px solid transparent;
 	outline: none;
+	box-shadow: none;
 }
 .themify-visibility-inner-tabs .inline-tabs li:last-child a {
 	border-right: none;
@@ -2101,8 +2226,11 @@ input.themifyDatePicker {
 	margin-bottom: 5px;
 }
 #themify_lightbox_visibility .themify-visibility-options {
-	max-height: 400px;
-	overflow: hidden;
+	overflow: auto;
+}
+#visibility-tab-post-types,
+#visibility-tab-taxonomies {
+	overflow: hidden !important;
 }
 
 i.mce-ico.mce-i-themify {
@@ -2111,7 +2239,7 @@ i.mce-ico.mce-i-themify {
 
 #demo-import-notice {
 	position: fixed;
-	top: 50%%;
+	top: 50%;
 	left: 50%;
 	width: 550px;
 	margin: -155px 0 0 -300px;
@@ -2147,7 +2275,8 @@ i.mce-ico.mce-i-themify {
 	color: #ea533b;
 }
 #themify .button.erase-sample-content,
-#themify .button.import-sample-content {
+#themify .button.import-sample-content,
+#themify .button.big-button {
 	border: none;
 	font-size: 20px;
 	padding: 14px 25px;
@@ -2173,8 +2302,8 @@ i.mce-ico.mce-i-themify {
 	cursor: default;
 }
 
-#themify .ui-tabs .button.import-sample-content i,
-#themify .ui-tabs .button.erase-sample-content i {
+#themify .button.import-sample-content i,
+#themify .button.erase-sample-content i {
 	display: inline-block;
 	font-size: .9em;
 	vertical-align: middle;
@@ -2337,7 +2466,7 @@ form#themify .remove-item,
 		padding-bottom: 2em;
 	}
 }
-@media only screen and (max-width: 960px) {
+@media only screen and (max-width: 1000px) {
 	#themify {
 		font-size: 14px;
 	}
@@ -2360,6 +2489,7 @@ form#themify .remove-item,
 	}
 	#themify #maintabnav {
 		height: 100px;
+		padding-left: 5px;
 	}
 	
 	#themify #maintabnav a {
@@ -2448,7 +2578,7 @@ form#themify .remove-item,
 	}
 }
 
-@media only screen and (max-width: 640px) {
+@media only screen and (max-width: 800px) {
 	
 	#themify select {
 		max-width: 150px;

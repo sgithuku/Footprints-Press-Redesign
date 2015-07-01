@@ -7,6 +7,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * @author Themify
  */
 
+// Load styles and scripts registered in Themify_Builder::register_frontend_js_css()
+$GLOBALS['ThemifyBuilder']->load_templates_js_css();
+
 $fields_default = array(
 	'mod_title_image' => '',
 	'style_image' => '',
@@ -18,6 +21,7 @@ $fields_default = array(
 	'title_image' => '',
 	'link_image' => '',
 	'param_image' => array(),
+	'alt_image' => '',
 	'caption_image' => '',
 	'css_image' => '',
 	'animation_effect' => ''
@@ -34,16 +38,15 @@ extract( $fields_args, EXTR_SKIP );
 $animation_effect = $this->parse_animation_effect( $animation_effect );
 
 $container_class = implode(' ', 
-	apply_filters('themify_builder_module_classes', array(
+	apply_filters( 'themify_builder_module_classes', array(
 		'module', 'module-' . $mod_name, $module_ID, $appearance_image, $style_image, $css_image, $animation_effect
-	) )
+	), $mod_name, $module_ID, $fields_args )
 );
 $lightbox = in_array( 'lightbox', $param_image ) ? true : false;
 $zoom = in_array( 'zoom', $param_image ) ? true : false;
 $newtab = in_array( 'newtab', $param_image ) ? true : false;
-$link_attr = $lightbox ? 'class="lightbox-builder lightbox"' : '';
-$link_attr .= $newtab ? ' target="_blank"' : '';
-$image_alt = $caption_image ? wp_strip_all_tags( $caption_image ) : esc_attr( $title_image );
+$image_alt = '' != $alt_image ? esc_attr( $alt_image ) : wp_strip_all_tags( $caption_image );
+$image_alt = '' != $image_alt ? $image_alt : esc_attr( $title_image );
 
 $param_image_src = 'src='.esc_url($url_image).'&w='.$width_image .'&h='.$height_image.'&alt='.$image_alt.'&ignore=true';
 if ( $this->is_img_php_disabled() ) {
@@ -56,7 +59,7 @@ if ( $this->is_img_php_disabled() ) {
 		$width_image = $width_image != '' ? $width_image : get_option($preset.'_size_w');
 		$height_image = $height_image != '' ? $height_image : get_option($preset.'_size_h');
 	}
-	$image = '<img src="'.esc_url($url_image).'" alt="'.$image_alt.'" width="'.$width_image.'" height="'.$height_image.'">';
+	$image = '<img src="' . esc_url( $url_image ) . '" alt="' . esc_attr( $image_alt ) . '" width="' . esc_attr( $width_image ) . '" height="' . esc_attr( $height_image ) . '">';
 } else {
 	$image = themify_get_image($param_image_src);
 }
@@ -71,48 +74,54 @@ if ( ! empty( $link_image ) ) {
 
 ?>
 <!-- module image -->
-<div id="<?php echo $module_ID; ?>" class="<?php echo esc_attr( $container_class ); ?>">
+<div id="<?php echo esc_attr( $module_ID ); ?>" class="<?php echo esc_attr( $container_class ); ?>">
 	
 	<?php if ( $mod_title_image != '' ): ?>
-	<h3 class="module-title"><?php echo $mod_title_image; ?></h3>
+	<h3 class="module-title"><?php echo wp_kses_post( $mod_title_image ); ?></h3>
 	<?php endif; ?>
 
 	<?php do_action( 'themify_builder_before_template_content_render' ); ?>
 
 	<div class="image-wrap">
 		<?php if ( ! empty( $link_image ) ): ?>
-		<a href="<?php echo esc_url( $link_image ); ?>" <?php echo $link_attr; ?>>
+		<a href="<?php echo esc_url( $link_image ); ?>" <?php if ( $lightbox ) : echo 'class="lightbox-builder lightbox"'; endif; ?> <?php if ( $newtab ) : echo 'target="_blank"'; endif; ?>>
 			<?php if ( $zoom ): ?>
 			<span class="zoom fa fa-search"></span>
 			<?php endif; ?>
-			<?php echo $image; ?>
+			<?php echo wp_kses_post( $image ); ?>
 		</a>
 		<?php else: ?>
-			<?php echo $image; ?>
+			<?php echo wp_kses_post( $image ); ?>
 		<?php endif; ?>
 	
 	<?php if( 'image-overlay' != $style_image ): ?>
 	</div>
 	<!-- /image-wrap -->
 	<?php endif; ?>
-
+	
+	<?php if ( ! empty( $title_image ) || ! empty( $caption_image ) ): ?>
 	<div class="image-content">
+		<?php if ( ! empty( $title_image ) ): ?>
 		<h3 class="image-title">
 			<?php if ( ! empty( $link_image ) ): ?>
-			<a href="<?php echo esc_url( $link_image ); ?>" <?php echo $link_attr; ?>>
-				<?php echo $title_image; ?>
+			<a href="<?php echo esc_url( $link_image ); ?>" <?php if ( $lightbox ) : echo 'class="lightbox-builder lightbox"'; endif; ?> <?php if ( $newtab ) : echo 'target="_blank"'; endif; ?>>
+				<?php echo wp_kses_post( $title_image ); ?>
 			</a>
 			<?php else: ?>
-			<?php echo $title_image; ?>
+				<?php echo wp_kses_post( $title_image ); ?>
 			<?php endif; ?>
 		</h3>
-
+		<?php endif; ?>
+		
+		<?php if ( ! empty( $caption_image ) ): ?>
 		<div class="image-caption">
 			<?php echo apply_filters( 'themify_builder_module_content', $caption_image ); ?>
 		</div>
 		<!-- /image-caption -->
+		<?php endif; ?>
 	</div>
 	<!-- /image-content -->
+	<?php endif; ?>
 
 	<?php if( 'image-overlay' == $style_image ): ?>
 	</div>

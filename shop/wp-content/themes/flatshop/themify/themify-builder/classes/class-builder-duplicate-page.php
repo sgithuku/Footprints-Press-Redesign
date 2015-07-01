@@ -9,7 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * @author Themify
  */
 
-
 /**
  * Duplicate Page/Post Class
  * @package default
@@ -201,13 +200,10 @@ class ThemifyBuilderDuplicatePage {
 		} else {
 			global $wpdb;
 			$user_login = $_COOKIE[USER_COOKIE];
-			$sql = $wpdb->prepare("SELECT * FROM $wpdb->users WHERE user_login='$user_login'");
-			$current_user = $wpdb->get_results($sql);
+			$current_user = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->users WHERE user_login = '%s'", $user_login ) );
 			return $current_user;
 		}
 	}
 }
 
 $GLOBALS['themifyBuilderDuplicate'] = new ThemifyBuilderDuplicatePage();
-
-?>

@@ -30,7 +30,7 @@ class Themify_Clear_Control extends WP_Customize_Control {
 			</a>
 		</span>
 
-		<input <?php $this->link(); ?> value="" type="hidden" class="<?php echo $this->type; ?>_control"/>
+		<input <?php $this->link(); ?> value="" type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control"/>
 		<?php
 	}
 }

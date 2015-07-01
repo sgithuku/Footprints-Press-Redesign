@@ -36,8 +36,8 @@ class Themify_Image_Select_Control extends Themify_Control {
 			<?php
 			if ( isset( $this->image_options ) ) {
 				foreach ( $this->image_options as $option => $image ) {
-					echo '<a href="#" data-option="' . $option . '" class="image-select ' . $this->selected( $option, $current ) . '">';
-						echo '<img src="' . $image . '" />';
+					echo '<a href="#" data-option="' . esc_attr( $option ) . '" class="image-select ' . $this->selected( $option, $current ) . '">';
+						echo '<img src="' . esc_url( $image ) . '" />';
 					echo '</a>';
 				}
 			}
@@ -45,7 +45,7 @@ class Themify_Image_Select_Control extends Themify_Control {
 
 		</div>
 
-		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo $this->type; ?>_control themify-customizer-value-field"/>
+		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
 		<?php
 	}
 

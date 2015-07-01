@@ -3,15 +3,31 @@ var Themibox = {};
 (function($) {
 
 Themibox = {
+
+	topOffset: '50%',
+
 	init: function(config) {
 		// private
 		this.isFrameLoading = false;
 		this.lightboxOpen = false;
 
+		if ( $('body').hasClass( 'iphone' ) ) {
+			window.addEventListener( 'orientationchange', this.doOnOrientationChange );
+		}
+
 		// public
 		this.config = config;
 		this.bindEvents();
 		this.setupLightbox();
+	},
+
+	doOnOrientationChange: function() {
+		if ( $('body').hasClass( 'post-lightbox' ) ) {
+			window.setTimeout(function(){
+				Themibox.topOffset = $(window).scrollTop();
+				$("#post-lightbox-wrap").animate({ top: Themibox.topOffset }, 400 );
+			}, 400);
+		}
 	},
 
 	bindEvents: function() {
@@ -27,9 +43,7 @@ Themibox = {
 		$(document).keyup(this.keyUp);
 
 		// Set up overlay
-		jQuery('<div/>', {id: 'pattern', class: 'overlay'})
-			.appendTo('body')
-			.on('click', this.closeLightBox);
+		jQuery('<div/>', {id: 'pattern', class: 'overlay'}).appendTo('body').on('click', this.closeLightBox);
 
 	},
 
@@ -52,11 +66,15 @@ Themibox = {
 		$('<div class="post-lightbox-iframe"/>').load(url + ' #pagewrap', function(){
 			$('#loader').remove();
 
+			if ( $('body').hasClass( 'iphone' ) ) {
+				Themibox.topOffset = $(window).scrollTop() + 10;
+			}
+
 			$("#post-lightbox-wrap")
 				.show()
 				.css('top', Themibox.getDocHeight())
 				.animate({
-					top: '50%'
+					top: Themibox.topOffset
 				}, 800 );
 
 			$('.lightbox-direction-nav').show();

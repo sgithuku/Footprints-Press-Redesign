@@ -1,5 +1,5 @@
 <form id="tfb_save_layout_form">
-	<input type="hidden" name="postid" value="<?php echo $postid; ?>">
+	<input type="hidden" name="postid" value="<?php echo esc_attr( $postid ); ?>">
 	<div class="lightbox_inner">
 		<?php Themify_Builder_Form::render( $fields ); ?>
 	</div>

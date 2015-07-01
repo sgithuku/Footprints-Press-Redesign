@@ -8,6 +8,27 @@
 function themify_theme_product_meta_box( $args = array() ) {
 	extract( $args );
 	return array(
+		// Content Width
+		array(
+			'name'=> 'content_width',
+			'title' => __('Content Width', 'themify'),
+			'description' => '',
+			'type' => 'layout',
+			'show_title' => true,
+			'meta' => array(
+				array(
+					'value' => 'default_width',
+					'img' => 'themify/img/default.png',
+					'selected' => true,
+					'title' => __( 'Default', 'themify' )
+				),
+				array(
+					'value' => 'full_width',
+					'img' => 'themify/img/fullwidth.png',
+					'title' => __( 'Fullwidth', 'themify' )
+				)
+			)
+		),
 		// Product Image Position
 		array(
 			'name' 			=> 'product_image_layout',
@@ -733,6 +754,31 @@ function themify_product_fullcover( $post_id = 0 ) {
 	if ( 0 == $post_id ) $post_id =  get_the_ID();
 	$fullcover = get_post_meta( $post_id, 'background_repeat', true );
 	return '' == $fullcover || 'default' == $fullcover? 'fullcover' : $fullcover;
+}
+
+/**
+ * Markup for module to disable masonry in shop
+ * @param array $data
+ * @return string
+ */
+function themify_shop_disable_masonry_module( $data = array() ) {
+	/**
+	 * Variable key in theme settings
+	 * @var string
+	 */
+	$key = 'setting-shop_masonry_disabled';
+
+	/**
+	 * Module markup
+	 * @var string
+	 */
+	$html = sprintf('<p><label for="%1$s"><input type="checkbox" id="%1$s" name="%1$s" %2$s /> %3$s</label></p>',
+		$key,
+		checked( themify_get( $key ), 'on', false ),
+		__( 'Disable masonry layout in product archive grid view.', 'themify' )
+	);
+
+	return $html;
 }
 
 // Load required files

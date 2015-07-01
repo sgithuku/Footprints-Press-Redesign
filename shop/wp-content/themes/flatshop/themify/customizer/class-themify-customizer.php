@@ -23,12 +23,38 @@ class Themify_Customizer {
 	var $styles = array();
 
 	/**
+	 * Customizer mode, initially unset, later set to 'basic' or 'advanced'.
+	 * @var string
+	 */
+	var $mode;
+
+	/**
+	 * Accordion identified
+	 * @var string
+	 */
+	var $current_accordion_slug = 0;
+
+	/**
 	 * Initialize class
 	 */
 	function __construct() {
 
 		define( 'THEMIFY_CUSTOMIZER_URI', THEMIFY_URI . '/customizer' );
 		define( 'THEMIFY_CUSTOMIZER_DIR', THEMIFY_DIR . '/customizer' );
+
+		if ( $this->is_advanced_mode() ) {
+			if ( is_file( THEME_DIR . '/customizer-config.php' ) ) {
+				require_once THEME_DIR . '/customizer-config.php';
+			}
+		} else {
+			if ( is_file( THEME_DIR . '/customizer-basic-config.php' ) ) {
+				require_once THEME_DIR . '/customizer-basic-config.php';
+			} elseif ( is_file( THEME_DIR . '/customizer-config.php' ) ) {
+				// This is for backwards compatibility in case user upgrades framework but not theme
+				// in which case the customizer-basic-config.php won't be there yet.
+				require_once THEME_DIR . '/customizer-config.php';
+			}
+		}
 
 		// Build list of settings for live preview and CSS generation
 		add_action( 'customize_register', array( $this, 'build_settings_and_styles' ), 12 );
@@ -103,13 +129,7 @@ class Themify_Customizer {
 	 * @return array
 	 */
 	function accordion_end( $label = '', $section = 'themify_options' ) {
-		return array(
-			'control' => array(
-				'type'    => 'Themify_Sub_Accordion_End',
-				'label'   => $label,
-				'section' => $section,
-			),
-		);
+		return array();
 	}
 
 	/**
@@ -122,6 +142,9 @@ class Themify_Customizer {
 		// Minicolors CSS
 		wp_enqueue_style( 'themify-colorpicker', THEMIFY_URI . '/css/jquery.minicolors.css', array(), THEMIFY_VERSION );
 
+		// Enqueue media scripts
+		wp_enqueue_media();
+
 		// Controls CSS
 		wp_enqueue_style( 'themify-customize-control',	THEMIFY_CUSTOMIZER_URI . '/css/themify.customize-control.css', array(), THEMIFY_VERSION );
 
@@ -133,7 +156,9 @@ class Themify_Customizer {
 		$controls = array(
 			'nonce' 		=> wp_create_nonce( 'ajax-nonce' ),
 			'clearMessage'  => __( 'This will reset all styling and customization. Do you want to proceed?', 'themify' ),
+			'confirm_on_unload' => __('You have unsaved data.', 'themify'),
 		);
+
 		// Pass JS variables to controls
 		wp_localize_script( 'themify-customize-control', 'themifyCustomizerControls', $controls );
 	}
@@ -153,49 +178,66 @@ class Themify_Customizer {
 			if ( ! isset( $params['selector'] ) ) {
 				continue;
 			}
-			if ( false !== stripos( $key, '_font' ) ) {
+			if ( $this->endsWith( $key, '_font' ) ) {
 				$controls['fontControls'][$key] = $params['selector'];
 			}
-			if ( false !== stripos( $key, '_background' ) ) {
+			elseif ( $this->endsWith( $key, '_background' ) ) {
 				$controls['backgroundControls'][$key] = $params['selector'];
 			}
-			if ( false !== stripos( $key, '-logo_' ) ) {
-				$controls['logoControls'][$key] = $params['selector'];
-			}
-			if ( false !== stripos( $key, '-tagline' ) ) {
-				$controls['taglineControls'][$key] = $params['selector'];
-			}
-			if ( false !== stripos( $key, '_border' ) ) {
-				$controls['borderControls'][$key] = $params['selector'];
-			}
-			if ( false !== stripos( $key, '_margin' ) ) {
-				$controls['marginControls'][$key] = $params['selector'];
-			}
-			if ( false !== stripos( $key, '_padding' ) ) {
-				$controls['paddingControls'][$key] = $params['selector'];
-			}
-			if ( false !== stripos( $key, '_width' ) ) {
-				$controls['widthControls'][$key] = $params['selector'];
-			}
-			if ( false !== stripos( $key, '_height' ) ) {
-				$controls['heightControls'][$key] = $params['selector'];
-			}
-			if ( false !== stripos( $key, '_position' ) ) {
+			elseif ( $this->endsWith( $key, '_position' ) ) {
 				$controls['positionControls'][$key] = $params['selector'];
 			}
-			if ( false !== stripos( $key, '_color' ) ) {
+			elseif ( false !== stripos( $key, '-logo_' ) ) {
+				$controls['logoControls'][$key] = $params['selector'];
+			}
+			elseif ( $this->endsWith( $key, '-tagline' ) ) {
+				$controls['taglineControls'][$key] = $params['selector'];
+			}
+			elseif ( $this->endsWith( $key, '_border' ) ) {
+				$controls['borderControls'][$key] = $params['selector'];
+			}
+			elseif ( $this->endsWith( $key, '_margin' ) ) {
+				$controls['marginControls'][$key] = $params['selector'];
+			}
+			elseif ( $this->endsWith( $key, '_padding' ) ) {
+				$controls['paddingControls'][$key] = $params['selector'];
+			}
+			elseif ( $this->endsWith( $key, '_width' ) ) {
+				$controls['widthControls'][$key] = $params['selector'];
+			}
+			elseif ( $this->endsWith( $key, '_height' ) ) {
+				$controls['heightControls'][$key] = $params['selector'];
+			}
+			elseif ( $this->endsWith( $key, '_color' ) ) {
 				$controls['colorControls'][$key] = $params['selector'];
 			}
-			if ( false !== stripos( $key, 'customcss' ) ) {
+			elseif ( $this->endsWith( $key, 'customcss' ) ) {
 				$controls['customcssControls'][$key] = $params['selector'];
 			}
-			if ( false !== stripos( $key, '_imageselect' ) ) {
+			elseif ( $this->endsWith( $key, '_imageselect' ) ) {
 				$controls['imageselectControls'][$key] = $params['selector'];
 			}
 		}
 
 		// Pass JS variables to live preview scripts
 		wp_localize_script( 'themify-customize-preview', 'themifyCustomizer', $controls );
+	}
+
+	/**
+	 * Checks if the string ends with a certain substring.
+	 * 
+	 * @since 2.1.9
+	 * 
+	 * @param string $haystack Main string to search in.
+	 * @param string $needle Substring that must be found at the end of main string.
+	 * 
+	 * @return bool Whether the substring is found at the end of the main string.
+	 */
+	function endsWith( $haystack, $needle ) {
+		$needle_length = strlen( $needle );
+		$offset = strlen( $haystack ) - $needle_length;
+		$length = $needle_length;
+		return @substr_compare( $haystack, $needle, $offset, $length ) === 0;
 	}
 
 	/**
@@ -240,6 +282,28 @@ class Themify_Customizer {
 	}
 
 	/**
+	 * Checks if the user enabled advanced or basic mode.
+	 * Saves option to database to fetch when customizer mode is not indicated by $_GET var.
+	 *
+	 * @since 2.0.6
+	 *
+	 * @return bool
+	 */
+	function is_advanced_mode() {
+		if ( !isset( $this->mode ) ) {
+			$key = 'themify_customizer';
+			// Check that var set is only 'advanced' or 'basic' since it will be saved to db
+			if ( isset( $_GET[$key] ) && ( 'advanced' == $_GET[$key] || 'basic' == $_GET[$key] ) ) {
+				update_option( $key, $_GET[$key] );
+				$this->mode = ( 'advanced' == $_GET[$key] ) ? 'advanced' : 'basic';
+			} else {
+				$this->mode = ( 'advanced' == get_option( $key, 'basic' ) ) ? 'advanced' : 'basic';
+			}
+		}
+		return 'advanced' == $this->mode;
+	}
+
+	/**
 	 * Converts encoding for HTML entities not catched by html_entity_decode.
 	 * @param array $matches
 	 * @return string
@@ -277,12 +341,41 @@ class Themify_Customizer {
 			require_once THEMIFY_CUSTOMIZER_DIR . "/class-$control.php";
 		}
 
-		$wp_customize->add_section( 'themify_options',
-			array(
-			     'title' => __( 'Themify Options', 'themify' ),
-			)
-		);
+		/**
+		 * Fires before the main Themify Options section has been added.
+		 * 
+		 * @param object $wp_customize
+		 */
+		do_action( 'themify_customizer_before_add_section', $wp_customize );
+
+		$wp_customize->add_section( 'themify_options', array(
+			'title'       => __( 'Themify Options', 'themify' ),
+			'description' => sprintf( '
+				<span class="themify-customizer-switcher">
+					<a %s class="themify-customizer-switch basic %s"><strong>%s</strong>%s</a><a %s class="themify-customizer-switch advanced %s"><strong>%s</strong>%s</a>
+ 				</span>',
+
+				$this->is_advanced_mode() ? 'href="' . esc_url( admin_url( 'customize.php?themify_customizer=basic' ) ) . '"' : '',
+				$this->is_advanced_mode() ? 'switchto' : 'selected',
+				__( 'Basic', 'themify' ),
+				__( 'Less Options', 'themify' ),
+
+				$this->is_advanced_mode() ? '' : 'href="' . esc_url( admin_url( 'customize.php?themify_customizer=advanced' ) ) . '"',
+				$this->is_advanced_mode() ? 'selected' : 'switchto',
+				__( 'Advanced', 'themify' ),
+				__( 'More Options', 'themify' )
+			),
+		));
+		
+		/**
+		 * Fires after the main Themify Options section has been added.
+		 * 
+		 * @param object $wp_customize
+		 */
+		do_action( 'themify_customizer_after_add_section', $wp_customize );
+
 		$priority = 10;
+
 		foreach ( $this->settings as $setting_id => $field ) {
 
 			$setting = isset( $field['setting'] ) ? $field['setting'] : array( 'default' => '' );
@@ -293,14 +386,20 @@ class Themify_Customizer {
 					'type'       => isset( $setting['type'] ) ? $setting['type'] : 'theme_mod',
 					'capability' => isset( $setting['capability'] ) ? $setting['capability'] : 'edit_theme_options',
 					'transport'  => isset( $setting['transport'] ) ? $setting['transport'] : 'postMessage',
+					'sanitize_callback' => isset( $setting['sanitize'] ) ? $setting['sanitize'] : false,
 				)
 			);
 
 			if ( isset( $field['control'] ) ) {
+				if ( 'Themify_Sub_Accordion_Start' == $field['control']['type'] ) {
+					$this->set_accordion_id();
+				}
+
 				$control = $field['control'];
 				$class = $control['type'];
 				if ( class_exists( $class ) ) {
-					$wp_customize->add_control( new $class(
+					$wp_customize->add_control( new $class
+					(
 						$wp_customize,
 						$setting_id . '_ctrl',
 						array(
@@ -308,14 +407,17 @@ class Themify_Customizer {
 							'show_label' => isset( $control['show_label'] ) ? $control['show_label'] : true,
 							'color_label' => isset( $control['color_label'] ) ? $control['color_label'] : __( 'Color', 'themify' ),
 							'image_options' => isset( $control['image_options'] ) ? $control['image_options'] : array(),
+							'font_options' => isset( $control['font_options'] ) ? $control['font_options'] : array(),
 							'section'  => isset( $control['section'] ) ? $control['section'] : 'themify_options',
 							'settings' => isset( $control['settings'] ) ? $control['settings'] : $setting_id,
 							'priority' => $priority,
+							'accordion_id' => $this->get_accordion_id(),
 						)
 					));
 				} elseif ( 'nav_menu' == $class ) {
 					$this->add_nav_menu_control( $wp_customize, $control['location'], array(
-						'priority' => $priority
+						'priority' => $priority,
+						'accordion_id' => $this->get_accordion_id(),
 					) );
 				} else {
 					$options = array(
@@ -323,10 +425,12 @@ class Themify_Customizer {
 						'show_label' => isset( $control['show_label'] ) ? $control['show_label'] : true,
 						'color_label' => isset( $control['color_label'] ) ? $control['color_label'] : __( 'Color', 'themify' ),
 						'image_options' => isset( $control['image_options'] ) ? $control['image_options'] : array(),
+						'font_options' => isset( $control['font_options'] ) ? $control['font_options'] : array(),
 						'section'  => isset( $control['section'] ) ? $control['section'] : 'themify_options',
 						'settings' => isset( $control['settings'] ) ? $control['settings'] : $setting_id,
 						'priority' => $priority,
 						'type'     => $class,
+						'accordion_id' => $this->get_accordion_id(),
 					);
 					if ( 'select' == $class ) {
 						$options['choices'] = $control['choices'];
@@ -351,6 +455,24 @@ class Themify_Customizer {
 
 		// Remove control for Posts Page in Static Front Page section
 		$wp_customize->remove_control( 'page_for_posts' );
+	}
+
+	/**
+	 * Sets the current accordion being rendered. Used to identify controls that are nested inside it.
+	 *
+	 * @return number
+	 */
+	function set_accordion_id() {
+		$this->current_accordion_slug++;
+	}
+
+	/**
+	 * Returns the current accordion being rendered. Set initially when accordion_start() is called.
+	 *
+	 * @return number
+	 */
+	function get_accordion_id() {
+		return $this->current_accordion_slug;
 	}
 
 	/**
@@ -397,6 +519,9 @@ class Themify_Customizer {
 	 * @uses filter 'themify_theme_styling' over output.
 	 */
 	function generate_css() {
+		global $wp_customize;
+		$is_customize = isset( $wp_customize );
+
 		// Styles are saved by selector to later output them all at once
 		$css = array();
 		$custom_css = '';
@@ -405,7 +530,7 @@ class Themify_Customizer {
 			if ( ! isset( $css[$selector] ) ) {
 				$css[$selector] = '';
 			}
-			if ( 'customcss' == $selector ) {
+			if ( 'customcss' == $selector && ! $is_customize ) {
 				$custom_css = $this->custom_css();
 				continue;
 			}
@@ -467,7 +592,7 @@ class Themify_Customizer {
 	 * @return string
 	 */
 	function build_image_size_rule( $mod_name ) {
-		$element = json_decode( get_theme_mod( $mod_name ) );
+		$element = json_decode( $this->get_cached_mod( $mod_name ) );
 		$element_props = '';
 		if ( ! empty( $element->imgwidth ) ) {
 			$element_props .= "\twidth: {$element->imgwidth}px;";
@@ -485,7 +610,7 @@ class Themify_Customizer {
 	 * @return string
 	 */
 	function build_color_rule( $mod_name ) {
-		$element = json_decode( get_theme_mod( $mod_name ) );
+		$element = json_decode( $this->get_cached_mod( $mod_name ) );
 		$element_props = '';
 		if ( ! empty( $element->imgwidth ) ) {
 			$element_props .= "\twidth: {$element->imgwidth}px;";
@@ -504,14 +629,20 @@ class Themify_Customizer {
 	 * @return string
 	 */
 	function custom_css() {
-		$mod = get_theme_mod( 'customcss' );
+		$mod = $this->get_cached_mod( 'customcss' );
 
 		// Remove JSON stuff
 		$mod = str_replace( '{"css":"', '', $mod );
 		$mod = str_replace( '"}', '', $mod );
 
+		// If it was escaped as a single quote, undo it as an unescaped double quote
+		$mod = preg_replace( '/\\\'/', '"', $mod );
+
 		// Escape backslashes, single and double quotes
 		$mod = addslashes( $mod );
+
+		// Remove double backslashes inside strings, cases like \e456
+		$mod = preg_replace( '/\:(\s*?)(\"|\')(\\+)(.*?)(\"|\')/', ': $2\\$4$5', $mod );
 
 		// Rebuild JSON
 		$mod = '{"css":"' . $mod . '"}';
@@ -525,6 +656,44 @@ class Themify_Customizer {
 	}
 
 	/**
+	 * Return theme mod using cached static var if possible.
+	 *
+	 * @param      $name
+	 * @param bool $default
+	 *
+	 * @return mixed|void
+	 */
+	function get_cached_mod( $name, $default = false ) {
+		static $mods;
+
+		if ( ! isset( $mods ) ) {
+			$mods = get_theme_mods();
+		}
+
+		if ( isset( $mods[$name] ) ) {
+			/**
+			 * Filter the theme modification, or 'theme_mod', value.
+			 *
+			 * The dynamic portion of the hook name, $name, refers to
+			 * the key name of the modification array. For example,
+			 * 'header_textcolor', 'header_image', and so on depending
+			 * on the theme options.
+			 *
+			 * @since 2.2.0
+			 *
+			 * @param string $current_mod The value of the current theme modification.
+			 */
+			return apply_filters( "theme_mod_{$name}", $mods[$name] );
+		}
+
+		if ( is_string( $default ) )
+			$default = sprintf( $default, get_template_directory_uri(), get_stylesheet_directory_uri() );
+
+		/** This filter is documented in wp-includes/theme.php */
+		return apply_filters( "theme_mod_{$name}", $default );
+	}
+
+	/**
 	 * Build a CSS rule.
 	 *
 	 * @param string $selector CSS selector.
@@ -535,7 +704,7 @@ class Themify_Customizer {
 	 * @return string CSS rule: selector, property and property value. Empty if 'theme_mod' option specified is empty.
 	 */
 	function build_css_rule( $selector, $style, $mod_name, $prefix = '', $suffix = '' ) {
-		$mod = get_theme_mod( $mod_name );
+		$mod = $this->get_cached_mod( $mod_name );
 		$out = '';
 		if ( ! empty( $mod ) ) {
 			if ( 'font' == $style || 'logo' == $style || 'tagline' == $style || 'decoration' == $style ) {
@@ -543,8 +712,9 @@ class Themify_Customizer {
 				$font = json_decode( $mod );
 				if ( isset( $font->family->name ) && '' != $font->family->name ) {
 					if ( isset( $font->family->fonttype ) && 'google' == $font->family->fonttype ) {
-						$user_subsets = themify_check( 'setting-webfonts_subsets' ) ? themify_get( 'setting-webfonts_subsets' ) : array('latin');
-						wp_enqueue_style( 'custom-google-fonts' . md5($selector), themify_https_esc( 'http://fonts.googleapis.com/css' ) . '?family=' . str_replace( ' ', '+', $font->family->name ) . ':' . $font->family->variant . '&subset=' . implode(',', $user_subsets) );
+						$user_subsets = themify_check( 'setting-webfonts_subsets' ) ? explode( ',', themify_get( 'setting-webfonts_subsets' ) ) : array('latin');
+						$font_hash = $font->family->name . implode(',', $user_subsets);
+						wp_enqueue_style( 'custom-google-fonts-' . md5($font_hash), themify_https_esc( 'http://fonts.googleapis.com/css' ) . '?family=' . str_replace( ' ', '+', $font->family->name ) . '&subset=' . implode(',', $user_subsets) );
 					}
 					$out .= sprintf("\n\tfont-family:%s;", $prefix . $font->family->name . $suffix );
 				}
@@ -558,6 +728,7 @@ class Themify_Customizer {
 					if ( isset( $font->underline ) && '' != $font->underline ) {
 						$out .= sprintf("\ttext-decoration:%s;\n", $prefix . $font->underline . $suffix );
 					} elseif ( isset( $font->linethrough ) && '' != $font->linethrough ) {
+						$font->linethrough = 'linethrough' == $font->linethrough ? 'line-through' : $font->linethrough;
 						$out .= sprintf("\ttext-decoration:%s;\n", $prefix . $font->linethrough . $suffix );
 					}
 				} else {
@@ -574,10 +745,10 @@ class Themify_Customizer {
 					$out .= sprintf("\tline-height:%s;\n", $prefix . $font->linenum . $unit . $suffix );
 				}
 				if ( isset( $font->texttransform ) && '' != $font->texttransform ) {
-					if ( 'notexttransform' != $font->notexttransform ) {
-						$out .= sprintf("\ttext-transform:%s;", $prefix . $font->texttransform . $suffix );
-					} else {
+					if ( 'notexttransform' == $font->texttransform ) {
 						$out .= sprintf("\ttext-transform:%s;", $prefix . 'none' . $suffix );
+					} else {
+						$out .= sprintf("\ttext-transform:%s;", $prefix . $font->texttransform . $suffix );
 					}
 				}
 				if ( isset( $font->align ) && '' != $font->align ) {
@@ -621,7 +792,7 @@ class Themify_Customizer {
 				if ( isset( $bg->noimage ) && 'noimage' == $bg->noimage ) {
 					$out .= 'background-image: none;';
 				} elseif ( isset( $bg->src ) && '' != $bg->src ) {
-					$out .= sprintf("\n\tbackground-image: url(%s);", $prefix . $bg->src . $suffix );
+					$out .= sprintf("background-image: url(%s);", $prefix . $bg->src . $suffix );
 				}
 				if ( isset( $bg->style ) && '' != $bg->style ) {
 					if ( 'fullcover' == $bg->style ) {
@@ -799,7 +970,7 @@ class Themify_Customizer {
 	 */
 	function site_logo( $location = '' ) {
 		$site_name = get_bloginfo( 'name' );
-		$logo = json_decode( get_theme_mod( $location . '_image' ) );
+		$logo = json_decode( $this->get_cached_mod( $location . '_image' ) );
 		$has_image_src = isset( $logo->src ) && '' != $logo->src;
 		$is_image_mode = isset( $logo->mode ) && 'image' == $logo->mode;
 		if ( $is_image_mode ) {
@@ -807,12 +978,12 @@ class Themify_Customizer {
 		} else {
 			$url = apply_filters( 'themify_customizer_logo_home_url', isset( $logo->link ) && ! empty( $logo->link ) ? $logo->link : home_url() );
 		}
-		$html = '<a href="' . $url . '" title="' . $site_name . '">';
+		$html = '<a href="' . esc_url( $url ) . '" title="' . esc_attr( $site_name ) . '">';
 		if ( isset( $this->settings[$location . '_image'] ) && $has_image_src && $is_image_mode ) {
-			$html .= '<img src="' . $logo->src . '" alt="' . $site_name . '" title="' . $site_name . '" />';
-			$html .= '<span style="display: none;">' . $site_name . '</span>';
+			$html .= '<img src="' . esc_url( themify_https_esc( $logo->src ) ) . '" alt="' . esc_attr( $site_name ) . '" title="' . esc_attr( $site_name ) . '" />';
+			$html .= '<span style="display: none;">' . esc_html( $site_name ) . '</span>';
 		} else {
-			$html .= '<span>' . $site_name . '</span>';
+			$html .= '<span>' . esc_html( $site_name ) . '</span>';
 		}
 		$html .= '</a>';
 		return $html;
@@ -821,20 +992,23 @@ class Themify_Customizer {
 	/**
 	 * Inserts image in site description or hides it.
 	 *
+	 * @param string $site_desc Site tagline.
 	 * @param string $location
 	 * @return string
 	 */
 	function site_description( $site_desc = '', $location = 'site-tagline' ) {
-		$desc = json_decode( get_theme_mod( $location ) );
+		$desc = json_decode( $this->get_cached_mod( $location ) );
 		$has_image_src = isset( $desc->src ) && '' != $desc->src;
 		$is_image_mode = isset( $desc->mode ) && 'image' == $desc->mode;
 		$html = '';
 		if ( isset( $this->settings[$location] ) && $has_image_src && $is_image_mode ) {
-			$html .= '<img src="' . $desc->src . '" alt="' . $site_desc . '" title="' . $site_desc . '" />';
-			$html .= '<span style="display: none;">' . $site_desc . '</span>';
+			$html .= '<img src="' . esc_url( themify_https_esc( $desc->src ) ) . '" alt="' . esc_attr( $site_desc ) . '" title="' . esc_attr( $site_desc ) . '" />';
+			$html .= '<span style="display: none;">' . esc_html( $site_desc ) . '</span>';
 		} else {
-			$html .= '<span>' . $site_desc . '</span>';
+			$html .= '<span>' . esc_html( $site_desc ) . '</span>';
 		}
 		return $html;
 	}
 }
+
+$GLOBALS['themify_customizer'] = new Themify_Customizer;

@@ -267,13 +267,13 @@ function themify_theme_add_to_cart_fragments( $fragments ) {
 	$shopdock = ob_get_clean();
 
 	$fragments['#shopdock'] = $shopdock;
-	$fragments['#cart-icon .amount'] = WC()->cart->get_cart_total();
+	$fragments['#cart-icon .amount_wrapper'] = '<span class="amount_wrapper">' . WC()->cart->get_cart_total() . '</span>';
 	return $fragments;
 }
 
 /**
  * Delete cart
- * @return type
+ * @return json
  */
 function themify_theme_woocommerce_delete_cart() {
 	check_ajax_referer( 'themify-ecommerce-nonce', 'security' );
@@ -281,34 +281,17 @@ function themify_theme_woocommerce_delete_cart() {
 
 	if ( isset($_POST['remove_item']) && $_POST['remove_item'] ) {
 		$woocommerce->cart->set_quantity( $_POST['remove_item'], 0 );
-		themify_theme_get_refreshed_fragments();
+		WC_AJAX::get_refreshed_fragments();
 		die();
 	}
 }
 
 /**
- * Theme get refreshed fragments
+ * Add to cart ajax on single product page
  * @return json
  */
-function themify_theme_get_refreshed_fragments() {
-	check_ajax_referer( 'themify-ecommerce-nonce', 'security' );
-	header( 'Content-Type: application/json; charset=utf-8' );
-
-	// Get mini cart
+function themify_theme_woocommerce_add_to_cart() {
 	ob_start();
-	woocommerce_mini_cart();
-	$mini_cart = ob_get_clean();
-
-	// Fragments and mini cart are returned
-	$data = array(
-		'fragments' => apply_filters( 'add_to_cart_fragments', array(
-				'div.widget_shopping_cart_content' => '<div class="widget_shopping_cart_content">' . $mini_cart . '</div>'
-			)
-		),
-		'cart_hash' => WC()->cart->get_cart() ? md5( json_encode( WC()->cart->get_cart() ) ) : ''
-	);
-
-	echo json_encode( $data );
-
-	die();
+	WC_AJAX::get_refreshed_fragments();
+	die();	
 }

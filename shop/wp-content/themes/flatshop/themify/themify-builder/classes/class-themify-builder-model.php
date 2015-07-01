@@ -1,6 +1,6 @@
 <?php
 
-final class Themify_Builder_model {
+final class Themify_Builder_Model {
 	/**
 	 * Feature Image
 	 * @var array
@@ -41,18 +41,39 @@ final class Themify_Builder_model {
 
 	static public $layouts_version_name = 'tbuilder_layouts_version';
 
-	static public function register_module( $class, $settings ) {
-		if ( class_exists( $class ) ) {
+	/**
+	 * Color definitions
+	 *
+	 * @var array
+	 */
+	static public $colors;
 
-			$instance = new $class();
+	/**
+	 * Appearance definitions
+	 *
+	 * @var array
+	 */
+	static public $appearance;
+
+	/**
+	 * Border style definitions
+	 *
+	 * @var array
+	 */
+	static public $border_style;
+
+	static public function register_module( $module_class, $options = null ) {
+		if ( class_exists( $module_class ) ) {
+
+			$instance = new $module_class();
+
+			if( null != $options ) {
+				$instance->_legacy_options['options'] = isset( $options['options'] ) ? $options['options'] : array();
+				$instance->_legacy_options['styling'] = isset( $options['styling'] ) ? $options['styling'] : array();
+				$instance->_legacy_options['styling_selector'] = isset( $options['styling_selector'] ) ? $options['styling_selector'] : array();
+			}
 
 			self::$modules[ $instance->slug ] = $instance;
-
-			if ( is_user_logged_in() ) {
-				self::$modules[ $instance->slug ]->options = isset( $settings['options'] ) ? $settings['options'] : array();
-				self::$modules[ $instance->slug ]->styling = isset( $settings['styling'] ) ? $settings['styling'] : array();
-			}
-			self::$modules[ $instance->slug ]->style_selectors = isset( $settings['styling_selector'] ) ? $settings['styling_selector'] : array();
 		}
 	}
 
@@ -86,12 +107,12 @@ final class Themify_Builder_model {
 	 * Check is frontend editor page
 	 */
 	static public function is_frontend_editor_page() {
-		global $post;
-		if ( is_user_logged_in() && current_user_can( 'edit_page', $post->ID ) ) {
-			return true;
-		} else{
-			return false;
+		$active = false;
+		if ( is_user_logged_in() && current_user_can( 'edit_page', get_the_ID() ) ) {
+			$active = true;
 		}
+
+		return apply_filters( 'themify_builder_is_frontend_editor', $active );
 	}
 
 	/**
@@ -110,7 +131,7 @@ final class Themify_Builder_model {
 		self::$featured_image_size = apply_filters( 'themify_builder_metabox_featured_image_size', array(
 			'name'	=>	'feature_size',
 			'title'	=>	__('Image Size', 'themify'),
-			'description' => __('Image sizes can be set at <a href="options-media.php">Media Settings</a> and <a href="admin.php?page=themify_regenerate-thumbnails">Regenerated</a>', 'themify'),
+			'description' => sprintf( __('Image sizes can be set at <a href="%s">Media Settings</a>', 'themify'), admin_url( 'options-media.php' ) ),
 			'type'		 =>	'featimgdropdown'
 		) );
 		// Image Width
@@ -133,7 +154,7 @@ final class Themify_Builder_model {
 		self::$external_link = apply_filters( 'themify_builder_metabox_external_link', array(
 			'name' 		=> 'external_link',
 			'title' 	=> __('External Link', 'themify'),
-			'description' => __('Link Featured Image to external URL', 'themify'),
+			'description' => __('Link Featured Image and Post Title to external URL', 'themify'),
 			'type' 		=> 'textbox',
 			'meta'		=> array()
 		) );
@@ -153,7 +174,7 @@ final class Themify_Builder_model {
 	 * @return string
 	 */
 	static public function get_module_name( $slug ) {
-		if ( is_object( self::$modules[ $slug ] ) ) {
+		if ( isset( self::$modules[ $slug ] ) && is_object( self::$modules[ $slug ] ) ) {
 			return self::$modules[ $slug ]->name;
 		} else {
 			return $slug;
@@ -310,13 +331,205 @@ final class Themify_Builder_model {
 				array('value' => 'zoomOutUp',  'name' => __('zoomOutUp', 'themify'))
 			)),
 
-			array( 'group_label' => __( 'Customs', 'themify' ), 'options' => array(
-				array('value' => 'fly-in',   'name' => __('Fly In', 'themify')),
-				array('value' => 'fade-in', 'name' => __('Fade In', 'themify')),
-				array('value' => 'slide-up',  'name' => __('Slide Up', 'themify'))
-			)),
-
 		);
 		return $animation;
+	}
+
+	/**
+	 * Get Post Types which ready for an operation
+	 * @return array
+	 */
+	static public function get_post_types() {
+
+		// If it's not a product search, proceed: retrieve the post types.
+		$types = get_post_types( array( 'exclude_from_search' => false ) );
+
+		// Exclude pages /////////////////
+		$exclude_pages = themify_get( 'setting-search_settings_exclude' );
+		if ( isset( $exclude_pages ) && $exclude_pages ) {
+			unset( $types['page'] );
+		}
+
+		// Exclude custom post types /////
+		$exclude_types = apply_filters( 'themify_types_excluded_in_search', get_post_types( array(
+			'_builtin' => false,
+			'public' => true,
+			'exclude_from_search' => false
+		)));
+
+		foreach( array_keys( $exclude_types ) as $type ) {
+			$exclude_type = null;
+			$exclude_type = themify_get( 'setting-search_exclude_' . $type );
+			if ( isset( $exclude_type ) && $exclude_type ) {
+				unset( $types[$type] );
+			}
+		}
+
+		// Section post type is always excluded
+		if ( isset( $types['section'] ) ) {
+			unset( $types['section'] );
+		}
+
+		// Exclude Layout and Layout Part custom post types /////
+		unset( $types['tbuilder_layout'] );
+		unset( $types['tbuilder_layout_part'] );
+
+		return $types;
+	}
+
+	/**
+	 * Check whether builder animation is active
+	 * @return boolean
+	 */
+	static public function is_animation_active() {
+		// check if mobile exclude disabled OR disabled all transition
+		if ( ( themify_check('setting-page_builder_animation_mobile_exclude') && themify_is_touch() ) 
+			|| themify_check('setting-page_builder_animation_disabled') ) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Check whether builder parallax is active
+	 * @return boolean
+	 */
+	static public function is_parallax_active() {
+		// check if mobile exclude disabled OR disabled all transition
+		if ( ( themify_check('setting-page_builder_parallax_mobile_exclude') && themify_is_touch() ) 
+			|| themify_check('setting-page_builder_parallax_disabled') ) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Get Grid Settings
+	 * @return array
+	 */
+	public static function get_grid_settings( $setting = 'grid') {
+		$path = THEMIFY_BUILDER_URI . '/img/builder/';
+		$grid_lists = array(
+			array(
+				// Grid FullWidth
+				array( 'img' => $path . '1-col.png', 'data' => array( '-full') ),
+				// Grid 2
+				array( 'img' => $path . '2-col.png', 'data' => array( '4-2', '4-2' ) ),
+				// Grid 3
+				array( 'img' => $path . '3-col.png', 'data' => array( '3-1', '3-1', '3-1' ) ),
+				// Grid 4
+				array( 'img' => $path . '4-col.png', 'data' => array( '4-1', '4-1', '4-1', '4-1') ),
+				// Grid 5
+				array( 'img' => $path . '5-col.png', 'data' => array( '5-1', '5-1', '5-1', '5-1', '5-1' ) ),
+				// Grid 6
+				array( 'img' => $path . '6-col.png', 'data' => array( '6-1', '6-1', '6-1', '6-1', '6-1', '6-1' ) )
+			),
+			array(
+				array( 'img' => $path . '1.4_3.4.png', 'data' => array( '4-1', '4-3' ) ),
+				array( 'img' => $path . '1.4_1.4_2.4.png', 'data' => array( '4-1', '4-1', '4-2' ) ),
+				array( 'img' => $path . '1.4_2.4_1.4.png', 'data' => array( '4-1', '4-2', '4-1') ),
+				array( 'img' => $path . '2.4_1.4_1.4.png', 'data' => array( '4-2', '4-1', '4-1' ) ),
+				array( 'img' => $path . '3.4_1.4.png', 'data' => array( '4-3', '4-1' ) )
+			),
+			array(
+				array( 'img' => $path . '2.3_1.3.png', 'data' => array( '3-2', '3-1' ) ),
+				array( 'img' => $path . '1.3_2.3.png', 'data' => array( '3-1', '3-2' ) )
+			)
+		);
+
+		$gutters = array(
+			array( 'name' => __('Default', 'themify'), 'value' => 'gutter-default' ),
+			array( 'name' => __('Narrow', 'themify'), 'value' => 'gutter-narrow' ),
+			array( 'name' => __('None', 'themify'), 'value' => 'gutter-none' ),
+		);
+
+		if ( 'grid' == $setting ) {
+			return $grid_lists;
+		} elseif( 'gutter_class' == $setting ) {
+			$guiterClass = array();
+			foreach( $gutters as $g ) {
+				array_push( $guiterClass, $g['value'] );
+			}
+			return implode( ' ', $guiterClass );
+		} else {
+			return $gutters;
+		}
+	}
+
+	/**
+	 * Returns list of colors and thumbnails
+	 *
+	 * @return array
+	 */
+	static public function get_colors() {
+		if ( ! isset( self::$colors ) ) {
+			self::$colors = array(
+				array('img' => 'color-default.png', 'value' => 'default', 'label' => __('default', 'themify')),
+				array('img' => 'color-black.png', 'value' => 'black', 'label' => __('black', 'themify')),
+				array('img' => 'color-grey.png', 'value' => 'gray', 'label' => __('gray', 'themify')),
+				array('img' => 'color-blue.png', 'value' => 'blue', 'label' => __('blue', 'themify')),
+				array('img' => 'color-light-blue.png', 'value' => 'light-blue', 'label' => __('light-blue', 'themify')),
+				array('img' => 'color-green.png', 'value' => 'green', 'label' => __('green', 'themify')),
+				array('img' => 'color-light-green.png', 'value' => 'light-green', 'label' => __('light-green', 'themify')),
+				array('img' => 'color-purple.png', 'value' => 'purple', 'label' => __('purple', 'themify')),
+				array('img' => 'color-light-purple.png', 'value' => 'light-purple', 'label' => __('light-purple', 'themify')),
+				array('img' => 'color-brown.png', 'value' => 'brown', 'label' => __('brown', 'themify')),
+				array('img' => 'color-orange.png', 'value' => 'orange', 'label' => __('orange', 'themify')),
+				array('img' => 'color-yellow.png', 'value' => 'yellow', 'label' => __('yellow', 'themify')),
+				array('img' => 'color-red.png', 'value' => 'red', 'label' => __('red', 'themify')),
+				array('img' => 'color-pink.png', 'value' => 'pink', 'label' => __('pink', 'themify'))
+			);
+		}
+		return self::$colors;
+	}
+
+	/**
+	 * Returns list of appearance
+	 *
+	 * @return array
+	 */
+	static public function get_appearance() {
+		if ( ! isset( self::$appearance ) ) {
+			self::$appearance = array(
+				array( 'name' => 'rounded', 'value' => __('Rounded', 'themify')),
+				array( 'name' => 'gradient', 'value' => __('Gradient', 'themify')),
+				array( 'name' => 'glossy', 'value' => __('Glossy', 'themify')),
+				array( 'name' => 'embossed', 'value' => __('Embossed', 'themify')),
+				array( 'name' => 'shadow', 'value' => __('Shadow', 'themify'))
+			);
+		}
+		return self::$appearance;
+	}
+
+	/**
+	 * Returns list of border styles
+	 *
+	 * @return array
+	 */
+	static public function get_border_styles() {
+		if ( ! isset( self::$border_style ) ) {
+			self::$border_style = array(
+				array( 'value' => '', 'name' => '' ),
+				array( 'value' => 'solid', 'name' => __( 'Solid', 'themify' ) ),
+				array( 'value' => 'dashed', 'name' => __( 'Dashed', 'themify' ) ),
+				array( 'value' => 'dotted', 'name' => __( 'Dotted', 'themify' ) ),
+				array( 'value' => 'double', 'name' => __( 'Double', 'themify' ) )
+			);
+		}
+		return self::$border_style;
+	}
+
+	/**
+	 * Check whether image script is use or not
+	 * @return boolean
+	 */
+	public static function is_img_php_disabled() {
+		if ( themify_check( 'setting-img_settings_use' ) ) {
+			return true;
+		} else{
+			return false;
+		}
 	}
 }

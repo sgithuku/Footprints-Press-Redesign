@@ -7,10 +7,10 @@ a.shortcode.button {
 	line-height: 100%;
 	white-space: nowrap;
 	padding: .5em 1em;
-	margin: 0 .2em .3em 0;
+	margin: .5em .2em .5em 0;
 	border: solid 1px #aaa;
 	background-color: #f5f5f5;
-
+	background-image: none;
 	vertical-align: middle;
 	display: inline-block;
 
@@ -243,6 +243,7 @@ a.shortcode.button.flat {
 a.shortcode.button.outline {
 	border-style: solid;
 	border-width: 1px;
+	color: inherit;
 }
 a.shortcode.button.outline,
 a.shortcode.button.outline:hover {
@@ -721,64 +722,64 @@ MAP
 LIST POST
 *************************************************************************************/
 /* grid4 post */
-.shortcode.loops-wrapper.grid4 .post {
+.loops-wrapper.grid4 .post {
 	width: 22.6%;
 	float: left;
 	margin-left: 3.2%;
 }
 
 /* grid3 post */
-.shortcode.loops-wrapper.grid3 .post {
+.loops-wrapper.grid3 .post {
 	width: 31.2%;
 	float: left;
 	margin-left: 3.2%;
 }
 
 /* grid2 post */
-.shortcode.loops-wrapper.grid2 .post {
+.loops-wrapper.grid2 .post {
 	width: 48.4%;
 	float: left;
 	margin-left: 3.2%;
 }
 
 /* grid2-thumb post */
-.shortcode.loops-wrapper.grid2-thumb .post {
+.loops-wrapper.grid2-thumb .post {
 	width: 48.4%;
 	float: left;
 	margin-left: 3.2%;
 }
-.shortcode.loops-wrapper.grid2-thumb .post-image {
+.loops-wrapper.grid2-thumb .post-image {
 	float: left;
 	margin: 0 20px 15px 0;
 }
-.shortcode.loops-wrapper.grid2-thumb .post-content {
+.loops-wrapper.grid2-thumb .post-content {
 	overflow: hidden;
 }
 
 /* clear grid posts */
-.shortcode.loops-wrapper.grid4 .post:nth-of-type(4n+1),
-.shortcode.loops-wrapper.grid3 .post:nth-of-type(3n+1),
-.shortcode.loops-wrapper.grid2 .post:nth-of-type(2n+1),
-.shortcode.loops-wrapper.grid2-thumb .post:nth-of-type(2n+1) {
+.loops-wrapper.grid4 .post:nth-of-type(4n+1),
+.loops-wrapper.grid3 .post:nth-of-type(3n+1),
+.loops-wrapper.grid2 .post:nth-of-type(2n+1),
+.loops-wrapper.grid2-thumb .post:nth-of-type(2n+1) {
 	margin-left: 0;
 	clear: left;
 }
 
 /* list thumb post */
-.shortcode.loops-wrapper.list-thumb-image .post-image {
+.loops-wrapper.list-thumb-image .post-image {
 	float: left;
 	margin: 0 20px 15px 0;
 }
-.shortcode.loops-wrapper.list-thumb-image .post-content {
+.loops-wrapper.list-thumb-image .post-content {
 	overflow: hidden;
 }
 
 /* list large image */
-.shortcode.loops-wrapper.list-large-image .post-image {
+.loops-wrapper.list-large-image .post-image {
 	float: left;
 	margin: 0 1.3em 1em 0;
 }
-.shortcode.loops-wrapper.list-large-image .post-content {
+.loops-wrapper.list-large-image .post-content {
 	overflow: hidden;
 }
 
@@ -971,6 +972,74 @@ TWITTER SHORTCODE
 }
 
 /************************************************************************************
+ICON FONT SHORTCODE
+*************************************************************************************/
+.shortcode.themify-icon {
+	display: inline-block;
+}
+.themify-icon-link {
+	text-decoration: none
+}
+
+/* label */
+.shortcode.themify-icon .themify-icon-label {
+	display: inline-block;
+	vertical-align: middle;
+	margin-left: .3em;
+	margin-right: .6em;
+}
+.shortcode.themify-icon .themify-icon-link:hover .themify-icon-label {
+	text-decoration: underline;
+}
+
+/* icon */
+.shortcode.themify-icon .themify-icon-icon {
+	display: inline-block;
+	vertical-align: middle;
+	width: 1em;
+	height: 1em;
+	padding: .5em;
+	font-size: 16px;
+	border-radius: 100%;
+}
+.shortcode.themify-icon .themify-icon-icon::before {
+	width: 1em;
+	height: 1em;
+	line-height: 1em;
+	margin: 0;
+	padding: 0;
+}
+
+/* size */
+.shortcode.themify-icon.small .themify-icon-icon {
+	font-size: 12px;
+}
+.shortcode.themify-icon.large .themify-icon-icon {
+	font-size: 24px;
+}
+.shortcode.themify-icon.large .themify-icon-label {
+	font-size: 1.2em;
+}
+.shortcode.themify-icon.xlarge .themify-icon-icon {
+	width: 58px;
+	height: 48px;
+	padding: 12px 0 0 2px;
+	font-size: 36px;
+}
+.shortcode.themify-icon.xlarge .themify-icon-label {
+	font-size: 1.2em;
+}
+
+/* style */
+.shortcode.themify-icon.rounded .themify-icon-icon {
+	border-radius: 5px;
+}
+.shortcode.themify-icon.squared .themify-icon-icon {
+	border-radius: 0;
+}
+
+
+/************************************************************************************
 SOCIAL LINKS WIDGET
 *************************************************************************************/
 /* social widget */
@@ -1121,4 +1190,52 @@ a.shortcode.button[class*=" fa-"]:before,
 	font-style: normal;
 	font-weight: normal;
 	display: inline-block;
+}
+
+/************************************************************************************
+Dropdown
+*************************************************************************************/
+.sub-arrow {
+	display: inline-block;
+	font-size: 1.2em;
+	cursor: pointer;
+	min-width: 32px;
+	min-height: 32px;
+}
+.sub-arrow:before {
+	font-family: "FontAwesome";
+	padding: 5px 10px;
+}
+.sub-arrow:before {
+	content: "\f107"; /* fa-angle-down */
+}
+.sub-arrow.open:before {
+	content: "\f106"; /* fa-angle-up */
+}
+.with-sub-arrow ul .sub-arrow:before {
+	content: "\f105"; /* fa-angle-right */
+}
+.with-sub-arrow ul .sub-arrow.open:before {
+	content: "\f104"; /* fa-angle-left */
+}
+.no-touch .sub-arrow {
+	display: none !important;
+}
+
+/**
+ * MediaElement
+ */
+.wp-video {
+	width: 100% !important;
+	max-width: 100% !important;
+}
+.mejs-container {
+	text-align: center !important;
+	max-width: 100%;
+	min-height: 100% !important;
+}
+
+.slider.shortcode .post {
+	-webkit-animation-name: inherit !important;
+	animation-name: inherit !important;
 }

@@ -70,7 +70,7 @@ class Themify_Background_Control extends Themify_Control {
 			<div class="custom-select background-style">
 				<select class="image-style">
 					<?php foreach ( $styles as $style => $label ) : ?>
-						<option value="<?php echo $style; ?>" <?php selected( $current_style, $style ); ?>><?php echo $label; ?></option>
+						<option value="<?php echo esc_attr( $style ); ?>" <?php selected( $current_style, $style ); ?>><?php echo esc_html( $label ); ?></option>
 					<?php endforeach; ?>
 				</select>
 			</div>
@@ -79,7 +79,7 @@ class Themify_Background_Control extends Themify_Control {
 			<div class="custom-select background-position">
 				<select class="position-style">
 					<?php foreach ( $positions as $position => $label ) : ?>
-						<option value="<?php echo $position; ?>" <?php selected( $current_position, $position ); ?>><?php echo $label; ?></option>
+						<option value="<?php echo esc_attr( $position ); ?>" <?php selected( $current_position, $position ); ?>><?php echo esc_html( $label ); ?></option>
 					<?php endforeach; ?>
 				</select>
 			</div>
@@ -88,8 +88,8 @@ class Themify_Background_Control extends Themify_Control {
 
 			<div class="no-image">
 				<?php $noimage_id = $this->id . '_noimage'; ?>
-				<input id="<?php echo $noimage_id; ?>" type="checkbox" class="disable-control" <?php checked( $noimage, 'noimage' ); ?> value="noimage"/>
-				<label for="<?php echo $noimage_id; ?>">
+				<input id="<?php echo esc_attr( $noimage_id ); ?>" type="checkbox" class="disable-control" <?php checked( $noimage, 'noimage' ); ?> value="noimage"/>
+				<label for="<?php echo esc_attr( $noimage_id ); ?>">
 					<?php _e( 'No Background Image', 'themify' ); ?>
 				</label>
 			</div>
@@ -103,7 +103,7 @@ class Themify_Background_Control extends Themify_Control {
 			) ); ?>
 		</div>
 
-		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo $this->type; ?>_control themify-customizer-value-field"/>
+		<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
 		<?php
 	}
 }

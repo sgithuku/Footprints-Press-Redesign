@@ -144,7 +144,7 @@ function themify_theme_post_meta_box( $args = array() ) {
 		array(
 			'name' 		=> 'external_link',
 			'title' 		=> __('External Link', 'themify'),
-			'description' => __('Link Featured Image to external URL', 'themify'),
+			'description' => __('Link Featured Image and Post Title to external URL', 'themify'),
 			'type' 		=> 'textbox',
 			'meta'		=> array()
 		),
