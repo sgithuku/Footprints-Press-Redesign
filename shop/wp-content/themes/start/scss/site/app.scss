@@ -1,0 +1,565 @@
+// Our fonts
+@import url(http://fonts.googleapis.com/css?family=Nunito);
+@import url(http://fonts.googleapis.com/css?family=Alegreya);
+$light-bg: #f1f0ed;
+
+/* header fix for woocommerce */
+ .header-fix{
+   margin-top: 3rem;
+ }
+
+/* mixins */
+@mixin middle-align {
+  position: relative;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+@mixin sixty-align {
+  position: relative;
+  top: 60%;
+  -webkit-transform: translateY(-60%);
+  -ms-transform: translateY(-60%);
+  transform: translateY(-60%);
+}
+
+/* containers */
+html,body{
+  height: 100%;
+}
+.container{
+  height: 100%;
+}
+#landing{
+	background: url(../../../../wp-content/uploads/BGLanding.jpg) no-repeat;
+	background-size: cover;
+	height: 100%;
+  padding: 6rem 0;
+}
+
+#landing h1{
+  color: white;
+  text-align: center;
+}
+
+#books{
+	border-top: 0px solid $primary-color;
+	background: transparent;
+}
+
+
+#custom{
+	background: $primary-color url(../../../../wp-content/uploads/4-wide.jpg) no-repeat;
+  background-size: cover;
+  position: relative;
+  float: left;
+  border-bottom: 1px solid $primary-color;
+}
+
+.break button{
+  float: left;
+}
+#custom p{
+  color: $white;
+}
+#people{
+	margin: 0;
+}
+
+#edition{
+	background: $white;
+  clear: both;
+}
+#events{
+	border-top: 0px solid $primary-color;
+
+}
+#events h2{
+	font-family: "Alegreya";
+	font-weight: 700;
+	font-size: 4rem;
+	background: white;
+	padding: 3.2rem 0 2.5rem 0;
+}
+#events button{
+	display: inline-block;
+}
+#events .middle{
+	z-index: 100;
+	height: 0;
+	margin: auto;
+}
+#events .banner{
+	z-index: 101;
+	background: rgba(255,255,255,0.7);
+}
+
+#about{
+	min-height: 100%;
+	padding-bottom: 3rem;
+}
+
+footer{
+  background-color: $light-bg;
+}
+footer p, footer h5{
+  color: $primary-color;
+  font-weight: 100;
+}
+.break{
+  padding: 6rem;
+  background: $light-bg;
+  clear: both;
+}
+.break h2, .break p{
+  color: $primary-color;
+  text-align: left;
+}
+
+.break-dark{
+  padding: 6rem;
+  background: $primary-color;
+  clear: both;
+}
+
+.break-dark h2, .break-dark p{
+  color: $light-bg;
+  text-align: left;
+}
+.break-dark a button{
+  background: $secondary-color;
+  float: left;
+}
+
+.break-dark a button:hover{
+  color: $primary-color;
+}
+
+.page{
+	min-height: 100%;
+}
+
+.middle{
+	@include middle-align;
+}
+.sixty{
+	@include sixty-align;
+}
+.item{
+	text-align: center;
+}
+.center-align{
+	left: 0;
+	right: 0;
+	margin-left: auto;
+	margin-right: auto;
+	position: absolute;
+	text-align: center;
+}
+.border-white{
+	border-top: 1px solid $white;
+	border-bottom: 1px solid $white;
+}
+
+.border-brown{
+	border-top: 1px solid $primary-color;
+	border-bottom: 1px solid $primary-color;
+}
+
+.whitebg{
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
+  min-height: 90vh;
+  overflow: hidden;
+}
+.alt-button{
+	background: $primary-color !important;
+}
+.alt-button:hover{
+	background: $secondary-color !important;
+}
+
+.vp{
+  min-height: 90vh;
+}
+/* type */
+
+#landing h1{
+	text-align: center;
+	color: #fff;
+	font-weight: 100;
+}
+
+h2{
+	text-align: center;
+	color: $primary-color;
+}
+
+h5{
+  font-weight: 700;
+}
+p{
+  font-family: "Alegreya", $font-family-sans-serif;
+}
+
+
+/* buttons */
+button{
+	margin: 0 auto;
+	display: inline-block;
+	width: inherit;
+}
+
+/* utility classes */
+
+.edition-logo{
+	height: auto;
+	margin: 0 auto;
+	display: inline-block;
+	text-align: center;
+	margin-top: 0;
+	padding-top: 0;
+}
+#edition h2{
+	color: $primary-color !important;
+}
+
+.logo{
+	width: 100px;
+	height: 100px;
+	border-radius: 100%;
+	border: 2px solid $primary-color;
+	text-align: center;
+	background: #FAF8F6;
+	margin: 0 auto;
+	display: block;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 100;
+	position: absolute;
+}
+.logo img{
+	@include middle-align;
+	max-width: 50%;
+	max-height: 50%;
+}
+#edition ul li {
+	text-align: center;
+}
+/* navigation */
+
+nav{
+	border-bottom: 2px solid $primary-color;
+}
+nav > section > ul > li > a{
+	height: 3rem;
+}
+.top-bar-section ul li>a{
+  font-weight: normal;
+}
+
+.top-bar-section>ul>.divider, .top-bar-section>ul>[role="separator"]{
+  border-right: 0 !important;
+}
+
+/* buttons */
+button{
+	margin: 0 auto;
+	display: block;
+	min-width: 240px;
+}
+
+
+/* Edition Covers */
+
+a.issue15{
+	background: url(../../../../wp-content/uploads/Issue-15-120x300.jpg) no-repeat;
+}
+a.issue14{
+	background: url(../../../../wp-content/uploads/Issue-14-118x300.jpg) no-repeat;
+}
+a.issue13{
+	background: url(../../../../wp-content/uploads/Issue-13-120x300.jpg) no-repeat;
+}
+a.issue12{
+	background: url(../../../../wp-content/uploads/Issue-12-121x300.jpg) no-repeat;
+}
+a.issue11{
+	background: url(../../../../wp-content/uploads/Issue-11-120x300.jpg) no-repeat;
+}
+a.issue10{
+	background: url(../../../../wp-content/uploads/Issue-10-120x300.jpg) no-repeat;
+}
+a.issue9{
+	background: url(../../../../wp-content/uploads/Issue-9-120x300.jpg) no-repeat;
+}
+a.issue8{
+	background: url(../../../../wp-content/uploads/Issue-8-121x300.jpg) no-repeat;
+}
+
+.covers a{
+	width: 120px !important;
+	height: 150px;
+	background-position: top left;
+	background-size: cover;
+	-webkit-transition: background-position 1s ease-in-out;
+	  -moz-transition: background-position 1s ease-in-out;
+	  -o-transition: background-position 1s ease-in-out;
+	  transition: background-position 1s ease-in-out;
+}
+.latest-issue{
+  clear: both;
+}
+
+.latest-issue a{
+	width: 259px;
+	height: 325px;
+	background-position: 0 0;
+	background-size: cover;
+	background: url(../../../uploads/Issue-16-small.jpg) no-repeat;
+	display: block;
+	-webkit-transition: background-position 1s ease-in-out;
+	  -moz-transition: background-position 1s ease-in-out;
+	  -o-transition: background-position 1s ease-in-out;
+	  transition: background-position 1s ease-in-out;
+  margin:auto;
+
+}
+.latest-issue a:hover{
+	background-position: bottom;
+}
+
+.covers a:hover{
+	background-position: bottom left;
+}
+.panel li:hover{
+	background-position: bottom left;
+}
+
+.panel li a{
+	text-indent: -9999px;
+	white-space: nowrap;
+	overflow: hidden;
+
+}
+.panel li img{
+	text-indent: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+
+/* about page */
+.header{
+	padding: 3rem 0;
+  clear: both;
+}
+
+.brick{
+	background-color: rgba(245,166,35,0.9); /* orange translucent*/
+}
+
+
+.brick:nth-child(2n){
+	padding: 0;
+	margin: 0;
+	background-color: rgba(255,255,255,0.6);
+}
+
+.brick:nth-child(3n){
+	color: #fff !important;
+}
+
+.brick:nth-child(5){
+	background-color: rgba(62, 45, 34,0.9); /* brown translucent*/
+	color: #fff !important;
+}
+.brick:nth-child(6){
+	background: url(../../../../wp-content/uploads/DSC_0479.jpg) no-repeat;
+	background-size: cover;
+}
+
+
+.brick .header{
+	padding: 5px 25px;
+	color: #fff;
+}
+
+.brick img:hover{
+	opacity: 0.8;
+}
+.brick h6, .brick h2{
+	color: #fff;
+}
+.brick a{
+	color: #fff;
+}
+.brick a:hover{
+	color: $secondary-color;
+}
+
+
+/* faces */
+.people li img:hover{
+	opacity: 0;
+}
+.people li img{
+	opacity: 1;
+	-webkit-transition: opacity 1s ease-in-out;
+	  -moz-transition: opacity 1s ease-in-out;
+	  -o-transition: opacity 1s ease-in-out;
+	  transition: opacity 1s ease-in-out;
+	  width: 100%;
+}
+.people li{
+	background-size: contain;
+  position: relative;
+  padding-bottom: 3rem;
+  color: $body-font-color;
+  opacity: 0.7;
+}
+
+.people li:hover{
+  background-color: $light-bg;
+  opacity: 1;
+}
+
+.people a{
+	position: relative;
+}
+
+.people a h5{
+	text-align: center;
+	width: 90%;
+}
+
+.people a button{
+  float: left;
+}
+
+.people .description{
+  padding: 2rem;
+}
+
+.Women{
+	background: url(../../../../wp-content/uploads/Women.jpg) no-repeat;
+}
+.Men{
+	background: url(../../../../wp-content/uploads/Men.jpg) no-repeat;
+}
+.Youth{
+	background: url(../../../../wp-content/uploads/YouthCover.jpg) no-repeat;
+}
+.Life{
+	background: url(../../../../wp-content/uploads/Nuggets-Musings.jpg) no-repeat;
+}
+.Kenya{
+	background: url(../../../../wp-content/uploads/Musings-Kenya.jpg) no-repeat;
+}
+.KenyaAt50{
+	background: url(../../../../wp-content/uploads/KenyaAt50.jpg) no-repeat;
+}
+.Elders{
+	background: url(../../../../wp-content/uploads/Elders.jpg) no-repeat;
+}
+.Jeff{
+	background: url(../../../../wp-content/uploads/Jeff.png) no-repeat;
+}
+
+/* Events section */
+
+.tailored{
+	background: url(../../../../wp-content/uploads/1.jpeg) no-repeat;
+}
+
+
+.locations{
+	background: url(../../../../wp-content/uploads/3.jpeg) no-repeat;
+}
+
+.food{
+	background: url(../../../../wp-content/uploads/2.jpeg) no-repeat;
+}
+
+/* arrows */
+
+@font-face {
+  font-family: 'footfont';
+  src: url('../assets/font/footfont.eot?34440754');
+  src: url('../assets/font/footfont.eot?34440754#iefix') format('embedded-opentype'),
+       url('../assets/font/footfont.woff?34440754') format('woff'),
+       url('../assets/font/footfont.ttf?34440754') format('truetype'),
+       url('../assets/font/footfont.svg?34440754#footfont') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
+/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
+/*
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: 'footfont';
+    src: url('../font/footfont.svg?34440754#footfont') format('svg');
+  }
+}
+*/
+
+ [class^="icon-"]:before, [class*=" icon-"]:before {
+  font-family: "footfont";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  /* opacity: .8; */
+
+  /* For safety - reset parent styles, that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+}
+
+.icon-left-open-big:before { content: '\e803'; } /* '' */
+.icon-right-open-big:before { content: '\e804'; } /* '' */
+
+
+
+/* woocommerce fixes */
+.woocommerce-result-count{
+  display: none;
+}
+
+.woocommerce ul.products li.product h3{
+  color: $primary-color;
+}
+.woocommerce button.button.alt{
+  background-color: $secondary-color;
+}
+
+.woocommerce button.button.alt:hover{
+  background-color: $primary-color;
+}
+
+.price{
+  color: $primary-color !important;
+  font-family: $header-font-family;
+}
