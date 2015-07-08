@@ -21,7 +21,7 @@ get_header(); ?>
     <div class="people" id="people">
       <ul class="medium-block-grid-3 small-block-grid-1">
         <li class="Women">
-              <img class="top" src="../../shop/wp-content/uploads/Lupita.jpg">
+              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Lupita.jpg">
               <div class="description">
                 <h5>Seeking Destiny: Conversations with High Achieving Women</h5>
                 <p>
@@ -32,7 +32,7 @@ get_header(); ?>
               </div>
         </li>
         <li class="Men">
-              <img class="top" src="../../shop/wp-content/uploads/Men1.jpg">
+              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Men1.jpg">
               <div class="description">
                 <h5>Scaling Heights: Conversations with High Achieving Men</h5>
                 <p>
@@ -43,7 +43,7 @@ get_header(); ?>
               </div>
         </li>
         <li class="Youth">
-              <img class="top" src="../../shop/wp-content/uploads/Youth1.jpg">
+              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Youth1.jpg">
               <div class="description">
                 <h5>Aspirations of a Generation: Conversations with High Achieving Women</h5>
                 <p>
@@ -54,7 +54,7 @@ get_header(); ?>
               </div>
         </li>
         <li class="Life">
-              <img class="top" src="../../shop/wp-content/uploads/Life.jpg">
+              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Life.jpg">
               <div class="description">
                 <h5>Life Journeys Nuggets: Musings on Life</h5>
                 <p>
@@ -65,7 +65,7 @@ get_header(); ?>
               </div>
         </li>
         <li class="Kenya">
-              <img class="top" src="../../shop/wp-content/uploads/Kenya.jpg">
+              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Kenya.jpg">
               <div class="description">
                 <h5>Life Journeys Nuggets: Musings on Kenya</h5>
                 <p>
@@ -76,7 +76,7 @@ get_header(); ?>
               </div>
         </li>
         <li class="KenyaAt50">
-              <img class="top" src="../../shop/wp-content/uploads/Kenyaat501.jpg">
+              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Kenyaat501.jpg">
               <div class="description">
                 <h5>50 Years Since Independence: Where is Kenya?</h5>
                 <p>
@@ -87,7 +87,7 @@ get_header(); ?>
               </div>
         </li>
         <li class="Elders">
-              <img class="top" src="../../shop/wp-content/uploads/Elders1.jpg">
+              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Elders1.jpg">
               <div class="description">
                 <h5>Wisdom of the Elders</h5>
                 <p>
@@ -98,7 +98,7 @@ get_header(); ?>
               </div>
         </li>
         <li class="Jeff">
-              <img class="top" src="../../shop/wp-content/uploads/Jeff.jpg">
+              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Jeff.jpg">
               <div class="description">
                 <h5>Jeff Koinange: Through My African Eyes</h5>
                 <p>
@@ -172,7 +172,7 @@ get_header(); ?>
 <div class="section people" id="events">
   <ul class="medium-block-grid-3 small-block-grid-1">
     <li class="tailored">
-          <img class="top" src="../../shop/wp-content/uploads/1.jpeg">
+          <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/1.jpeg">
           <div class="description">
             <h5>Signature experiences</h5>
             <p>
@@ -181,7 +181,7 @@ get_header(); ?>
           </div>
     </li>
     <li class="locations">
-          <img class="top" src="../../shop/wp-content/uploads/31.jpg">
+          <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/31.jpg">
           <div class="description">
             <h5>Premier locations</h5>
             <p>
@@ -190,7 +190,7 @@ get_header(); ?>
           </div>
     </li>
     <li class="food">
-          <img class="top" src="../../shop/wp-content/uploads/2.jpeg">
+          <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/2.jpeg">
           <div class="description">
             <h5>High quality catering</h5>
             <p>

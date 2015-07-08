@@ -59,7 +59,7 @@
 			</nav>
 
 			<div class="logo show-for-medium-up">
-				<a href="http://footprintslocal:8888/shop"><img src="../../../shop/wp-content/uploads/logo.png" alt="footprints press"></a>
+				<a href="http://footprintslocal:8888/shop"><img src="<?php echo home_url(); ?>/wp-content/uploads/logo.png" alt="footprints press"></a>
 			</div>
 	</div>
 

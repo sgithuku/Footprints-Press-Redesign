@@ -18,7 +18,7 @@ get_header(); ?>
     </div>
 
     <div class="small-12 header">
-        <img src="../../shop/wp-content/uploads/Wisdom-about.jpg">
+        <img src="<?php echo home_url(); ?>/wp-content/uploads/Wisdom-about.jpg">
     </div>
 
   </div>
@@ -33,7 +33,7 @@ get_header(); ?>
     </div>
 
     <div class="small-12 header" >
-      <img src="../../shop/wp-content/uploads/writers.jpg">
+      <img src="<?php echo home_url(); ?>/wp-content/uploads/writers.jpg">
     </div>
 
 
