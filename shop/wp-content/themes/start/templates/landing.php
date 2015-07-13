@@ -6,7 +6,7 @@ get_header(); ?>
 
 <div id="landing">
   <div class="small-12 columns sixty">
-    <h1>An independent publishing house based in Kenya.</h1>
+    <h1>An independent Kenyan publishing house specialising in photographic coffee table books on Africa.</h1>
     <a href="<?php bloginfo('home_url'); ?>/shop"><button>visit the bookshop <i class='icon-right-open-big'></i></button></a>
   </div>
 </div>
@@ -14,7 +14,7 @@ get_header(); ?>
 <div class="section" id="books">
     <div class="small-12 columns break">
       <br>
-      <h2>We publish books about people that inspire, challenge, and lead.</h2>
+      <h2>Our books are exciting, innovative and enduring publications that inspire readers and contribute positively to the transforming landscape of the African continent. </h2>
     </div>
 
 
@@ -25,8 +25,10 @@ get_header(); ?>
               <div class="description">
                 <h5>Seeking Destiny: Conversations with High Achieving Women</h5>
                 <p>
-                  This is the most important text in the world about this wonderful book.
-                  We are proud to offer this for sale today.
+                  This book profiles life stories of 74 Kenyan women of substance and achievement.
+                </p>
+                <p>
+                  The stories were captured by a group of young, high potential women who also wish to heed their personal calls to shape their destiny.
                 </p>
                 <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/life-journeys-seeking-destiny/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
@@ -36,8 +38,10 @@ get_header(); ?>
               <div class="description">
                 <h5>Scaling Heights: Conversations with High Achieving Men</h5>
                 <p>
-                  This is the most important text in the world about this wonderful book.
-                  We are proud to offer this for sale today.
+                  This book profiles 85 Kenyan men of achievement who determined their horizons and leveraged their potential.
+                </p>
+                <p>
+                  Interviewed by young men of promise, the revealing stories inform and resonate with those who prefer to be in the arena rather than as passengers on the journey of life.
                 </p>
                 <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/life-journeys-scaling-heights/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
@@ -47,8 +51,10 @@ get_header(); ?>
               <div class="description">
                 <h5>Aspirations of a Generation: Conversations with High Achieving Women</h5>
                 <p>
-                  This is the most important text in the world about this wonderful book.
-                  We are proud to offer this for sale today.
+                  This publication takes a stock picture of 80 youth, agred between 12 and 29 years old. The book is a collection of vignettes presented in first person containing the individual musings of the subjects.
+                </p>
+                <p>
+                  Our purpose was to establish answers to a number of contemporary, yet enduring questions e.g. "what does the future hold for me?"
                 </p>
                 <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/aspirations-of-a-generation/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
@@ -58,8 +64,10 @@ get_header(); ?>
               <div class="description">
                 <h5>Life Journeys Nuggets: Musings on Life</h5>
                 <p>
-                  This is the most important text in the world about this wonderful book.
-                  We are proud to offer this for sale today.
+                  This book presents quotes on life from those who have walked it and done well on their respective joirneys.
+                </p>
+                <p>
+                  The quotes are personal and philosophical reflections that give one pause.
                 </p>
                 <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/life-journeys-musings-on-life/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
@@ -69,8 +77,10 @@ get_header(); ?>
               <div class="description">
                 <h5>Life Journeys Nuggets: Musings on Kenya</h5>
                 <p>
-                  This is the most important text in the world about this wonderful book.
-                  We are proud to offer this for sale today.
+                  This book presents perspectives on the country that is much loved by its citizens.
+                </p>
+                <p>
+                  It touches on what is going right, wrong, and could be done differently.
                 </p>
                 <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/life-journeys-musings-on-kenya/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
@@ -80,8 +90,10 @@ get_header(); ?>
               <div class="description">
                 <h5>50 Years Since Independence: Where is Kenya?</h5>
                 <p>
-                  This is the most important text in the world about this wonderful book.
-                  We are proud to offer this for sale today.
+                  This publication takes a stock picture of the country, 50 years after independence. In thought provoking essays that take an individual lens on the country's performance, the book drings together 50 noted leaders, industry oepratives and informed citizens.
+                </p>
+                <p>
+                  They respond to questions that include: "Has Kenya succeededand where has the country fared less well?" "How can the country best leverage its capabalities and fulfill its potential?"
                 </p>
                 <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/50-years-since-independents-where-is-kenya/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
@@ -91,8 +103,10 @@ get_header(); ?>
               <div class="description">
                 <h5>Wisdom of the Elders</h5>
                 <p>
-                  This is the most important text in the world about this wonderful book.
-                  We are proud to offer this for sale today.
+                  This book presents conversations with over 70 elders of diverse background, education level, race, and gender.
+                </p>
+                <p>
+                  One subject is none other than former President Emilio Mwai Kibaki while others are normal Kenyans living in city or village, with no claim to fame or status. They discuss how life was then and how it is today.
                 </p>
                 <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/wisdom-of-the-elders/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
@@ -102,8 +116,10 @@ get_header(); ?>
               <div class="description">
                 <h5>Jeff Koinange: Through My African Eyes</h5>
                 <p>
-                  This is the most important text in the world about this wonderful book.
-                  We are proud to offer this for sale today.
+                  Award winning, Kenyan journalist Jeff Koinange takes us through his life.
+                </p>
+                <p>
+                  In Thabo Mbeki's (former President of South Africa) words: "This book tells a moving story of what he (jeff) did to ensure that he excelled in his professoion"
                 </p>
                 <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/jeff-koinange-through-my-african-eyes/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
@@ -115,8 +131,12 @@ get_header(); ?>
 <div>
   <div class="small-12 medium-12 large-6 columns break vp">
     <h2>We provide custom publishing services to corporate clients.</h2>
-    <p>We specialize in enabling writers to produce high quality books that get the attention they deserve.</p>
-    <p>This should be some text about what we can do and what the team has already done over the last decade. Footprints is the only option worth discussing.</p>
+    <p>
+      At Footprints Press we create and design custom print and media-rich publications that help organisations to genuinely connect with their market and effectively extend their brand.
+    </p>
+    <p>
+      Our editors bring the required expertise and a bit more. Together with our design team, we will bring your organisation to life through beautiful concepts, writing, excellent design and top-notch printing.
+    </p>
     <a href="#contact"><button> <i class='icon-right-open-big'></i>Contact us</button></a>
   </div>
 
@@ -128,7 +148,10 @@ get_header(); ?>
 </div>
 
 <div class="small-12 break-dark">
-  <h2>We publish a magazine with insights for the globally minded upwardly mobile professional.</h2>
+  <h2>
+    The Edition magazine is a contemporary
+    career culture magazine that was created to facilitate meaningful professional connections.
+  </h2>
 </div>
 
 
