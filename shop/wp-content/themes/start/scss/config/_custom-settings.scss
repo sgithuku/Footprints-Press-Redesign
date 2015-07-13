@@ -13,6 +13,7 @@ $font-weight-normal: normal !default;
 $font-weight-bold: bold !default;
 
 // Foundation color naming conventions
+$light-bg		 : #f1f0ed;
 $white       : #FFFFFF;
 $ghost       : #FAFAFA;
 $snow        : #F9F9F9;
@@ -80,7 +81,7 @@ $topbar-height: rem-calc(50);
 
 
 // Background color for the top bar
-$topbar-bg-color: rgba(255,255,255,1);
+$topbar-bg-color: $white;
 $topbar-bg: $topbar-bg-color;
 
 // Style the top bar dropdown elements
@@ -92,3 +93,10 @@ $topbar-link-color-hover: $secondary-color;
 
 $topbar-menu-link-color: $primary-color;
 $topbar-menu-icon-color: $primary-color;
+
+
+$topbar-dropdown-bg: $primary-color;
+$topbar-dropdown-link-bg: $primary-color;
+$topbar-dropdown-link-bg-hover: $light-bg;
+$topbar-link-bg-active-hover: $primary-color;
+$topbar-link-bg-hover: $primary-color;

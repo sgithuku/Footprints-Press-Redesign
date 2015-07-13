@@ -1,7 +1,7 @@
 // Our fonts
 @import url(http://fonts.googleapis.com/css?family=Nunito);
 @import url(http://fonts.googleapis.com/css?family=Alegreya);
-$light-bg: #f1f0ed;
+
 
 /* header fix for woocommerce */
  .header-fix{
@@ -28,6 +28,7 @@ $light-bg: #f1f0ed;
 /* containers */
 html,body{
   height: 100%;
+  overflow-x: hidden;
 }
 .container{
   height: 100%;
@@ -99,12 +100,17 @@ html,body{
 #about{
 	min-height: 100%;
 	padding-bottom: 3rem;
+  width: 100%;
 }
 
-footer{
+.footer{
   background-color: $light-bg;
+  padding: 3rem;
+  background: $light-bg;
+  clear: both;
+  display: inline-block;
 }
-footer p, footer h5{
+.footer p, .footer h5{
   color: $primary-color;
   font-weight: 100;
 }
@@ -112,16 +118,17 @@ footer p, footer h5{
   padding: 6rem;
   background: $light-bg;
   clear: both;
+  display: inline-block;
 }
 .break h2, .break p{
   color: $primary-color;
-  text-align: left;
 }
 
 .break-dark{
   padding: 6rem;
   background: $primary-color;
   clear: both;
+  display: inline-block;
 }
 
 .break-dark h2, .break-dark p{
@@ -209,7 +216,6 @@ p{
 button{
 	margin: 0 auto;
 	display: inline-block;
-	width: inherit;
 }
 
 /* utility classes */
@@ -404,7 +410,7 @@ a.issue8{
 
 /* faces */
 .people li img:hover{
-	opacity: 0;
+	opacity: 0 !important;
 }
 .people li img{
 	opacity: 1;
@@ -551,7 +557,7 @@ a.issue8{
 .woocommerce ul.products li.product h3{
   color: $primary-color;
 }
-.woocommerce button.button.alt{
+.woocommerce #respond input#submit.alt, .woocommerce a.button.alt, .woocommerce button.button.alt, .woocommerce input.button.alt{
   background-color: $secondary-color;
 }
 
@@ -562,4 +568,57 @@ a.issue8{
 .price{
   color: $primary-color !important;
   font-family: $header-font-family;
+}
+
+.woocommerce div.product .product_title{
+  color: $primary-color;
+}
+
+.woocommerce .woocommerce-message, {
+  border-top: $primary-color !important;
+}
+
+.woocommerce .woocommerce-message:before{
+  color: $primary-color;
+}
+
+
+// Small screens
+@media only screen and (max-width: 40em){
+  .top-bar-section ul li{
+    background: $white;
+  }
+  button{
+    min-width: 0 !important;
+    margin: 0 auto;
+    float: none;
+  }
+  #edition button{
+    margin-top: 1rem;
+  }
+  #edition .edition-logo{
+    margin-bottom: 1rem;
+  }
+  .footer{
+    padding: 0rem;
+    margin: 0rem;
+  }
+  .break, .break-dark{
+    padding:3rem 1rem;
+  }
+  .widget_text{
+    border-top: 1px solid $primary-color;
+    border-bottom: 1px solid $primary-color;
+  }
+  .slick-next{
+    right: 25px !important;
+  }
+  .slick-prev{
+    left: 0 !important;
+  }
+
+ } /* Define mobile styles */
+
+.carousel{
+  display: none;
 }

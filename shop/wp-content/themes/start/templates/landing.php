@@ -7,7 +7,7 @@ get_header(); ?>
 <div id="landing">
   <div class="small-12 columns sixty">
     <h1>An independent publishing house based in Kenya.</h1>
-    <a href="http://footprintslocal:8888/shop/shop"><button>visit the bookshop <i class='icon-right-open-big'></i></button></a>
+    <a href="<?php bloginfo('home_url'); ?>/shop"><button>visit the bookshop <i class='icon-right-open-big'></i></button></a>
   </div>
 </div>
 
@@ -19,93 +19,93 @@ get_header(); ?>
 
 
     <div class="people" id="people">
-      <ul class="medium-block-grid-3 small-block-grid-1">
+      <ul class="medium-block-grid-3 small-block-grid-1 carousel">
         <li class="Women">
-              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Lupita.jpg">
+              <img class="top" data-lazy="<?php echo home_url(); ?>/wp-content/uploads/Lupita.jpg">
               <div class="description">
                 <h5>Seeking Destiny: Conversations with High Achieving Women</h5>
                 <p>
                   This is the most important text in the world about this wonderful book.
                   We are proud to offer this for sale today.
                 </p>
-                <a class ="findOutMore" href="http://footprintslocal:8888/shop/shop/life-journeys-seeking-destiny/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/life-journeys-seeking-destiny/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="Men">
-              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Men1.jpg">
+              <img class="top" data-lazy="<?php echo home_url(); ?>/wp-content/uploads/Men1.jpg">
               <div class="description">
                 <h5>Scaling Heights: Conversations with High Achieving Men</h5>
                 <p>
                   This is the most important text in the world about this wonderful book.
                   We are proud to offer this for sale today.
                 </p>
-                <a class ="findOutMore" href="http://footprintslocal:8888/shop/shop/life-journeys-scaling-heights/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/life-journeys-scaling-heights/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="Youth">
-              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Youth1.jpg">
+              <img class="top" data-lazy="<?php echo home_url(); ?>/wp-content/uploads/Youth1.jpg">
               <div class="description">
                 <h5>Aspirations of a Generation: Conversations with High Achieving Women</h5>
                 <p>
                   This is the most important text in the world about this wonderful book.
                   We are proud to offer this for sale today.
                 </p>
-                <a class ="findOutMore" href="http://footprintslocal:8888/shop/shop/aspirations-of-a-generation/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/aspirations-of-a-generation/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="Life">
-              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Life.jpg">
+              <img class="top" data-lazy="<?php echo home_url(); ?>/wp-content/uploads/Life.jpg">
               <div class="description">
                 <h5>Life Journeys Nuggets: Musings on Life</h5>
                 <p>
                   This is the most important text in the world about this wonderful book.
                   We are proud to offer this for sale today.
                 </p>
-                <a class ="findOutMore" href="http://footprintslocal:8888/shop/shop/life-journeys-musings-on-life/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/life-journeys-musings-on-life/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="Kenya">
-              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Kenya.jpg">
+              <img class="top" data-lazy="<?php echo home_url(); ?>/wp-content/uploads/Kenya.jpg">
               <div class="description">
                 <h5>Life Journeys Nuggets: Musings on Kenya</h5>
                 <p>
                   This is the most important text in the world about this wonderful book.
                   We are proud to offer this for sale today.
                 </p>
-                <a class ="findOutMore" href="http://footprintslocal:8888/shop/shop/life-journeys-musings-on-kenya/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/life-journeys-musings-on-kenya/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="KenyaAt50">
-              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Kenyaat501.jpg">
+              <img class="top" data-lazy="<?php echo home_url(); ?>/wp-content/uploads/Kenyaat501.jpg">
               <div class="description">
                 <h5>50 Years Since Independence: Where is Kenya?</h5>
                 <p>
                   This is the most important text in the world about this wonderful book.
                   We are proud to offer this for sale today.
                 </p>
-                <a class ="findOutMore" href="http://footprintslocal:8888/shop/shop/50-years-since-independents-where-is-kenya/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/50-years-since-independents-where-is-kenya/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="Elders">
-              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Elders1.jpg">
+              <img class="top" data-lazy="<?php echo home_url(); ?>/wp-content/uploads/Elders1.jpg">
               <div class="description">
                 <h5>Wisdom of the Elders</h5>
                 <p>
                   This is the most important text in the world about this wonderful book.
                   We are proud to offer this for sale today.
                 </p>
-                <a class ="findOutMore" href="http://footprintslocal:8888/shop/shop/wisdom-of-the-elders/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/wisdom-of-the-elders/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="Jeff">
-              <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/Jeff.jpg">
+              <img class="top" data-lazy="<?php echo home_url(); ?>/wp-content/uploads/Jeff.jpg">
               <div class="description">
                 <h5>Jeff Koinange: Through My African Eyes</h5>
                 <p>
                   This is the most important text in the world about this wonderful book.
                   We are proud to offer this for sale today.
                 </p>
-                <a class ="findOutMore" href="http://footprintslocal:8888/shop/shop/jeff-koinange-through-my-african-eyes/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/jeff-koinange-through-my-african-eyes/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
       </ul>
@@ -113,14 +113,14 @@ get_header(); ?>
 </div>
 
 <div>
-  <div class="small-12 medium-6 columns break vp">
+  <div class="small-12 medium-12 large-6 columns break vp">
     <h2>We provide custom publishing services to corporate clients.</h2>
     <p>We specialize in enabling writers to produce high quality books that get the attention they deserve.</p>
     <p>This should be some text about what we can do and what the team has already done over the last decade. Footprints is the only option worth discussing.</p>
-    <button>Contact us <i class='icon-right-open-big'></i> </button>
+    <a href="#contact"><button> <i class='icon-right-open-big'></i>Contact us</button></a>
   </div>
 
-  <div id="custom" class="small-12 medium-12 large-6 vp">
+  <div id="custom" class="show-for-large-up large-6 vp">
       <div class="whitebg">
       </div>
   </div>
@@ -135,14 +135,14 @@ get_header(); ?>
 <div class="section header" id="edition">
   <div class="small-12 columns small-centered end">
     <div class="large-8 large-centered small-12 columns">
-      <a href="http://www.theedition.co.ke" class="edition-logo"><img src="../shop/wp-content/uploads/edition-logo.png" alt="Edition"></a>
+      <a href="http://www.theedition.co.ke" ><img src="<?php bloginfo('template_url'); ?>/../../uploads/edition-logo.png" alt="Edition" class="edition-logo"></a>
     </div>
     <br><br>
   </div>
 
   <div class="row">
     <div class="small-12 medium-6 large-4 columns latest-issue">
-      <a href="http://www.theedition.co.ke" target="_blank"></a>
+      <a href="http://www.theedition.co.ke" target="_blank" ></a>
     </div>
 
     <div class="medium-6 large-8 columns show-for-medium-up">
@@ -159,14 +159,14 @@ get_header(); ?>
     </div>
 
       <div class="medium-6 large-8 columns">
-        <a href="http://www.theedition.co.ke" target="_blank"><button class="left">Subscribe <i class='icon-right-open-big'></i></button></a>
+        <a href="http://www.theedition.co.ke" target="_blank"><button>Subscribe <i class='icon-right-open-big'></i></button></a>
       </div>
   </div>
 </div>
 
 <div class="small-12 break-dark">
   <h2>We can help you launch your book at some of Kenya's premier locations.</h2>
-  <a href="#"><button class="button-lrg"><i class='icon-left-open-big'></i>Download a brochure</button></a>
+  <a href="<?php bloginfo('template_url'); ?>/../../uploads/1-KENYA@50.pdf"><button class="button-lrg"><i class='icon-left-open-big'></i>Download a brochure</button></a>
 </div>
 
 <div class="section people" id="events">
@@ -201,6 +201,35 @@ get_header(); ?>
   </ul>
 </div>
 
-<div class="break">
-  <?php get_footer(); ?>
-</div>
+
+<?php get_footer(); ?>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+
+    $('.carousel').slick({
+  		infinite: true,
+  		slidesToShow: 3,
+  		slidesToScroll: 1,
+      autoplaySpeed: 4000,
+      responsive: [
+  {
+    breakpoint: 600,
+    settings: {
+      slidesToShow: 2,
+      slidesToScroll: 2
+    }
+  },
+  {
+    breakpoint: 480,
+    settings: {
+      slidesToShow: 1,
+      slidesToScroll: 1
+    }
+  }]
+  	});
+
+    $('.carousel').show();
+
+  });
+</script>

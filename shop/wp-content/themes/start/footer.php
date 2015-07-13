@@ -10,13 +10,13 @@
  */
 
 ?>
-<footer>
-	<div class="row break">
-		<?php do_action( 'foundationpress_before_footer' ); ?>
-		<?php dynamic_sidebar( 'footer-widgets' ); ?>
-		<?php do_action( 'foundationpress_after_footer' ); ?>
-	</div>
-</footer>
+<div class="small-12 break">
+	<footer class="footer">
+			<?php do_action( 'foundationpress_before_footer' ); ?>
+			<?php dynamic_sidebar( 'footer-widgets' ); ?>
+			<?php do_action( 'foundationpress_after_footer' ); ?>
+	</footer>
+</div>
 <a class="exit-off-canvas"></a>
 
 	<?php do_action( 'foundationpress_layout_end' ); ?>
@@ -30,21 +30,6 @@
 	</p>
 </div>
 
-<script type="text/javascript">
-$(function() {
-$('a[href*=#]:not([href=#])').click(function() {
-	if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
-		var target = $(this.hash);
-		target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
-		if (target.length) {
-			$('html,body').animate({
-				scrollTop: target.offset().top
-			}, 1000);
-			return false;
-		}
-	}
-});
-});
-</script>
+
 </body>
 </html>
