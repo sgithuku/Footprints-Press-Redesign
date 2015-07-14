@@ -32,7 +32,7 @@
 		<meta name="theme-color" content="#ffffff">
 
 		<?php wp_head(); ?>
-		<script type="text/javascript" src="<?php bloginfo('template_url'); ?>/js/foundation.js"></script>
+		<script async type="text/javascript" src="<?php bloginfo('template_url'); ?>/js/foundation.js"></script>
 
 	</head>
 	<body <?php body_class(); ?>>
@@ -41,7 +41,7 @@
 
 	<?php do_action('foundationpress_layout_start'); ?>
 
-	<div class="section sticky">
+	<div class="section sticky fixed">
 			<nav class="top-bar" data-topbar role="navigation">
 				<ul class="title-area">
 					<li class="name">

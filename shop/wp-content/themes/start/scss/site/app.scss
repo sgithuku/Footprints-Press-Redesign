@@ -33,6 +33,10 @@ html,body{
 .container{
   height: 100%;
 }
+.name h1 a{
+  text-transform: uppercase;
+}
+
 #landing{
 	background: url(../../../../wp-content/uploads/BGLanding.jpg) no-repeat;
 	background-size: cover;
@@ -105,10 +109,10 @@ html,body{
 
 .footer{
   background-color: $light-bg;
-  padding: 3rem;
   background: $light-bg;
   clear: both;
   display: inline-block;
+  width: 100%;
 }
 .footer p, .footer h5{
   color: $primary-color;
@@ -265,6 +269,7 @@ nav > section > ul > li > a{
 }
 .top-bar-section ul li>a{
   font-weight: normal;
+  text-transform: uppercase;
 }
 
 .top-bar-section>ul>.divider, .top-bar-section>ul>[role="separator"]{
@@ -472,7 +477,7 @@ a.issue8{
 	background: url(../../../../wp-content/uploads/Elders.jpg) no-repeat;
 }
 .Jeff{
-	background: url(../../../../wp-content/uploads/Jeff.png) no-repeat;
+	background: url(../../../../wp-content/uploads/Jeff-narrow.jpg) no-repeat;
 }
 
 /* Events section */

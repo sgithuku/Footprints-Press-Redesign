@@ -6,7 +6,7 @@ get_header(); ?>
 
 <div id="landing">
   <div class="small-12 columns sixty">
-    <h1>An independent Kenyan publishing house specialising in photographic coffee table books on Africa.</h1>
+    <h1>A Kenya-based publishing house that specialises in telling the African story.</h1>
     <a href="<?php bloginfo('home_url'); ?>/shop"><button>visit the bookshop <i class='icon-right-open-big'></i></button></a>
   </div>
 </div>
@@ -30,7 +30,7 @@ get_header(); ?>
                 <p>
                   The stories were captured by a group of young, high potential women who also wish to heed their personal calls to shape their destiny.
                 </p>
-                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/life-journeys-seeking-destiny/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php echo home_url(); ?>/shop/life-journeys-seeking-destiny/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="Men">
@@ -43,7 +43,7 @@ get_header(); ?>
                 <p>
                   Interviewed by young men of promise, the revealing stories inform and resonate with those who prefer to be in the arena rather than as passengers on the journey of life.
                 </p>
-                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/life-journeys-scaling-heights/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php echo home_url(); ?>/shop/life-journeys-scaling-heights/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="Youth">
@@ -56,7 +56,7 @@ get_header(); ?>
                 <p>
                   Our purpose was to establish answers to a number of contemporary, yet enduring questions e.g. "what does the future hold for me?"
                 </p>
-                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/aspirations-of-a-generation/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php echo home_url(); ?>/shop/aspirations-of-a-generation/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="Life">
@@ -69,7 +69,7 @@ get_header(); ?>
                 <p>
                   The quotes are personal and philosophical reflections that give one pause.
                 </p>
-                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/life-journeys-musings-on-life/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php echo home_url(); ?>/shop/life-journeys-musings-on-life/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="Kenya">
@@ -82,7 +82,7 @@ get_header(); ?>
                 <p>
                   It touches on what is going right, wrong, and could be done differently.
                 </p>
-                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/life-journeys-musings-on-kenya/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php echo home_url(); ?>/shop/life-journeys-musings-on-kenya/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="KenyaAt50">
@@ -95,7 +95,7 @@ get_header(); ?>
                 <p>
                   They respond to questions that include: "Has Kenya succeededand where has the country fared less well?" "How can the country best leverage its capabalities and fulfill its potential?"
                 </p>
-                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/50-years-since-independents-where-is-kenya/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php echo home_url(); ?>/shop/50-years-since-independents-where-is-kenya/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="Elders">
@@ -108,7 +108,7 @@ get_header(); ?>
                 <p>
                   One subject is none other than former President Emilio Mwai Kibaki while others are normal Kenyans living in city or village, with no claim to fame or status. They discuss how life was then and how it is today.
                 </p>
-                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/wisdom-of-the-elders/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php echo home_url(); ?>/shop/wisdom-of-the-elders/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
         <li class="Jeff">
@@ -121,7 +121,7 @@ get_header(); ?>
                 <p>
                   In Thabo Mbeki's (former President of South Africa) words: "This book tells a moving story of what he (jeff) did to ensure that he excelled in his professoion"
                 </p>
-                <a class ="findOutMore" href="<?php bloginfo('home_url'); ?>/shop/jeff-koinange-through-my-african-eyes/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+                <a class ="findOutMore" href="<?php echo home_url(); ?>/shop/jeff-koinange-through-my-african-eyes/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
               </div>
         </li>
       </ul>

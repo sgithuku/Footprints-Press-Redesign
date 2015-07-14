@@ -131,7 +131,26 @@ module.exports = function(grunt) {
             livereload:true,
         }
       }
-    }
+    },
+    exec: {
+          get_grunt_sitemap: {
+            command: 'curl --silent --output sitemap.json http://footprintslocal:8888/shop/?show_sitemap'
+          }
+        },
+
+    uncss: {
+          dist: {
+            options: {
+              ignore       : [/expanded/,/js/,/wp-/,/align/,/admin-bar/],
+              stylesheets  : ['wp-content/themes/start/css/foundation.css'],
+              ignoreSheets : [/fonts.googleapis/],
+              urls         : [], //Overwritten in load_sitemap_and_uncss task
+            },
+            files: {
+              'wp-content/themes/start/css/clean.css': ['**/*.php']
+            }
+          }
+        },
   });
 
   grunt.loadNpmTasks('grunt-sass');
@@ -140,7 +159,19 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-string-replace');
+  grunt.loadNpmTasks('grunt-uncss');
+  grunt.loadNpmTasks('grunt-exec');
 
   grunt.registerTask('build', ['copy', 'string-replace:fontawesome', 'sass', 'concat', 'uglify']);
   grunt.registerTask('default', ['watch']);
+
+  grunt.registerTask('load_sitemap_json', function() {
+  var sitemap_urls = grunt.file.readJSON('./sitemap.json');
+  grunt.config.set('uncss.dist.options.urls', sitemap_urls);
+  });
+
+  grunt.registerTask('deploy_build',
+  ['exec:get_grunt_sitemap','load_sitemap_json','uncss:dist','sass:dist']);
+
+
 };

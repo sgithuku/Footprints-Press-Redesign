@@ -40,6 +40,5 @@ get_header(); ?>
   </div>
 </div>
 
-<div class="break">
-  <?php get_footer(); ?>
-</div>
+
+<?php get_footer(); ?>
