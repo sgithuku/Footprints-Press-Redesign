@@ -27,7 +27,7 @@ module.exports = function(grunt) {
       scripts: {
         expand: true,
         cwd: 'bower_components/foundation/js/vendor/',
-        src: '**',
+        src: ['jquery.js','modernizr.js'],
         flatten: 'true',
         dest: 'js/vendor/'
       },
@@ -38,7 +38,6 @@ module.exports = function(grunt) {
         src: ['**', '!**/less/**', '!**/css/**', '!bower.json'],
         dest: 'assets/fontawesome/'
       },
-
     },
 
 

@@ -1,0 +1,377 @@
+<!doctype html>
+<html class="no-js" lang="en-US" >
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+		<link rel="apple-touch-icon" sizes="57x57" href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/apple-icon-57x57.png">
+		<link rel="apple-touch-icon" sizes="60x60" href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/apple-icon-60x60.png">
+		<link rel="apple-touch-icon" sizes="72x72" href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/apple-icon-72x72.png">
+		<link rel="apple-touch-icon" sizes="76x76" href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/apple-icon-76x76.png">
+		<link rel="apple-touch-icon" sizes="114x114" href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/apple-icon-114x114.png">
+		<link rel="apple-touch-icon" sizes="120x120" href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/apple-icon-120x120.png">
+		<link rel="apple-touch-icon" sizes="144x144" href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/apple-icon-144x144.png">
+		<link rel="apple-touch-icon" sizes="152x152" href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/apple-icon-152x152.png">
+		<link rel="apple-touch-icon" sizes="180x180" href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/apple-icon-180x180.png">
+		<link rel="icon" type="image/png" sizes="192x192"  href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/android-icon-192x192.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="96x96" href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/favicon-96x96.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/favicon-16x16.png">
+		<link rel="manifest" href="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/manifest.json">
+		<meta name="msapplication-TileColor" content="#ffffff">
+		<meta name="msapplication-TileImage" content="http://footprintslocal:8888/shop/wp-content/themes/start/assets/img/icons/ms-icon-144x144.png">
+		<meta name="theme-color" content="#ffffff">
+
+		<title>Footprints Press</title>
+<link rel='stylesheet' id='main-stylesheet-css'  href='http://footprintslocal:8888/shop/wp-content/themes/start/css/foundation.css' type='text/css' media='all' />
+<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js'></script>
+<script type='text/javascript' src='http://footprintslocal:8888/shop/wp-content/themes/start/js/vendor/modernizr.js'></script>
+<script type='text/javascript' src='http://footprintslocal:8888/shop/wp-content/themes/start/js/vendor/fastclick.js'></script>
+		<script async type="text/javascript" src="http://footprintslocal:8888/shop/wp-content/themes/start/js/foundation.js"></script>
+
+	</head>
+	<body class="home page page-id-2450 page-template page-template-templates page-template-landing page-template-templateslanding-php">
+	
+
+	
+	<div class="section sticky">
+			<nav class="top-bar" data-topbar role="navigation">
+				<ul class="title-area">
+					<li class="name">
+						<h1><a href="http://footprintslocal:8888/shop">Footprints Press</a></h1>
+					</li>
+					<!-- Remove the class "menu-icon" to get rid of menu icon. Take out "Menu" to just have icon alone -->
+					<li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+				</ul>
+
+				<section class="top-bar-section">
+					<!-- Right Nav Section -->
+											<ul id="menu-right" class="top-bar-menu right"><li class="divider"></li><li id="menu-item-2414" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children has-dropdown menu-item-2414"><a href="http://footprintslocal:8888/shop/shop/">Bookshop</a>
+<ul class="sub-menu dropdown">
+	<li id="menu-item-2413" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2413"><a href="http://footprintslocal:8888/shop/cart/">Cart</a></li>
+	<li id="menu-item-2412" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2412"><a href="http://footprintslocal:8888/shop/checkout/">Checkout</a></li>
+	<li id="menu-item-2411" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2411"><a href="http://footprintslocal:8888/shop/my-account/">My Account</a></li>
+</ul>
+</li>
+<li class="divider"></li><li id="menu-item-2417" class="menu-item menu-item-type-custom menu-item-object-custom current-menu-item menu-item-home menu-item-has-children has-dropdown menu-item-2417"><a href="http://footprintslocal:8888/shop">Services</a>
+<ul class="sub-menu dropdown">
+	<li id="menu-item-2477" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2477"><a href="#books">Books</a></li>
+	<li id="menu-item-2478" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2478"><a href="#custom">Custom publishing</a></li>
+	<li id="menu-item-2479" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2479"><a href="#edition">Magazine</a></li>
+	<li id="menu-item-2480" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2480"><a href="#events">Events</a></li>
+</ul>
+</li>
+<li class="divider"></li><li id="menu-item-2476" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2476"><a href="http://footprintslocal:8888/shop/about/">About</a></li>
+</ul>				</section>
+			</nav>
+
+			<div class="logo show-for-medium-up">
+				<a href="http://footprintslocal:8888/shop"><img src="http://footprintslocal:8888/shop/wp-content/uploads/logo.png" alt="footprints press"></a>
+			</div>
+	</div>
+
+	<aside class="left-off-canvas-menu" aria-hidden="true">
+    <ul id="menu-right-1" class="off-canvas-list"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children has-submenu menu-item-2414"><a href="http://footprintslocal:8888/shop/shop/">Bookshop</a>
+<ul class="left-submenu">
+<li class="back"><a href="#">Back</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2413"><a href="http://footprintslocal:8888/shop/cart/">Cart</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2412"><a href="http://footprintslocal:8888/shop/checkout/">Checkout</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2411"><a href="http://footprintslocal:8888/shop/my-account/">My Account</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom current-menu-item menu-item-home menu-item-has-children has-submenu menu-item-2417"><a href="http://footprintslocal:8888/shop">Services</a>
+<ul class="left-submenu">
+<li class="back"><a href="#">Back</a></li>
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2477"><a href="#books">Books</a></li>
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2478"><a href="#custom">Custom publishing</a></li>
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2479"><a href="#edition">Magazine</a></li>
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2480"><a href="#events">Events</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2476"><a href="http://footprintslocal:8888/shop/about/">About</a></li>
+</ul></aside>
+<section class="container" role="document">
+	
+<div id="landing">
+  <div class="small-12 columns sixty">
+    <h1>An independent Kenyan publishing house specialising in photographic coffee table books on Africa.</h1>
+    <a href="Footprints Press/shop"><button>visit the bookshop <i class='icon-right-open-big'></i></button></a>
+  </div>
+</div>
+
+<div class="section" id="books">
+    <div class="small-12 columns break">
+      <br>
+      <h2>Our books are exciting, innovative and enduring publications that inspire readers and contribute positively to the transforming landscape of the African continent. </h2>
+    </div>
+
+
+    <div class="people" id="people">
+      <ul class="medium-block-grid-3 small-block-grid-1 carousel">
+        <li class="Women">
+              <img class="top" data-lazy="http://footprintslocal:8888/shop/wp-content/uploads/Lupita.jpg">
+              <div class="description">
+                <h5>Seeking Destiny: Conversations with High Achieving Women</h5>
+                <p>
+                  This book profiles life stories of 74 Kenyan women of substance and achievement.
+                </p>
+                <p>
+                  The stories were captured by a group of young, high potential women who also wish to heed their personal calls to shape their destiny.
+                </p>
+                <a class ="findOutMore" href="Footprints Press/shop/life-journeys-seeking-destiny/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+              </div>
+        </li>
+        <li class="Men">
+              <img class="top" data-lazy="http://footprintslocal:8888/shop/wp-content/uploads/Men1.jpg">
+              <div class="description">
+                <h5>Scaling Heights: Conversations with High Achieving Men</h5>
+                <p>
+                  This book profiles 85 Kenyan men of achievement who determined their horizons and leveraged their potential.
+                </p>
+                <p>
+                  Interviewed by young men of promise, the revealing stories inform and resonate with those who prefer to be in the arena rather than as passengers on the journey of life.
+                </p>
+                <a class ="findOutMore" href="Footprints Press/shop/life-journeys-scaling-heights/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+              </div>
+        </li>
+        <li class="Youth">
+              <img class="top" data-lazy="http://footprintslocal:8888/shop/wp-content/uploads/Youth1.jpg">
+              <div class="description">
+                <h5>Aspirations of a Generation: Conversations with High Achieving Women</h5>
+                <p>
+                  This publication takes a stock picture of 80 youth, agred between 12 and 29 years old. The book is a collection of vignettes presented in first person containing the individual musings of the subjects.
+                </p>
+                <p>
+                  Our purpose was to establish answers to a number of contemporary, yet enduring questions e.g. "what does the future hold for me?"
+                </p>
+                <a class ="findOutMore" href="Footprints Press/shop/aspirations-of-a-generation/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+              </div>
+        </li>
+        <li class="Life">
+              <img class="top" data-lazy="http://footprintslocal:8888/shop/wp-content/uploads/Life.jpg">
+              <div class="description">
+                <h5>Life Journeys Nuggets: Musings on Life</h5>
+                <p>
+                  This book presents quotes on life from those who have walked it and done well on their respective joirneys.
+                </p>
+                <p>
+                  The quotes are personal and philosophical reflections that give one pause.
+                </p>
+                <a class ="findOutMore" href="Footprints Press/shop/life-journeys-musings-on-life/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+              </div>
+        </li>
+        <li class="Kenya">
+              <img class="top" data-lazy="http://footprintslocal:8888/shop/wp-content/uploads/Kenya.jpg">
+              <div class="description">
+                <h5>Life Journeys Nuggets: Musings on Kenya</h5>
+                <p>
+                  This book presents perspectives on the country that is much loved by its citizens.
+                </p>
+                <p>
+                  It touches on what is going right, wrong, and could be done differently.
+                </p>
+                <a class ="findOutMore" href="Footprints Press/shop/life-journeys-musings-on-kenya/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+              </div>
+        </li>
+        <li class="KenyaAt50">
+              <img class="top" data-lazy="http://footprintslocal:8888/shop/wp-content/uploads/Kenyaat501.jpg">
+              <div class="description">
+                <h5>50 Years Since Independence: Where is Kenya?</h5>
+                <p>
+                  This publication takes a stock picture of the country, 50 years after independence. In thought provoking essays that take an individual lens on the country's performance, the book drings together 50 noted leaders, industry oepratives and informed citizens.
+                </p>
+                <p>
+                  They respond to questions that include: "Has Kenya succeededand where has the country fared less well?" "How can the country best leverage its capabalities and fulfill its potential?"
+                </p>
+                <a class ="findOutMore" href="Footprints Press/shop/50-years-since-independents-where-is-kenya/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+              </div>
+        </li>
+        <li class="Elders">
+              <img class="top" data-lazy="http://footprintslocal:8888/shop/wp-content/uploads/Elders1.jpg">
+              <div class="description">
+                <h5>Wisdom of the Elders</h5>
+                <p>
+                  This book presents conversations with over 70 elders of diverse background, education level, race, and gender.
+                </p>
+                <p>
+                  One subject is none other than former President Emilio Mwai Kibaki while others are normal Kenyans living in city or village, with no claim to fame or status. They discuss how life was then and how it is today.
+                </p>
+                <a class ="findOutMore" href="Footprints Press/shop/wisdom-of-the-elders/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+              </div>
+        </li>
+        <li class="Jeff">
+              <img class="top" data-lazy="http://footprintslocal:8888/shop/wp-content/uploads/Jeff.jpg">
+              <div class="description">
+                <h5>Jeff Koinange: Through My African Eyes</h5>
+                <p>
+                  Award winning, Kenyan journalist Jeff Koinange takes us through his life.
+                </p>
+                <p>
+                  In Thabo Mbeki's (former President of South Africa) words: "This book tells a moving story of what he (jeff) did to ensure that he excelled in his professoion"
+                </p>
+                <a class ="findOutMore" href="Footprints Press/shop/jeff-koinange-through-my-african-eyes/"><button>Find out more <i class='icon-right-open-big'></i></button></a>
+              </div>
+        </li>
+      </ul>
+    </div>
+</div>
+
+<div>
+  <div class="small-12 medium-12 large-6 columns break vp">
+    <h2>We provide custom publishing services to corporate clients.</h2>
+    <p>
+      At Footprints Press we create and design custom print and media-rich publications that help organisations to genuinely connect with their market and effectively extend their brand.
+    </p>
+    <p>
+      Our editors bring the required expertise and a bit more. Together with our design team, we will bring your organisation to life through beautiful concepts, writing, excellent design and top-notch printing.
+    </p>
+    <a href="#contact"><button> <i class='icon-right-open-big'></i>Contact us</button></a>
+  </div>
+
+  <div id="custom" class="show-for-large-up large-6 vp">
+      <div class="whitebg">
+      </div>
+  </div>
+
+</div>
+
+<div class="small-12 break-dark">
+  <h2>
+    The Edition magazine is a contemporary
+    career culture magazine that was created to facilitate meaningful professional connections.
+  </h2>
+</div>
+
+
+<div class="section header" id="edition">
+  <div class="small-12 columns small-centered end">
+    <div class="large-8 large-centered small-12 columns">
+      <a href="http://www.theedition.co.ke" ><img src="http://footprintslocal:8888/shop/wp-content/themes/start/../../uploads/edition-logo.png" alt="Edition" class="edition-logo"></a>
+    </div>
+    <br><br>
+  </div>
+
+  <div class="row">
+    <div class="small-12 medium-6 large-4 columns latest-issue">
+      <a href="http://www.theedition.co.ke" target="_blank" ></a>
+    </div>
+
+    <div class="medium-6 large-8 columns show-for-medium-up">
+      <ul class="inline-list covers">
+        <li><a class="issue15" href="http://www.theedition.co.ke/Digital%20Hub.html"></a></li>
+        <li><a class="issue14" href="http://www.theedition.co.ke/Digital%20Hub.html"></a></li>
+        <li><a class="issue13" href="http://www.theedition.co.ke/Digital%20Hub.html"></a></li>
+        <li><a class="issue12" href="http://www.theedition.co.ke/Digital%20Hub.html"></a></li>
+        <li><a class="issue11 show-for-large-up" href="http://www.theedition.co.ke/Digital%20Hub.html"></a></li>
+        <li><a  class="issue10 show-for-large-up" href="http://www.theedition.co.ke/Digital%20Hub.html"></a></li>
+        <li><a class="issue9 show-for-large-up" href="http://www.theedition.co.ke/Digital%20Hub.html"></a></li>
+        <li><a class="issue8 show-for-large-up" href="http://www.theedition.co.ke/Digital%20Hub.html"></a></li>
+      </ul>
+    </div>
+
+      <div class="medium-6 large-8 columns">
+        <a href="http://www.theedition.co.ke" target="_blank"><button>Subscribe <i class='icon-right-open-big'></i></button></a>
+      </div>
+  </div>
+</div>
+
+<div class="small-12 break-dark">
+  <h2>We can help you launch your book at some of Kenya's premier locations.</h2>
+  <a href="http://footprintslocal:8888/shop/wp-content/themes/start/../../uploads/1-KENYA@50.pdf"><button class="button-lrg"><i class='icon-left-open-big'></i>Download a brochure</button></a>
+</div>
+
+<div class="section people" id="events">
+  <ul class="medium-block-grid-3 small-block-grid-1">
+    <li class="tailored">
+          <img class="top" src="http://footprintslocal:8888/shop/wp-content/uploads/1.jpeg">
+          <div class="description">
+            <h5>Signature experiences</h5>
+            <p>
+              Each event is tailored to your needs and will be led by our team of experienced planners.
+            </p>
+          </div>
+    </li>
+    <li class="locations">
+          <img class="top" src="http://footprintslocal:8888/shop/wp-content/uploads/31.jpg">
+          <div class="description">
+            <h5>Premier locations</h5>
+            <p>
+              We host your events at the highest calibre locations that speak to the quality of your mission.
+            </p>
+          </div>
+    </li>
+    <li class="food">
+          <img class="top" src="http://footprintslocal:8888/shop/wp-content/uploads/2.jpeg">
+          <div class="description">
+            <h5>High quality catering</h5>
+            <p>
+              Each event is coupled with food and beverage offerings of the highest quality.
+            </p>
+          </div>
+    </li>
+  </ul>
+</div>
+
+
+<div class="small-12 break">
+	<footer class="footer">
+						<article id="pages-4" class="large-4 columns widget widget_pages"><h6>Sitemap</h6>		<ul>
+			<li class="page_item page-item-2474"><a href="http://footprintslocal:8888/shop/about/">About</a></li>
+<li class="page_item page-item-2358"><a href="http://footprintslocal:8888/shop/shop/">Bookshop</a></li>
+<li class="page_item page-item-2359"><a href="http://footprintslocal:8888/shop/cart/">Cart</a></li>
+<li class="page_item page-item-2360"><a href="http://footprintslocal:8888/shop/checkout/">Checkout</a></li>
+<li class="page_item page-item-2450 current_page_item active"><a href="http://footprintslocal:8888/shop/">Home</a></li>
+<li class="page_item page-item-2361"><a href="http://footprintslocal:8888/shop/my-account/">My Account</a></li>
+		</ul>
+		</article><article id="text-2" class="large-4 columns widget widget_text"><h6>Contact us</h6>			<div class="textwidget"><div id="contact">
+<h5>Footprints Press Limited</h5>
+<p class="subheader">Business Park-Garden Meadows, Garden Estate</p>
+<p class="subheader">P.O. Box 1516 - 00621</p>
+<p class="subheader">Village Market, Nairobi, Kenya</p>
+</div></div>
+		</article><article id="woocommerce_widget_cart-4" class="large-4 columns widget woocommerce widget_shopping_cart"><h6>Your Cart</h6><div class="widget_shopping_cart_content"></div></article>				</footer>
+</div>
+<a class="exit-off-canvas"></a>
+
+		</div>
+</div>
+<script type='text/javascript' src='http://footprintslocal:8888/shop/wp-content/themes/start/js/foundation.js'></script>
+<div class="row">
+	<p class="text-right">
+		Copyright © 2010 — 2015. All Rights Reserved
+	</p>
+</div>
+
+
+</body>
+</html>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+
+    $('.carousel').slick({
+  		infinite: true,
+  		slidesToShow: 3,
+  		slidesToScroll: 1,
+      autoplaySpeed: 4000,
+      responsive: [
+  {
+    breakpoint: 600,
+    settings: {
+      slidesToShow: 2,
+      slidesToScroll: 2
+    }
+  },
+  {
+    breakpoint: 480,
+    settings: {
+      slidesToShow: 1,
+      slidesToScroll: 1
+    }
+  }]
+  	});
+
+    $('.carousel').show();
+
+  });
+</script>

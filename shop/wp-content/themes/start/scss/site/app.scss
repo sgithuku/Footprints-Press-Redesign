@@ -37,17 +37,6 @@ html,body{
   text-transform: uppercase;
 }
 
-#landing{
-	background: url(../../../../wp-content/uploads/BGLanding.jpg) no-repeat;
-	background-size: cover;
-	height: 100%;
-  padding: 6rem 0;
-}
-
-#landing h1{
-  color: white;
-  text-align: center;
-}
 
 #books{
 	border-top: 0px solid $primary-color;
@@ -100,6 +89,34 @@ html,body{
 	z-index: 101;
 	background: rgba(255,255,255,0.7);
 }
+
+
+.event-bullets li img:hover{
+	min-width: 105% !important;
+  margin-top: -5%;
+}
+.event-bullets li img{
+  min-width: 100%;
+  margin-top: 0;
+	-webkit-transition: all 0.5s ease-in-out;
+	  -moz-transition: all 0.5s ease-in-out;
+	  -o-transition: all 0.5s ease-in-out;
+	  transition: all 0.5s ease-in-out;
+}
+.event-bullets li{
+	background-size: contain;
+  position: relative;
+  padding-bottom: 3rem;
+  color: $body-font-color;
+  opacity: 0.7;
+  overflow: hidden;
+}
+
+.event-bullets li:hover{
+  background-color: $light-bg;
+  opacity: 1;
+}
+
 
 #about{
 	min-height: 100%;
@@ -482,17 +499,21 @@ a.issue8{
 
 /* Events section */
 
-.tailored{
+.1tailored{
 	background: url(../../../../wp-content/uploads/1.jpeg) no-repeat;
 }
 
 
-.locations{
+.1locations{
 	background: url(../../../../wp-content/uploads/3.jpeg) no-repeat;
 }
 
-.food{
+.1food{
 	background: url(../../../../wp-content/uploads/2.jpeg) no-repeat;
+}
+
+#loc{
+  min-height: 100%;
 }
 
 /* arrows */

@@ -82,6 +82,7 @@ function child_manage_woocommerce_styles() {
 			wp_dequeue_script( 'jquery-placeholder' );
 			wp_dequeue_script( 'fancybox' );
 			wp_dequeue_script( 'jqueryui' );
+			wp_dequeue_script( 'fastclick' );
       wp_dequeue_style( 'woocommerce-general' );
       wp_dequeue_style( 'woocommerce-layout' );
       wp_dequeue_style( 'woocommerce-smallscreen' );

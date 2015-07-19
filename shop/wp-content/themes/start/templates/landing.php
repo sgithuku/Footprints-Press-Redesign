@@ -3,7 +3,20 @@
 Template Name: Landing
 */
 get_header(); ?>
+<style media="screen">
+  #landing{
+  	background: url(wp-content/uploads/BGLanding.jpg) no-repeat;
+  	background-size: cover;
+  	height: 100%;
+    padding: 6rem 0;
+  }
 
+  #landing h1{
+    color: white;
+    text-align: center;
+  }
+  .sixty{position:relative;top:70%;-webkit-transform:translateY(-60%);-ms-transform:translateY(-60%);transform:translateY(-60%)}
+</style>
 <div id="landing">
   <div class="small-12 columns sixty">
     <h1>A Kenya-based publishing house that specialises in telling the African story.</h1>
@@ -192,7 +205,7 @@ get_header(); ?>
   <a href="<?php bloginfo('template_url'); ?>/../../uploads/1-KENYA@50.pdf"><button class="button-lrg"><i class='icon-left-open-big'></i>Download a brochure</button></a>
 </div>
 
-<div class="section people" id="events">
+<div class="section event-bullets" id="events">
   <ul class="medium-block-grid-3 small-block-grid-1">
     <li class="tailored">
           <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/1.jpeg">
@@ -204,7 +217,7 @@ get_header(); ?>
           </div>
     </li>
     <li class="locations">
-          <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/31.jpg">
+          <img class="top" src="<?php echo home_url(); ?>/wp-content/uploads/3.jpeg">
           <div class="description">
             <h5>Premier locations</h5>
             <p>
@@ -226,6 +239,7 @@ get_header(); ?>
 
 
 <?php get_footer(); ?>
+
 
 <script type="text/javascript">
 	$(document).ready(function(){
