@@ -34,8 +34,8 @@ if ( ! function_exists( 'foundationpress_scripts' ) ) :
 
 	// Enqueue all registered scripts.
 	wp_enqueue_script( 'modernizr' );
-	wp_enqueue_script( 'fastclick' );
-	wp_enqueue_script( 'jquery' );
+	// wp_enqueue_script( 'fastclick' );
+	// wp_enqueue_script( 'jquery' );
 	wp_enqueue_script( 'foundation' );
 
 	}
